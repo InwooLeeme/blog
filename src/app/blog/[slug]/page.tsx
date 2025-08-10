@@ -1,11 +1,11 @@
 import type { Metadata } from "next"
-import path from "path"
 import { notFound } from "next/navigation"
 import { MDXRemote } from "next-mdx-remote/rsc"
 import rehypeAutolinkHeadings from "rehype-autolink-headings"
 import rehypeSlug from "rehype-slug"
 import remarkGfm from "remark-gfm"
 import rehypePrettyCode from "rehype-pretty-code"
+import rehypeHighlight from "rehype-highlight"
 import { getAllPosts, getPostBySlug } from "@/lib/posts"
 
 // 정적 경로 생성
@@ -31,9 +31,9 @@ export default function PostPage({ params }: { params: { slug: string } }) {
   const { meta, content } = post
 
   return (
-    <article className="prose prose-zinc dark:prose-invert max-w-none">
+    <article className="prose prose-zinc dark:prose-invert w-full mx-auto px-16 lg:text-2xl">
       <h1 className="mb-2">{meta.title}</h1>
-      <p className="mt-0 text-sm text-muted-foreground">{new Date(meta.date).toLocaleDateString()}</p>
+      <p className="mt-0 text-sm text-muted-foreground">{new Date(meta.date).toLocaleDateString()}{meta.readingTime ? <> · {meta.readingTime} min read</> : null}</p>
 
       {/* MDX 본문 */}
       <MDXRemote
@@ -44,14 +44,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
             rehypePlugins: [
               rehypeSlug,
               [rehypeAutolinkHeadings, { behavior: "wrap" }],
-              [
-                // 코드 하이라이트
-                rehypePrettyCode,
-                {
-                  theme: { light: "github-light", dark: "github-dark" },
-                  keepBackground: false,
-                },
-              ],
+              [rehypeHighlight, { ignoreMissing: true }],
             ],
           },
         }}

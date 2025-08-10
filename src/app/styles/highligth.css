@@ -1,0 +1,26 @@
+/* 코드 타이틀 */
+[data-rehype-pretty-code-title]{
+    @apply block text-xs font-medium px-3 py-2 border rounded-t-lg bg-muted text-foreground;
+  }
+  /* 타이틀 바로 뒤 pre 접합 */
+  [data-rehype-pretty-code-title] + pre{ @apply rounded-t-none mt-0; }
+  
+  /* pre 기본 스타일 */
+  .prose pre{ @apply rounded-lg border p-4 overflow-x-auto; }
+  
+  /* 라인 넘버 */
+  code[data-line-numbers]{ counter-reset: line; }
+  code[data-line-numbers] > [data-line]::before{
+    counter-increment: line;
+    content: counter(line);
+    display: inline-block;
+    width: 2rem;
+    margin-right: .75rem;
+    text-align: right;
+    opacity: .4;
+  }
+  
+  /* 강조 줄/강조 문자 */
+  [data-highlighted-line]{ @apply bg-muted; }
+  [data-highlighted-chars]{ @apply outline outline-1 -outline-offset-2; }
+  

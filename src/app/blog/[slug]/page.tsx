@@ -4,9 +4,9 @@ import { MDXRemote } from "next-mdx-remote/rsc"
 import rehypeAutolinkHeadings from "rehype-autolink-headings"
 import rehypeSlug from "rehype-slug"
 import remarkGfm from "remark-gfm"
-import rehypePrettyCode from "rehype-pretty-code"
 import rehypeHighlight from "rehype-highlight"
 import { getAllPosts, getPostBySlug } from "@/lib/posts"
+import PreWithCopy from "../../components/mdx/pre-with-copy"
 
 // 정적 경로 생성
 export function generateStaticParams() {
@@ -51,6 +51,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
         components={{
           // 필요 시 커스텀 요소 매핑
           // h2: (props) => <h2 className="scroll-mt-24" {...props} />,
+          pre: (props) => <PreWithCopy {...props} />,
         }}
       />
     </article>

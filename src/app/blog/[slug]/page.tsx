@@ -7,6 +7,13 @@ import remarkGfm from "remark-gfm"
 import rehypeHighlight from "rehype-highlight"
 import { getAllPosts, getPostBySlug } from "@/lib/posts"
 import PreWithCopy from "../../components/mdx/pre-with-copy"
+import Image from "next/image"
+
+interface PageProps {
+  params: Promise<{
+    slug: string;
+  }>
+}
 
 // 정적 경로 생성
 export function generateStaticParams() {
@@ -24,16 +31,30 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   }
 }
 
-export default function PostPage({ params }: { params: { slug: string } }) {
-  const post = getPostBySlug(params.slug)
+export default async function PostPage({ params }: PageProps) {
+  const { slug } = await params;
+  const post = getPostBySlug(slug)
   if (!post) return notFound()
 
   const { meta, content } = post
 
   return (
-    <article className="prose prose-zinc dark:prose-invert w-full mx-auto px-16 lg:text-2xl">
-      <h1 className="mb-2">{meta.title}</h1>
-      <p className="mt-0 text-sm text-muted-foreground">{new Date(meta.date).toLocaleDateString()}{meta.readingTime ? <> · {meta.readingTime} min read</> : null}</p>
+    <div className="mx-auto w-full max-w-3xl sm:px-6">
+      {meta.cover ? (
+        <div className="relative aspect-[1200/630] mb-8">
+          <Image
+            src={meta.cover}
+            alt={meta.title}
+            fill
+            className="rounded-xl object-cover border"
+            sizes="(min-width:1024px) 768px, 100vw"
+            priority={false}
+          />
+        </div>
+      ) : null}
+      <article className="prose prose-zinc dark:prose-invert w-full mx-auto px-16 max-sm:px-0 lg:text-2xl">
+      <h1 className="mb-2 text-center">{meta.title}</h1>
+      <p className="mt-0 text-sm text-muted-foreground text-center">{new Date(meta.date).toLocaleDateString()}{meta.readingTime ? <> · {meta.readingTime} min read</> : null}</p>
 
       {/* MDX 본문 */}
       <MDXRemote
@@ -55,5 +76,6 @@ export default function PostPage({ params }: { params: { slug: string } }) {
         }}
       />
     </article>
+    </div>
   )
 }

@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import rt from "reading-time"
 
 export type PostMeta = {
   title: string
@@ -8,6 +9,8 @@ export type PostMeta = {
   summary?: string
   tags?: string[]
   draft?: boolean
+  cover?: string       
+  readingTime?: number 
 }
 const POSTS_DIR = path.join(process.cwd(), "content", "posts")
 
@@ -20,9 +23,11 @@ export function getPostBySlug(slug: string) {
     const fullPath = path.join(POSTS_DIR, `${realSlug}.mdx`)
     const file = fs.readFileSync(fullPath, "utf8")
     const { content, data } = matter(file)
+    const stats = rt(content)
+    const minutes = Math.max(1, Math.round(stats.minutes))
     return {
       slug: realSlug,
-      meta: data as PostMeta,
+      meta: { ...(data as PostMeta), readingTime: minutes },
       content,
     }
   }

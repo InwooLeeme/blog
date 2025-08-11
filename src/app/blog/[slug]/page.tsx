@@ -47,7 +47,7 @@ export default async function PostPage({ params }: PageProps) {
   const { meta, content } = post
 
   return (
-    <div className="mx-auto w-full max-w-3xl sm:px-6">
+    <div className="mx-auto w-full max-w-3xl">
       {meta.cover ? (
         <div className="relative aspect-[1200/630] mb-8">
           <MdxImage
@@ -60,7 +60,7 @@ export default async function PostPage({ params }: PageProps) {
           />
         </div>
       ) : null}
-      <article className="prose prose-main prose-zinc dark:prose-invert w-full mx-auto px-16 max-sm:px-0 lg:text-2xl">
+      <article className="prose prose-main prose-zinc dark:prose-invert w-full mx-auto px-16 max-sm:px-0 lg:text-xl">
       <h1 className="mb-2 text-center">{meta.title}</h1>
       <p className="mt-0 text-sm text-muted-foreground text-center">{new Date(meta.date).toLocaleDateString()}{meta.readingTime ? <> · {meta.readingTime} min read</> : null}</p>
 

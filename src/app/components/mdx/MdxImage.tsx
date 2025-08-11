@@ -1,5 +1,6 @@
-import Image from "next/image"
+import Image, { type ImageProps } from "next/image"
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function MdxImage(props: any) {
     const { src, alt = "", width, height, className, ...rest } = props
     const w = width ? Number(width) : 1200

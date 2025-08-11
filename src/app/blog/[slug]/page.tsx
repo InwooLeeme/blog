@@ -48,7 +48,7 @@ export default async function PostPage({ params }: PageProps) {
   const { meta, content } = post
 
   return (
-    <div className="mx-auto w-full max-w-3xl">
+    <div className="mx-auto w-full max-w-4xl px-4 sm:px-6">
       {meta.cover ? (
         <div className="relative aspect-[1200/630] mb-8">
           <MdxImage
@@ -61,7 +61,7 @@ export default async function PostPage({ params }: PageProps) {
           />
         </div>
       ) : null}
-      <article className="prose prose-main prose-zinc dark:prose-invert w-full mx-auto mt-10 px-16 max-sm:px-0 lg:text-xl">
+      <article className="prose prose-zinc dark:prose-invert w-full mx-auto lg:text-xl prose-main">
         <PostHeader title={meta.title} date={meta.date} tags={meta.tags} readingTime={meta.readingTime} />
 
       {/* MDX 본문 */}

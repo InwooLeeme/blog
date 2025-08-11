@@ -1,16 +1,24 @@
 /* 코드 타이틀 */
-[data-rehype-pretty-code-title]{
+[data-rehype-pretty-code-title] {
     @apply block text-xs font-medium px-3 py-2 border rounded-t-lg bg-muted text-foreground;
-  }
-  /* 타이틀 바로 뒤 pre 접합 */
-  [data-rehype-pretty-code-title] + pre{ @apply rounded-t-none mt-0; }
-  
-  /* pre 기본 스타일 */
-  .prose pre{ @apply rounded-lg border p-4 overflow-x-auto; }
-  
-  /* 라인 넘버 */
-  code[data-line-numbers]{ counter-reset: line; }
-  code[data-line-numbers] > [data-line]::before{
+}
+
+/* 타이틀 바로 뒤 pre 접합 */
+[data-rehype-pretty-code-title]+pre {
+    @apply rounded-t-none mt-0;
+}
+
+/* pre 기본 스타일 */
+.prose pre {
+    @apply rounded-lg border p-4 overflow-x-auto;
+}
+
+/* 라인 넘버 */
+code[data-line-numbers] {
+    counter-reset: line;
+}
+
+code[data-line-numbers]>[data-line]::before {
     counter-increment: line;
     content: counter(line);
     display: inline-block;
@@ -18,9 +26,126 @@
     margin-right: .75rem;
     text-align: right;
     opacity: .4;
-  }
-  
-  /* 강조 줄/강조 문자 */
-  [data-highlighted-line]{ @apply bg-muted; }
-  [data-highlighted-chars]{ @apply outline outline-1 -outline-offset-2; }
-  
+}
+
+/* 강조 줄/강조 문자 */
+[data-highlighted-line] {
+    @apply bg-muted;
+}
+
+[data-highlighted-chars] {
+    @apply outline outline-1 -outline-offset-2;
+}
+
+/* mdx */
+@layer components {
+
+    /* 아티클 기본 컨테이너 */
+    .prose-main {
+        @apply mx-auto max-w-prose lg:max-w-3xl;
+    }
+
+    /* 헤딩 간격 & 앵커 위치 */
+    .prose-main :where(h1, h2, h3, h4) {
+        @apply scroll-mt-28;
+    }
+
+    .prose-main :where(h1) {
+        @apply text-3xl lg:text-4xl font-bold tracking-tight;
+    }
+
+    .prose-main :where(h2) {
+        @apply mt-12 border-b pb-2 text-xl lg:text-2xl font-semibold;
+    }
+
+    .prose-main :where(h3) {
+        @apply mt-8 text-lg font-semibold;
+    }
+
+    /* 링크: 밑줄 오프셋 + 색상 악센트 */
+    .prose-main a {
+        @apply underline underline-offset-4 decoration-2 decoration-primary/30 hover:decoration-primary transition;
+    }
+
+    /* 인라인 코드 / 프리 */
+    .prose-main :where(code):not(:where(pre code)) {
+        @apply rounded px-1.5 py-0.5 bg-muted text-foreground;
+    }
+
+    .prose-main pre {
+        @apply rounded-xl border bg-muted/30 p-4 overflow-x-auto;
+    }
+
+    /* 블록 인용문 */
+    .prose-main blockquote {
+        @apply border-l-2 pl-4 italic text-muted-foreground;
+    }
+
+    /* 구분선 */
+    .prose-main hr {
+        @apply my-10 border-t border-dashed;
+    }
+
+    /* 리스트 마커 색/간격 */
+    .prose-main ul>li::marker {
+        color: hsl(var(--primary));
+    }
+
+    .prose-main ol>li::marker {
+        @apply font-semibold;
+    }
+
+    /* 테이블 */
+    .prose-main table {
+        @apply w-full border-separate border-spacing-0 text-sm;
+    }
+
+    .prose-main thead th {
+        @apply sticky top-0 bg-background text-foreground font-semibold;
+    }
+
+    .prose-main :where(th, td) {
+        @apply border border-border px-3 py-2;
+    }
+
+    .prose-main tr:nth-child(even) {
+        @apply bg-muted/20;
+    }
+
+    /* 이미지/캡션 */
+    .prose-main img {
+        @apply rounded-xl border;
+    }
+
+    .prose-main figure {
+        @apply my-8;
+    }
+
+    .prose-main figcaption {
+        @apply mt-2 text-center text-xs text-muted-foreground;
+    }
+
+    /* 키보드 키 표기 */
+    .prose-main kbd {
+        @apply text-[0.7rem] border rounded px-1 py-0.5 bg-muted;
+    }
+
+    /* 각주 */
+    .prose-main .footnotes {
+        @apply text-sm text-muted-foreground;
+    }
+
+    .prose-main .footnotes hr {
+        @apply my-6;
+    }
+
+    /* 헤딩 앵커(#) 표시 (rehype-autolink-headings 사용 시) */
+    .prose-main :where(h2, h3, h4) a[href^="#"]::before {
+        content: "#";
+        @apply mr-2 opacity-0 text-muted-foreground no-underline;
+    }
+
+    .prose-main :where(h2, h3, h4):hover a[href^="#"]::before {
+        @apply opacity-100;
+    }
+}

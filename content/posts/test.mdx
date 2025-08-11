@@ -1,0 +1,64 @@
+---
+title: "스타일 데모"
+date: "2025-08-10"
+summary: "프로즈 스타일이 어떻게 적용되는지 한 번에 보여주는 글"
+tags: [nextjs, mdx, style]
+draft: false
+---
+
+{/* 리드 문단(조금 크게) */}
+<p className="lead">이 문단은 리드(서문)입니다. 핵심 메시지를 간단히 소개하세요.</p>
+
+## 섹션 제목(H2)
+일반 본문은 아무 옵션 없이 쓰면 됩니다. **볼드**, _이탤릭_, `인라인 코드`도 그대로 스타일이 붙어요.
+
+> 인용문은 이렇게. 왼쪽 보더, 흐린 텍스트로 렌더링됩니다.
+
+### 리스트
+- 항목 하나
+- 항목 둘
+- 항목 셋
+
+### 코드 블록
+언어 자동 감지(rehype-highlight 사용 시 언어를 안 적어도 하이라이트):
+```
+function greet(name) {
+  return `hello ${name}`
+}
+```
+
+언어를 지정해서 더 정확히:
+```ts
+export const add = (a: number, b: number) => a + b
+```
+
+(만약 `rehype-pretty-code`를 쓴다면 줄 강조/타이틀도 가능)
+```tsx title="Counter.tsx" showLineNumbers {2,4-5}
+import { useState } from "react"
+export default function Counter(){
+  const [n, setN] = useState(0)
+  return <button onClick={() => setN(n+1)}>{n}</button>
+}
+```
+
+### 이미지 + 캡션
+<figure>
+  <img src="/vercel.svg" alt="데모 이미지" />
+  <figcaption>이미지 캡션은 이렇게 가운데 작은 글씨로.</figcaption>
+</figure>
+
+### 표
+| 기능 | 설명 |
+|-----|-----|
+| 표 | 기본 보더/줄무늬가 적용됩니다. |
+
+### 콜아웃(선택)
+{/* Callout 컴포넌트를 쓰려면 MDXRemote의 components에 등록 필요 */}
+<Callout type="warning">
+  **Warning:** 이 기능은 실험적이며 변경될 수 있습니다.
+</Callout>
+
+### 각주
+각주 예시[^1] 처럼 적을 수 있어요.
+
+[^1]: 각주 내용은 본문 하단에 작게 렌더링됩니다.

@@ -31,7 +31,8 @@
     "remark-gfm": "^4.0.1",
     "remark-reading-time": "^2.0.2",
     "shiki": "^3.9.2",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

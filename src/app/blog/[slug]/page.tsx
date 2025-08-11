@@ -8,6 +8,7 @@ import rehypeHighlight from "rehype-highlight"
 import { getAllPosts, getPostBySlug } from "@/lib/posts"
 import PreWithCopy from "../../components/mdx/pre-with-copy"
 import Image from "next/image"
+import { Callout } from "@/app/components/mdx/Callout"
 
 interface PageProps {
   params: Promise<{
@@ -31,6 +32,11 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   }
 }
 
+const components = {
+  pre: (props : any) => <PreWithCopy {...props} />,
+  Callout: (props : any) => <Callout {...props} />,
+}
+
 export default async function PostPage({ params }: PageProps) {
   const { slug } = await params;
   const post = getPostBySlug(slug)
@@ -52,7 +58,7 @@ export default async function PostPage({ params }: PageProps) {
           />
         </div>
       ) : null}
-      <article className="prose prose-zinc dark:prose-invert w-full mx-auto px-16 max-sm:px-0 lg:text-2xl">
+      <article className="prose prose-main prose-zinc dark:prose-invert w-full mx-auto px-16 max-sm:px-0 lg:text-2xl">
       <h1 className="mb-2 text-center">{meta.title}</h1>
       <p className="mt-0 text-sm text-muted-foreground text-center">{new Date(meta.date).toLocaleDateString()}{meta.readingTime ? <> · {meta.readingTime} min read</> : null}</p>
 
@@ -69,11 +75,7 @@ export default async function PostPage({ params }: PageProps) {
             ],
           },
         }}
-        components={{
-          // 필요 시 커스텀 요소 매핑
-          // h2: (props) => <h2 className="scroll-mt-24" {...props} />,
-          pre: (props) => <PreWithCopy {...props} />,
-        }}
+        components={components}
       />
     </article>
     </div>

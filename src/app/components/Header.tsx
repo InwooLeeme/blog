@@ -14,8 +14,8 @@ const navLinks = [
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-50 border-b">
-      <div className="container mx-auto flex justify-between h-14 px-20 max-md:flex-col max-md:h-20 max-md:items-center">
+    <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur">
+      <div className="w-full mx-auto flex justify-between h-14 px-20 max-md:flex-col max-md:h-20 max-md:items-center">
         <div className="flex items-center gap-4">
           <Link href="/blog" className="font-semibold">모르고리즘의 개발노트</Link>
         </div>

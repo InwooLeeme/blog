@@ -61,7 +61,7 @@ export default async function PostPage({ params }: PageProps) {
           />
         </div>
       ) : null}
-      <article className="prose prose-zinc dark:prose-invert w-full mx-auto lg:text-xl prose-main">
+      <article className="prose prose-zinc dark:prose-invert prose-main lg:text-xl">
         <PostHeader title={meta.title} date={meta.date} tags={meta.tags} readingTime={meta.readingTime} />
 
       {/* MDX 본문 */}

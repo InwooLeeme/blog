@@ -33,7 +33,7 @@ export default function PostCard({ slug, meta }: { slug: string, meta: PostMeta 
                 </div>
 
                 <CardContent className="p-5">
-                    <h3 className="text-base font-semibold leading-snug line-clamp-2">{meta.title}</h3>
+                    <h3 className="text-base font-bold leading-snug line-clamp-2 hover:underline hover:decoration-blue-500 hover:text-blue-500">{meta.title}</h3>
                     {meta.summary && (
                         <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{meta.summary}</p>
                     )}

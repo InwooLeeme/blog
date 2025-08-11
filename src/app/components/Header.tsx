@@ -2,22 +2,63 @@ import Link from "next/link";
 import ModeToggle from "./ThemeToggle";
 import IconGithub from "./icon/IconGithub";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu } from "lucide-react";
+
+const navLinks = [
+  {
+    href: '/about',
+    label: 'About',
+  },
+];
 
 export default function Header() {
   return (
-    <header className="border-b">
+    <header className="sticky top-0 z-50 border-b">
       <div className="container mx-auto flex justify-between h-14 px-20 max-md:flex-col max-md:h-20 max-md:items-center">
         <div className="flex items-center gap-4">
-          <Link href="/blog" className="font-semibold">혼자 쓰는 메모장</Link>
+          <Link href="/blog" className="font-semibold">모르고리즘의 개발노트</Link>
         </div>
-        <nav className="flex gap-4 text-sm items-center">
-          <Link href="/About" className="hover:underline">About</Link>
-          {/* github icon으로 대체할 예정 */}
+        {/* 우측: 데스크톱 내비 */}
+        <nav className="hidden md:flex gap-4 text-sm items-center">
+          {navLinks.map((link) => (
+            <Link key={link.href} href={link.href} className="hover:underline font-bold">
+              {link.label}
+            </Link>
+          ))}
           <Button asChild variant="ghost" size="icon" aria-label="Github">
             <Link href="https://github.com/InwooLeeme" target="_blank" rel="noreferrer"><IconGithub width={20} height={20} /></Link>
           </Button>
           <ModeToggle />
         </nav>
+
+        {/* 모바일: 햄버거 + 다크모드 + 깃허브(선택) */}
+        <div className="md:hidden flex items-center gap-2">
+          <Button asChild variant="ghost" size="icon" aria-label="Github">
+            <Link href="https://github.com/InwooLeeme" target="_blank" rel="noreferrer">
+              <IconGithub width={20} height={20} />
+            </Link>
+          </Button>
+          <ModeToggle />
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" aria-label="Open navigation">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-72">
+              <div className="mt-4 space-y-4">
+                {navLinks.map((n) => (
+                  <SheetClose asChild key={n.href}>
+                    <Link href={n.href} className={`block text-base`}>
+                      {n.label}
+                    </Link>
+                  </SheetClose>
+                ))}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
   )

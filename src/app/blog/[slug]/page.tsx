@@ -9,6 +9,7 @@ import { getAllPosts, getPostBySlug } from "@/lib/posts"
 import PreWithCopy from "../../components/mdx/pre-with-copy"
 import { Callout } from "@/app/components/mdx/Callout/index"
 import MdxImage from "@/app/components/mdx/MdxImage"
+import PostHeader from "@/app/components/mdx/PostHeader"
 
 interface PageProps {
   params: Promise<{
@@ -60,9 +61,8 @@ export default async function PostPage({ params }: PageProps) {
           />
         </div>
       ) : null}
-      <article className="prose prose-main prose-zinc dark:prose-invert w-full mx-auto px-16 max-sm:px-0 lg:text-xl">
-      <h1 className="mb-2 text-center">{meta.title}</h1>
-      <p className="mt-0 text-sm text-muted-foreground text-center">{new Date(meta.date).toLocaleDateString()}{meta.readingTime ? <> · {meta.readingTime} min read</> : null}</p>
+      <article className="prose prose-main prose-zinc dark:prose-invert w-full mx-auto mt-10 px-16 max-sm:px-0 lg:text-xl">
+        <PostHeader title={meta.title} date={meta.date} tags={meta.tags} readingTime={meta.readingTime} />
 
       {/* MDX 본문 */}
       <MDXRemote

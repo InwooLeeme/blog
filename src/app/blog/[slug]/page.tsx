@@ -7,8 +7,8 @@ import remarkGfm from "remark-gfm"
 import rehypeHighlight from "rehype-highlight"
 import { getAllPosts, getPostBySlug } from "@/lib/posts"
 import PreWithCopy from "../../components/mdx/pre-with-copy"
-import Image from "next/image"
 import { Callout } from "@/app/components/mdx/Callout"
+import MdxImage from "@/app/components/mdx/MdxImage"
 
 interface PageProps {
   params: Promise<{
@@ -35,6 +35,8 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
 const components = {
   pre: (props : any) => <PreWithCopy {...props} />,
   Callout: (props : any) => <Callout {...props} />,
+  img: (props : any) => <MdxImage {...props} />,
+  Image: (props : any) => <MdxImage {...props} />,
 }
 
 export default async function PostPage({ params }: PageProps) {
@@ -48,7 +50,7 @@ export default async function PostPage({ params }: PageProps) {
     <div className="mx-auto w-full max-w-3xl sm:px-6">
       {meta.cover ? (
         <div className="relative aspect-[1200/630] mb-8">
-          <Image
+          <MdxImage
             src={meta.cover}
             alt={meta.title}
             fill

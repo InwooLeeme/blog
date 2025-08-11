@@ -5,6 +5,7 @@ export default function BlogIndexPage() {
   const posts = getAllPosts()
   return (
     <div className="space-y-8 mt-6">
+      <h1 className="text-2xl md:text-[30px] font-bold mt-2 mb-2">All Posts ({posts.length})</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {posts.map(({ slug, meta }) => (
           <PostCard key={slug} slug={slug} meta={meta} />

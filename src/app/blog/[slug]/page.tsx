@@ -21,9 +21,9 @@ export function generateStaticParams() {
   return getAllPosts().map((p) => ({ slug: p.slug }))
 }
 
-// (선택) 정적 메타데이터
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const post = getPostBySlug(params.slug)
+// 정적 메타데이터
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const post = getPostBySlug((await params).slug)
   if (!post) return {}
   const { meta } = post
   return {

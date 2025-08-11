@@ -34,10 +34,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 const components = {
-  pre: (props : any) => <PreWithCopy {...props} />,
-  Callout: (props : any) => <Callout {...props} />,
-  img: (props : any) => <MdxImage {...props} />,
-  Image: (props : any) => <MdxImage {...props} />,
+  pre: (props: React.HTMLAttributes<HTMLPreElement> & { children?: React.ReactNode }) => (
+    <PreWithCopy {...props} />
+  ),
+  Callout: (props: { type?: "info" | "warn" | "danger" | "normal"; children: React.ReactNode }) => (
+    <Callout {...props} />
+  ),
+  img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => <MdxImage {...props} />,
+  Image: (props: React.ImgHTMLAttributes<HTMLImageElement>) => <MdxImage {...props} />,
 }
 
 export default async function PostPage({ params }: PageProps) {
@@ -54,7 +58,6 @@ export default async function PostPage({ params }: PageProps) {
           <MdxImage
             src={meta.cover}
             alt={meta.title}
-            fill
             className="rounded-xl object-cover border"
             sizes="(min-width:1024px) 768px, 100vw"
             priority={false}

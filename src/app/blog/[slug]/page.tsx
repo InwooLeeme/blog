@@ -7,7 +7,7 @@ import remarkGfm from "remark-gfm"
 import rehypeHighlight from "rehype-highlight"
 import { getAllPosts, getPostBySlug } from "@/lib/posts"
 import PreWithCopy from "../../components/mdx/pre-with-copy"
-import { Callout } from "@/app/components/mdx/Callout"
+import { Callout } from "@/app/components/mdx/Callout/index"
 import MdxImage from "@/app/components/mdx/MdxImage"
 
 interface PageProps {

@@ -1,0 +1,3 @@
+.js-toc a.is-active-link { font-weight: 600; }
+.js-toc a { display: block; padding: 0.25rem 0.5rem; border-radius: 0.5rem; }
+.js-toc a:hover { background: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }

@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./styles/highligth.css";
+@import "./styles/toc.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -154,6 +155,8 @@
   .callout[data-variant="danger"] .callout__icon { @apply text-rose-600 dark:text-rose-400; }
 }
 
-body{
-  margin: 0;
-}
+html { scrollbar-gutter: stable; scroll-behavior: smooth; }   
+
+body{ margin: 0; }
+
+article :is(h2,h3){ scroll-margin-top: 6rem; }

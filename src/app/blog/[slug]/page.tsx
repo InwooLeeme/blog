@@ -10,6 +10,8 @@ import PreWithCopy from "../../components/mdx/pre-with-copy"
 import { Callout } from "@/app/components/mdx/Callout/index"
 import MdxImage from "@/app/components/mdx/MdxImage"
 import PostHeader from "@/app/components/mdx/PostHeader"
+import TocbotSidebar from "@/app/components/mdx/toc"
+import * as React from "react";
 
 interface PageProps {
   params: Promise<{
@@ -52,7 +54,7 @@ export default async function PostPage({ params }: PageProps) {
   const { meta, content } = post
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl lg:max-w-6xl">
       {meta.cover ? (
         <div className="relative aspect-[1200/630] mb-8">
           <MdxImage
@@ -64,25 +66,30 @@ export default async function PostPage({ params }: PageProps) {
           />
         </div>
       ) : null}
-      <article className="prose prose-zinc dark:prose-invert prose-main lg:text-xl">
+      <article id="post-article" className="prose prose-zinc dark:prose-invert prose-main lg:text-xl">
         <PostHeader title={meta.title} date={meta.date} tags={meta.tags} readingTime={meta.readingTime} />
-
-      {/* MDX 본문 */}
-      <MDXRemote
-        source={content}
-        options={{
-          mdxOptions: {
-            remarkPlugins: [remarkGfm],
-            rehypePlugins: [
-              rehypeSlug,
-              [rehypeAutolinkHeadings, { behavior: "wrap" }],
-              [rehypeHighlight, { ignoreMissing: true }],
-            ],
-          },
-        }}
-        components={components}
-      />
-    </article>
+        <div className="flex gap-6">
+          <div className="w-full max-w-3xl lg:max-w-6xl">
+            {/* MDX 본문 */}
+            <MDXRemote
+              source={content}
+              options={{
+                mdxOptions: {
+                  remarkPlugins: [remarkGfm],
+                  rehypePlugins: [
+                    rehypeSlug,
+                    [rehypeAutolinkHeadings, { behavior: "wrap" }],
+                    [rehypeHighlight, { ignoreMissing: true }],
+                  ],
+                },
+              }}
+              components={components}/>
+          </div>
+          <div>
+            <TocbotSidebar />
+          </div>
+        </div>
+      </article>
     </div>
   )
 }

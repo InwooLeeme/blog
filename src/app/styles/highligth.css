@@ -42,7 +42,7 @@ code[data-line-numbers]>[data-line]::before {
 
     /* 아티클 기본 컨테이너 */
     .prose-main {
-        @apply mx-auto max-w-prose lg:max-w-3xl;
+        @apply mx-auto max-w-prose lg:max-w-6xl;
       }
 
     /* 헤딩 간격 & 앵커 위치 */

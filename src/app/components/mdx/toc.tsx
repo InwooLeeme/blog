@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import tocbot from "tocbot";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function TocbotSidebar() {
   useEffect(() => {
@@ -10,6 +11,9 @@ export default function TocbotSidebar() {
       tocSelector: ".js-toc",
       contentSelector: "#post-article",
       headingSelector: "h2, h3, h4",
+      linkClass: 'toc-link',
+      activeLinkClass: 'is-active-link',
+      listClass: 'toc-list',
       hasInnerContainers: true,
       scrollSmooth: true,
       headingsOffset: 80,
@@ -21,10 +25,14 @@ export default function TocbotSidebar() {
 
   return (
     <aside className="sticky top-24 hidden lg:block bg-background">
-      <div className="text-sm font-medium text-muted-foreground mb-3">On this page</div>
-      <ScrollArea className="max-h-[calc(100vh-8rem)] pr-3">
-        <nav className="js-toc" />
-      </ScrollArea>
+        <Card>
+            <CardContent>
+                <div className="text-sm font-medium text-muted-foreground mb-3">On this page</div>
+                <ScrollArea className="max-h-[calc(100vh-8rem)] pr-3">
+                    <nav className="js-toc" />
+                </ScrollArea>
+            </CardContent>
+        </Card>
     </aside>
   );
 }

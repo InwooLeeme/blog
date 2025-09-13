@@ -1,57 +1,67 @@
-import type { Metadata } from "next"
-import { notFound } from "next/navigation"
-import { MDXRemote } from "next-mdx-remote/rsc"
-import rehypeAutolinkHeadings from "rehype-autolink-headings"
-import rehypeSlug from "rehype-slug"
-import remarkGfm from "remark-gfm"
-import rehypeHighlight from "rehype-highlight"
-import { getAllPosts, getPostBySlug } from "@/lib/posts"
-import PreWithCopy from "../../components/mdx/pre-with-copy"
-import { Callout } from "@/app/components/mdx/Callout/index"
-import MdxImage from "@/app/components/mdx/MdxImage"
-import PostHeader from "@/app/components/mdx/PostHeader"
-import TocbotSidebar from "@/app/components/mdx/toc"
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { MDXRemote } from "next-mdx-remote/rsc";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypeSlug from "rehype-slug";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import { getAllPosts, getPostBySlug } from "@/lib/posts";
+import PreWithCopy from "../../components/mdx/pre-with-copy";
+import { Callout } from "@/app/components/mdx/Callout/index";
+import MdxImage from "@/app/components/mdx/MdxImage";
+import PostHeader from "@/app/components/mdx/PostHeader";
+import TocbotSidebar from "@/app/components/mdx/toc";
 import * as React from "react";
+import Comments from "../../components/Comments";
 
 interface PageProps {
   params: Promise<{
     slug: string;
-  }>
+  }>;
 }
 
 // 정적 경로 생성
 export function generateStaticParams() {
-  return getAllPosts().map((p) => ({ slug: p.slug }))
+  return getAllPosts().map((p) => ({ slug: p.slug }));
 }
 
 // 정적 메타데이터
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const post = getPostBySlug((await params).slug)
-  if (!post) return {}
-  const { meta } = post
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const post = getPostBySlug((await params).slug);
+  if (!post) return {};
+  const { meta } = post;
   return {
     title: meta.title,
     description: meta.summary,
-  }
+  };
 }
 
 const components = {
-  pre: (props: React.HTMLAttributes<HTMLPreElement> & { children?: React.ReactNode }) => (
-    <PreWithCopy {...props} />
+  pre: (
+    props: React.HTMLAttributes<HTMLPreElement> & { children?: React.ReactNode }
+  ) => <PreWithCopy {...props} />,
+  Callout: (props: {
+    type?: "info" | "warn" | "danger" | "normal";
+    children: React.ReactNode;
+  }) => <Callout {...props} />,
+  img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
+    <MdxImage {...props} />
   ),
-  Callout: (props: { type?: "info" | "warn" | "danger" | "normal"; children: React.ReactNode }) => (
-    <Callout {...props} />
+  Image: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
+    <MdxImage {...props} />
   ),
-  img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => <MdxImage {...props} />,
-  Image: (props: React.ImgHTMLAttributes<HTMLImageElement>) => <MdxImage {...props} />,
-}
+};
 
 export default async function PostPage({ params }: PageProps) {
   const { slug } = await params;
-  const post = getPostBySlug(slug)
-  if (!post) return notFound()
+  const post = getPostBySlug(slug);
+  if (!post) return notFound();
 
-  const { meta, content } = post
+  const { meta, content } = post;
 
   return (
     <div className="mx-auto w-full max-w-3xl lg:max-w-6xl">
@@ -66,8 +76,16 @@ export default async function PostPage({ params }: PageProps) {
           />
         </div>
       ) : null}
-      <article id="post-article" className="prose prose-zinc dark:prose-invert prose-main lg:text-xl">
-        <PostHeader title={meta.title} date={meta.date} tags={meta.tags} readingTime={meta.readingTime} />
+      <article
+        id="post-article"
+        className="prose prose-zinc dark:prose-invert prose-main lg:text-xl"
+      >
+        <PostHeader
+          title={meta.title}
+          date={meta.date}
+          tags={meta.tags}
+          readingTime={meta.readingTime}
+        />
         <div className="flex gap-6">
           <div className="w-full max-w-3xl lg:max-w-6xl">
             {/* MDX 본문 */}
@@ -83,13 +101,15 @@ export default async function PostPage({ params }: PageProps) {
                   ],
                 },
               }}
-              components={components}/>
+              components={components}
+            />
           </div>
           <div>
             <TocbotSidebar />
           </div>
         </div>
       </article>
+      <Comments />
     </div>
-  )
+  );
 }

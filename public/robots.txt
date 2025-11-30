@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://blog-git-main-inwooleemes-projects.vercel.app/
+
+# Sitemaps
+Sitemap: https://blog-git-main-inwooleemes-projects.vercel.app/sitemap.xml

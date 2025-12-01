@@ -42,7 +42,7 @@ export default function PreWithCopy({ className = "", children, ...props }: PreP
 
       <pre
         ref={preRef}
-        className={`rounded-lg border p-4 overflow-x-auto ${className}`}
+        className={`rounded-lg border overflow-x-auto ${className}`}
         {...props}
       >
         {children}

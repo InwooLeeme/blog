@@ -4,7 +4,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
-import rehypeHighlight from "rehype-highlight";
+import rehypePrettyCode from "rehype-pretty-code";
 import { getAllPosts, getPostBySlug } from "@/lib/posts";
 import PreWithCopy from "../../components/mdx/pre-with-copy";
 import { Callout } from "@/app/components/mdx/Callout/index";
@@ -97,7 +97,17 @@ export default async function PostPage({ params }: PageProps) {
                   rehypePlugins: [
                     rehypeSlug,
                     [rehypeAutolinkHeadings, { behavior: "wrap" }],
-                    [rehypeHighlight, { ignoreMissing: true }],
+                    [rehypePrettyCode,
+                      {
+                        // 라이트/다크 테마 동시 지정 가능
+                        theme: {
+                          dark: "github-dark-dimmed",
+                          light: "github-light",
+                        },
+                        defaultLang: "plaintext",
+                        keepBackground: false, 
+                      },
+                    ],
                   ],
                 },
               }}

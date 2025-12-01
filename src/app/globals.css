@@ -162,3 +162,51 @@ html { scrollbar-gutter: stable; scroll-behavior: smooth; }
 body{ margin: 0; }
 
 article :is(h2,h3){ scroll-margin-top: 6rem; }
+
+/* pretty-code용 스타일 */
+.prose pre {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.prose pre code {
+  display: block;
+  padding: 1rem;
+}
+
+/* 라이트/다크 테마 변수 적용 (prefers-color-scheme 대신 class 기반) */
+code[data-theme*=" "],
+code[data-theme*=" "] span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+}
+.dark code[data-theme*=" "],
+.dark code[data-theme*=" "] span {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
+}
+
+
+/* ===== line numbers ===== */
+code[data-line-numbers] {
+  counter-reset: line;
+}
+code[data-line-numbers] > [data-line]::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 2.5rem;
+  margin-right: 1rem;
+  text-align: right;
+  opacity: 0.45;
+  user-select: none;
+}
+
+/* 줄 하이라이트 */
+[data-highlighted-line] {
+  background: rgba(255,255,255,0.06);
+  display: block;
+  margin: 0 -1rem;
+  padding: 0 1rem;
+}

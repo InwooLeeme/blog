@@ -11,28 +11,32 @@ export default function TocbotSidebar() {
       tocSelector: ".js-toc",
       contentSelector: "#post-article",
       headingSelector: "h2, h3, h4",
-      linkClass: 'toc-link',
-      activeLinkClass: 'is-active-link',
-      listClass: 'toc-list',
+      linkClass: "toc-link",
+      activeLinkClass: "is-active-link",
+      listClass: "toc-list",
       hasInnerContainers: true,
       scrollSmooth: true,
       headingsOffset: 80,
     });
     return () => {
-      try { tocbot.destroy(); } catch {}
+      try {
+        tocbot.destroy();
+      } catch {}
     };
   }, []);
 
   return (
-    <aside className="sticky top-24 hidden lg:block bg-background">
-        <Card>
-            <CardContent>
-                <div className="text-sm font-medium text-muted-foreground mb-3">On this page</div>
-                <ScrollArea className="max-h-[calc(100vh-8rem)] pr-3">
-                    <nav className="js-toc" />
-                </ScrollArea>
-            </CardContent>
-        </Card>
+    <aside className="sticky top-24 hidden lg:block bg-background w-72 shrink-0">
+      <Card className="w-full">
+        <CardContent>
+          <div className="text-sm font-medium text-muted-foreground mb-3">
+            On this page
+          </div>
+          <ScrollArea className="max-h-[calc(100vh-8rem)] pr-3">
+            <nav className="js-toc" />
+          </ScrollArea>
+        </CardContent>
+      </Card>
     </aside>
   );
 }

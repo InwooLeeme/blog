@@ -1,0 +1,316 @@
+---
+title: "[BOJ] 2025년 11월 문제풀이 (5)"
+date: "2025-12-01"
+summary: "2025년 11월 문제풀이 (5)"
+tags: [PS]
+draft: false
+cover: ""
+---
+
+글을 안쓴 기간동안 푼 양이 꽤 되기 때문에 골드 이상만 적는다..
+
+<br/ >
+
+## 1. [<span style={{ color: "#ec9a00" }}>G3</span>] Heights
+
+- **tag** : math, geometry
+
+<br/ >
+
+헤론 정리를 쓰면 뚝딱이다.
+
+<br/ >
+
+```cpp
+using ld = long double;
+ld ha, hb,hc;
+
+void solve(){
+    ri(ha, hb, hc);
+    ld A = 1 / ha;
+    ld B = 1 / hb;
+    ld C = 1 / hc;
+    ld S = A + B + C;
+    ld area = 1 / sqrt(S _ (S - A _ 2) _ (S - B _ 2) _ (S - C _ 2));
+    po(area);
+}
+
+```
+
+## 2. [<span style={{ color: "#ec9a00" }}>G3</span>] 약수 게임
+
+- **tag** : math, number_theory, game_theory
+
+<br/ >
+
+두 소수의 곱이면 후공승, 이외엔 선공승
+
+<br/ >
+
+```cpp
+int n;
+
+void solve(){
+	ri(n);
+	if(n == 1){
+		po("koosaga");
+		return;
+	}
+	vi res;
+	for(int i = 2; i *i <= n; i++){
+		while(n % i == 0) n /= i, res.pb(i);
+	}
+	if(n > 1) res.pb(n);
+	if(si(res) != 2) po("koosaga");
+	else po("cubelover");
+}
+```
+
+## 3. [<span style={{ color: "#ec9a00" }}>G5</span>] 최대 합 순서쌍의 개수
+
+- **tag** : set, prefix_sum, hash_set
+
+<br />
+인덱스 저장하고 map으로 정리
+<br />
+
+```cpp
+int n;
+map<int, vi> M;
+
+void solve(){
+    ri(n);
+    vi v(n + 1);
+    for(int i = 1; i <= n; i++){
+    ri(v[i]);
+    M[v[i]].pb(i);
+    v[i] += v[i - 1];
+    }
+    int mx = 0, cnt = 1;
+    for(const auto& [a, b] : M){
+    int L = *b.begin(),R = *prev(b.end());
+    int S = v[R] - v[L - 1];
+    if(S > mx) mx = S,cnt = 1;
+    else if(S == mx) cnt++;
+    }
+    po(mx, cnt);
+}
+
+```
+
+## 4. [<span style = {{ color: "#ec9a00" }}>G4</span>] 수열의 점수
+
+- **tag** : greedy
+
+<br />
+
+0, 1, 양수, 음수 이렇게 4개로 나눠서 처리하면 된다. 음수는 2개씩 짝지어서 처리하자.
+
+<br />
+
+```cpp
+ll n,res;
+
+void solve(){
+	ri(n);
+	minpq<ll> mi;
+	maxpq<ll> pl;
+	for(int i = 0; i < n; i++){
+		int x; ri(x);
+		if(x == 1) res += x;
+		else{
+			if(x > 1) pl.push(x);
+			else if(x <= 0) mi.push(x);
+		}
+	}
+	while(si(pl) > 1){
+		auto a = pl.top(); pl.pop();
+		auto b = pl.top(); pl.pop();
+		res += (a * b);
+	}
+	while(si(mi) > 1){
+		auto a = mi.top(); mi.pop();
+		auto b = mi.top(); mi.pop();
+		res += (a * b);
+	}
+	while(!mi.empty()){
+		res += mi.top(); mi.pop();
+	}
+	while(!pl.empty()){
+		res += pl.top(); pl.pop();
+	}
+	po(res);
+}
+```
+
+## 5. [<span style = {{ color: "#ec9a00" }}>G5</span>] 십자 찾기
+
+- **tag** : prefix_sum
+
+<br />
+
+각 4방향에 대해서 누적합처리
+
+<br />
+
+```cpp
+int n,m,k,res, v[2555][2555][4];
+
+void solve(){
+	ri(n, m, k);
+	for(int i = 1; i <= n; i++) for(int j = 1; j <= m; j++){
+		ri(v[i][j][0]);
+		v[i][j][3] = v[i][j][2] = v[i][j][1] = v[i][j][0];
+	}
+	for(int i = 1; i <= n; i++) for(int j = 1; j <= m; j++){
+		if(v[i][j][0]) v[i][j][0] += v[i][j - 1][0];
+	}
+	for(int i = 1; i <= n; i++) for(int j = 1; j <= m; j++){
+		if(v[i][j][1]) v[i][j][1] += v[i - 1][j][1];
+	}
+	for(int i = n; i > 0; i--) for(int j = m; j > 0; j--){
+		if(v[i][j][2]) v[i][j][2] += v[i][j + 1][2];
+	}
+	for(int i = n; i > 0; i--) for(int j = m; j > 0; j--){
+		if(v[i][j][3]) v[i][j][3] += v[i + 1][j][3];
+		if(v[i][j][0] > k and v[i][j][1] > k and v[i][j][2] > k and v[i][j][3] > k) res++;
+	}
+	po(res);
+}
+```
+
+## 6. [<span style = {{ color: "#ec9a00" }}>G5</span>] 직사각형의 개수
+
+- **tag** : data structure, brute force
+
+<br />
+
+대각선을 제외하고 카운팅해주면 된다.
+set or map이든 아무거나
+
+<br />
+
+```cpp
+int n,res;
+set<pii> s;
+pii v[5555];
+
+void solve(){
+	ri(n);
+	for(int i = 0; i < n; i++){
+		ri(v[i].fi, v[i].se);
+		s.insert(v[i]);
+	}
+	for(int i = 0; i < n; i++){
+		auto [x1, y1] = v[i];
+		for(int j = i + 1; j < n; j++){
+			auto [x2, y2] = v[j];
+			if(x1 == x2 or y1 == y2) continue;
+			if(s.count({x1, y2}) and s.count({x2, y1})) res++;
+		}
+		s.erase(v[i]);
+	}
+	po(res);
+}
+```
+
+## 7. [<span style = {{ color: "#ec9a00" }}>G4</span>] 점프
+
+- **tag** : bfs
+
+<br />
+
+BFS를 잘 짜자
+
+<br />
+
+```cpp
+int n,m,g[10101];
+bool bound(int x){ return x < 0 or x > n; }
+int D[3] = {-1, 0, 1};
+
+void solve(){
+	ri(n, m);
+	while(m--){
+		int x; ri(x); g[x] = 1;
+	}
+	vvi dist(n + 1, vi(500, -1));
+	queue<pii> q;
+	dist[1][0] = 0; q.push({0, 1}); // 몇번 이동, 위치
+	while(si(q)){
+		auto [cnt, cur] = q.front(); q.pop();
+		if(cur == n){
+			po(dist[cur][cnt]);
+			return;
+		}
+		for(int i = 0; i < 3; i++){
+			auto ncnt = cnt + D[i];
+			auto nxt = cur + ncnt;
+			if(ncnt < 1) continue;
+			if(bound(nxt)) continue;
+			if(g[nxt]) continue;
+			if(dist[nxt][ncnt] != -1) continue;
+			dist[nxt][ncnt] = dist[cur][cnt] + 1; q.push({ncnt, nxt});
+		}
+	}
+	po(-1);
+}
+```
+
+## 8. [<span style = {{ color: "#ec9a00" }}>G2</span>] 게임
+
+- **tag** : dp, graph, dfs
+
+<br />
+
+사이클 찾고 최장거리 DP
+
+<br />
+```cpp
+int n,m,mx;
+bool bound(int x, int y){ return x < 0 or x >= n or y < 0 or  y >= m; }
+string v[55];
+bool vist[55][55], finished[55][55];
+bool cycle = 0;
+int D[55][55];
+
+void dfs(int x, int y){
+	vist[x][y] = 1;
+	for(int d = 0; d < 4; d++){
+		int k = v[x][y] - '0';
+		int nx = x + k * dx[d], ny = y + k * dy[d];
+		if(bound(nx, ny) or v[nx][ny] == 'H') continue;
+		if(vist[nx][ny]){
+			if(!finished[nx][ny]) cycle = 1;
+		}
+		else dfs(nx, ny);
+	}
+	finished[x][y] = 1;
+}
+
+int dp(int x, int y){
+	int& ret = D[x][y];
+	if(ret != -1) return ret;
+	ret = 1;
+	int k = v[x][y] - '0';
+	for(int d = 0; d < 4; d++){
+		int nx = x + k * dx[d], ny = y + k * dy[d];
+		if(bound(nx, ny) or v[nx][ny] == 'H') continue;
+		ret = max<int>(ret, dp(nx, ny) + 1);
+	}
+	return ret;
+}
+
+void solve(){
+	ri(n, m);
+	for(int i = 0; i < n; i++) ri(v[i]);
+	dfs(0, 0);
+	if(cycle){
+		po(-1);
+		return;
+	}
+	memset(D, -1, sizeof(D));
+	po(dp(0, 0));
+}
+
+```

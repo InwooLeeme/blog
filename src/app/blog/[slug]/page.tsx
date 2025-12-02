@@ -64,7 +64,7 @@ export default async function PostPage({ params }: PageProps) {
   const { meta, content } = post;
 
   return (
-    <div className="mx-auto w-full max-w-4xl lg:max-w-6xl">
+    <div className="mx-auto w-full max-w-6xl lg:max-w-6xl ">
       {meta.cover ? (
         <div className="relative aspect-[1200/630] mb-8">
           <MdxImage
@@ -80,14 +80,14 @@ export default async function PostPage({ params }: PageProps) {
         id="post-article"
         className="prose prose-zinc dark:prose-invert prose-main lg:text-xl"
       >
-        <PostHeader
-          title={meta.title}
-          date={meta.date}
-          tags={meta.tags}
-          readingTime={meta.readingTime}
-        />
         <div className="flex gap-6">
-          <div className="w-full max-w-3xl lg:max-w-6xl">
+          <div className="w-full max-w-4xl lg:max-w-6xl">
+            <PostHeader
+              title={meta.title}
+              date={meta.date}
+              tags={meta.tags}
+              readingTime={meta.readingTime}
+            />
             {/* MDX 본문 */}
             <MDXRemote
               source={content}
@@ -114,12 +114,12 @@ export default async function PostPage({ params }: PageProps) {
               components={components}
             />
           </div>
-          <div>
-            <TocbotSidebar />
-          </div>
         </div>
       </article>
       <Comments />
+      <div className="hidden xl:block">
+        <TocbotSidebar />
+      </div>
     </div>
   );
 }

@@ -1,0 +1,113 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+export type TagCount = { tag: string; count: number };
+
+export default function TagSidebar({
+  tagCounts,
+  totalCount,
+  activeTag,
+  basePath = "/blog",
+  tagBasePath = "/blog/tags",
+}: {
+  tagCounts: TagCount[];
+  totalCount: number;
+  activeTag?: string | null;
+  /** 전체 글 목록 경로 */
+  basePath?: string; // 기본: /blog
+  /** 태그 페이지 베이스 경로: /blog/tags/[tag] */
+  tagBasePath?: string; // 기본: /blog/tags
+}) {
+  const [sort, setSort] = React.useState<"count" | "alpha">("count");
+
+  const sorted = React.useMemo(() => {
+    const arr = [...tagCounts];
+    return sort === "count"
+      ? arr.sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag))
+      : arr.sort((a, b) => a.tag.localeCompare(b.tag));
+  }, [tagCounts, sort]);
+
+  return (
+    <aside className="sticky top-24 hidden lg:block w-60 shrink-0">
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-sm font-medium text-muted-foreground">
+              Categories
+            </div>
+
+            {/* 정렬 토글 */}
+            <div className="flex gap-1">
+              <Button
+                type="button"
+                variant={sort === "count" ? "secondary" : "ghost"}
+                size="sm"
+                className="h-8 px-2"
+                onClick={() => setSort("count")}
+              >
+                개수순
+              </Button>
+              <Button
+                type="button"
+                variant={sort === "alpha" ? "secondary" : "ghost"}
+                size="sm"
+                className="h-8 px-2"
+                onClick={() => setSort("alpha")}
+              >
+                사전순
+              </Button>
+            </div>
+          </div>
+
+          <ScrollArea className="max-h-[calc(100vh-8rem)] pr-3">
+            <div className="flex flex-col gap-2">
+              {/* All Posts */}
+              <Link href={basePath} className="block">
+                <Badge
+                  variant="secondary"
+                  className={cn(
+                    "w-full justify-between rounded-md py-2",
+                    !activeTag && "ring-2 ring-primary/50"
+                  )}
+                >
+                  <span>All Posts</span>
+                  <span className="opacity-70">({totalCount})</span>
+                </Badge>
+              </Link>
+
+              {/* Tags */}
+              {sorted.map(({ tag, count }) => {
+                const selected = activeTag === tag;
+                return (
+                  <Link
+                    key={tag}
+                    href={`${tagBasePath}/${encodeURIComponent(tag)}`}
+                    className="block"
+                  >
+                    <Badge
+                      variant={selected ? "default" : "secondary"}
+                      className={cn(
+                        "w-full justify-between rounded-md py-2",
+                        selected && "ring-2 ring-primary/40"
+                      )}
+                    >
+                      <span className="truncate">{tag}</span>
+                      <span className="opacity-70">({count})</span>
+                    </Badge>
+                  </Link>
+                );
+              })}
+            </div>
+          </ScrollArea>
+        </CardContent>
+      </Card>
+    </aside>
+  );
+}

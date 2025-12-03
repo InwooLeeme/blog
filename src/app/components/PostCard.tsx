@@ -13,27 +13,25 @@ export default function PostCard({ slug, meta }: { slug: string, meta: PostMeta 
 
     return (
         <Link href={`/blog/${slug}`} className="group block" aria-label={meta.title}>
-            <Card className="overflow-hidden h-full rounded-2xl transition hover:shadow-lg hover:-translate-y-0.5 hover:border-primary dark:hover:border-white">
-                <div className="relative">
+            <Card className="overflow-hidden h-full rounded-2xl transition hover:shadow-lg hover:-translate-y-0.5 hover:border-primary hover:border-violet-600">
+                {meta.cover ? (
+                  <div className="relative">
                     <AspectRatio ratio={16 / 9}>
-                        {meta.cover ? (
-                            <Image
-                                src={meta.cover}
-                                alt={meta.title}
-                                fill
-                                className="object-cover"
-                                sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
-                                priority={false}
-                            />
-                        ) : (
-                            <div className="h-full w-full bg-gradient-to-br from-muted to-muted/50" />
-                        )}
+                      <Image
+                        src={meta.cover}
+                        alt={meta.title}
+                        fill
+                        className="object-cover"
+                        sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
+                        priority={false}
+                      />
                     </AspectRatio>
                     <div className="absolute inset-0 ring-1 ring-inset ring-black/5 dark:ring-white/10 opacity-0 group-hover:opacity-100 transition" />
-                </div>
+                  </div>
+                ) : null}
 
                 <CardContent className="p-5">
-                    <h3 className="text-base font-bold leading-snug line-clamp-2 hover:underline hover:decoration-blue-500 hover:text-blue-500">{meta.title}</h3>
+                    <h3 className="text-base font-bold leading-snug line-clamp-2">{meta.title}</h3>
                     {meta.summary && (
                         <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{meta.summary}</p>
                     )}

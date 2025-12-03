@@ -16,8 +16,8 @@ interface IHeader {
 
 const navLinks = [
   {
-    href: "/about",
-    label: "About",
+    href: "/playground",
+    label: "플레이그라운드",
   },
 ];
 
@@ -40,7 +40,7 @@ export default function Header({ title }: IHeader) {
             <Link
               key={link.href}
               href={link.href}
-              className="hover:underline font-bold"
+              className="hover:text-violet-600 font-bold"
             >
               {link.label}
             </Link>

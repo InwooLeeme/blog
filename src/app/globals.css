@@ -149,7 +149,7 @@
     @apply bg-muted/30 text-foreground border-border;
   }
 
-  /* 아이콘 색상도 맞추고 싶다면 */
+  /* 아이콘 색상 */
   .callout[data-variant="info"]   .callout__icon { @apply text-sky-600 dark:text-sky-400; }
   .callout[data-variant="warn"]   .callout__icon { @apply text-amber-600 dark:text-amber-400; }
   .callout[data-variant="danger"] .callout__icon { @apply text-rose-600 dark:text-rose-400; }

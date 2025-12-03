@@ -20,15 +20,17 @@ export default function BlogIndexPage() {
         />
         {/* main */}
         <main className="min-w-0 flex-1">
-          <div className="space-y-8">
-            <h1 className="text-2xl md:text-[30px] font-bold mt-2 mb-2">
-              All Posts ({posts.length})
-            </h1>
+          <div className="mx-auto w-full max-w-6xl space-y-8">
+            <div className="space-y-8">
+              <h1 className="text-2xl md:text-[30px] font-bold mt-2 mb-2">
+                All Posts ({posts.length})
+              </h1>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8 items-stretch">
-              {posts.map(({ slug, meta }) => (
-                <PostCard key={slug} slug={slug} meta={meta} />
-              ))}
+              <div className="flex flex-col gap-6 mt-8">
+                {posts.map(({ slug, meta }) => (
+                  <PostCard key={slug} slug={slug} meta={meta} />
+                ))}
+              </div>
             </div>
           </div>
         </main>

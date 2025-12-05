@@ -5,8 +5,8 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export type TagCount = { tag: string; count: number };
 
@@ -16,6 +16,10 @@ export default function TagSidebar({
   activeTag,
   basePath = "/blog",
   tagBasePath = "/blog/tags",
+  avatarSrc = "/avatar.png",
+  avatarAlt = "Blog Avatar",
+  profileName = "InwooLeeme",
+  profileDescription = "Learner"
 }: {
   tagCounts: TagCount[];
   totalCount: number;
@@ -24,6 +28,10 @@ export default function TagSidebar({
   basePath?: string; // 기본: /blog
   /** 태그 페이지 베이스 경로: /blog/tags/[tag] */
   tagBasePath?: string; // 기본: /blog/tags
+  avatarSrc?: string;       // public에 넣은 이미지 경로
+  avatarAlt?: string;
+  profileName?: string;
+  profileDescription? : string
 }) {
   const [sort, setSort] = React.useState<"count" | "alpha">("count");
 
@@ -33,40 +41,38 @@ export default function TagSidebar({
       ? arr.sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag))
       : arr.sort((a, b) => a.tag.localeCompare(b.tag));
   }, [tagCounts, sort]);
+  const fallback = React.useMemo(() => {
+    const t = (profileName ?? "").trim();
+    if (!t) return "B";
+    return t.slice(0, 2).toUpperCase();
+  }, [profileName]);
 
   return (
     <aside className="sticky top-24 hidden lg:block w-60 shrink-0">
+      {/* 아바타 추가 */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="text-sm font-medium text-muted-foreground">
-              Categories
+           <div className="flex flex-col gap-3 mb-4">
+            <Avatar className="h-40 w-40">
+              <AvatarImage src={avatarSrc} alt={avatarAlt} />
+              <AvatarFallback>{fallback}</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <h3 className="font-bold leading-tight truncate">
+                {profileName}
+              </h3>
+              <div className="text-xs text-muted-foreground truncate mt-5">
+                {profileDescription}
+              </div>
             </div>
-
-            {/* 정렬 토글 */}
-            <div className="flex gap-1">
-              <Button
-                type="button"
-                variant={sort === "count" ? "secondary" : "ghost"}
-                size="sm"
-                className="h-8 px-2"
-                onClick={() => setSort("count")}
-              >
-                개수순
-              </Button>
-              <Button
-                type="button"
-                variant={sort === "alpha" ? "secondary" : "ghost"}
-                size="sm"
-                className="h-8 px-2"
-                onClick={() => setSort("alpha")}
-              >
-                사전순
-              </Button>
+          </div>
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-sm font-semibold font-medium text-muted-foreground">
+              Categories
             </div>
           </div>
 
-          <ScrollArea className="max-h-[calc(100vh-8rem)] pr-3">
+          <ScrollArea className="max-h-[calc(100vh-8rem)] pr-3 font-semibold">
             <div className="flex flex-col gap-2">
               {/* All Posts */}
               <Link href={basePath} className="block">
@@ -99,7 +105,7 @@ export default function TagSidebar({
                       )}
                     >
                       <span className="truncate">{tag}</span>
-                      <span className="opacity-70">({count})</span>
+                      <span>({count})</span>
                     </Badge>
                   </Link>
                 );

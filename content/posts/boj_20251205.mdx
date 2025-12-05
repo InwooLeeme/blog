@@ -1,0 +1,111 @@
+---
+title: "[BOJ] 2025년 12월 문제풀이 (1)"
+date: "2025-12-06"
+summary: "[BOJ] 2025년 12월 문제풀이 (1)"
+tags: ["PS"]
+draft: false
+cover: ""
+---
+
+## 1. [<span style={{ color: "#27e2a4" }}>P4</span>] 표게임
+
+- **tag** : game_theory, sprague_grundy
+
+<br/ >
+
+행을 하나 고른 다음에 고른 행에 있는 모든 열에서 숫자를 뺀다. <br/ > 이걸 바꿔서 생각하면 행을 하나 골라서 그 행에 존재하는 모든 숫자를 다 더했을 때와 동치란 뜻이다.
+이걸 하나의 돌 무더기로 생각하면 님게임으로 환원되는 것을 알 수 있다.
+
+<br />
+
+```cpp showLineNumbers
+int n,m,res;
+
+void solve(){
+    cin >> n >> m;
+    for(int i = 0; i < n; i++){
+        int S = 0;
+        for(int j = 0; j < m; j++){
+            int x; cin >> x; S += x;
+        }
+        res ^= S;
+    }
+    cout << (res ? "august14" : "ainta") << "\n";
+}
+```
+
+<br/ >
+
+## 2. [<span style={{ color: "#ad5600" }}>B4</span>] 와우산 스탬프 투어
+
+- **tag** : implemention
+
+<br />
+
+구현 ㄱㄱ
+
+<br />
+
+```cpp showLineNumbers
+int n,w,res;
+
+void solve(){
+    cin >> n >> w;
+    res = n*10;
+    if(n >= 3) res += 20;
+    if(n == 5) res += 50;
+    if(w > 1000) res = max<int>(res - 15, 0);
+    cout << res << "\n";
+}
+```
+
+## 3. [<span style={{ color: "#435f7a" }}>S2</span>] 화분 부수기
+
+- **tag** : greedy
+
+<br />
+
+이미 나온 수라면? => 이미 부서진 화분일 것이다.
+따라서 3개의 수를 봤을 때 다 한번도 안나온다면 직접 밀어서 부숴야한다.
+
+<br />
+
+```cpp showLineNumbers
+int n,res,cnt[1 << 20];
+
+void solve(){
+    cin >> n;
+    for(int i = 0; i < n; i++){
+        int a,b,c; cin >> a >> b >> c;
+        res += ((!cnt[a] and !cnt[b] and !cnt[c]));
+        cnt[a]++, cnt[b]++,cnt[c]++;
+    }
+    cout << res << "\n";
+}
+```
+
+<br/ >
+
+## 4. [<span style={{ color: "#435f7a" }}>S2</span>] 화분 부수기
+
+- **tag** : greedy
+<br />
+
+내림차순 한 이후에 제일 마지막껄 찾자.
+<br />
+
+```cpp showLineNumbers
+int n;
+
+void solve(){
+    cin >> n;
+    vector<int> v(n); for(auto& i : v) cin >> i;
+    sort(rall(v));
+    int c = 0;
+    for(int i = 0; i < n; i++){
+        if(!v[i]) break;
+        c = max<int>(c, i + v[i]);
+    }
+    cout << min<int>(c, n) << "\n";
+}
+```

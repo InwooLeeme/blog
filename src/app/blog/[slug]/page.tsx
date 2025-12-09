@@ -13,6 +13,7 @@ import PostHeader from "@/app/components/mdx/PostHeader";
 import TocbotSidebar from "@/app/components/mdx/toc";
 import * as React from "react";
 import Comments from "../../components/Comments";
+import { Rank } from "@/app/components/mdx/Rank";
 
 interface PageProps {
   params: Promise<{
@@ -54,6 +55,7 @@ const components = {
   Image: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
     <MdxImage {...props} />
   ),
+  Rank: Rank
 };
 
 export default async function PostPage({ params }: PageProps) {

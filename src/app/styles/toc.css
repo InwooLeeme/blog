@@ -1,15 +1,16 @@
 .js-toc a.is-active-link {
-    color: oklch(65.6% 0.241 354.308);
+    color: rgb(124 58 237);
+    border-left: 1px solid rgb(124 58 237);
+    opacity: 1;
 }
 
 .js-toc a {
     display: block;
     padding: 0.25rem 0.5rem;
-    border-radius: 0.5rem;
     text-decoration: none;
+    opacity: 0.5;
 }
 
 .js-toc a:hover {
-    background: oklch(65.6% 0.241 354.308);
-    color: oklch(65.6% 0.241 354.308);
+    text-decoration: underline;
 }

@@ -9,6 +9,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
+import ReadingProgressBar from "./ReadingProgressBar";
 
 interface IHeader {
   title: string | undefined;
@@ -24,6 +25,7 @@ const navLinks = [
 export default function Header({ title }: IHeader) {
   return (
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur">
+      <ReadingProgressBar/>
       <div className="w-full mx-auto flex justify-between h-14 px-20 max-md:flex-col max-md:h-20 max-md:items-center">
         <div className="flex flex-1 items-center gap-4">
           <Link

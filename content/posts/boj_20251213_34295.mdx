@@ -1,0 +1,56 @@
+---
+title: "[BOJ] 34295번 Rocky Mountain Road Trip"
+date: "2025-12-13"
+summary: "[BOJ] 34295번 Rocky Mountain Road Trip 풀이"
+tags: [BOJ, PS]
+draft: false
+cover: ""
+---
+
+## [<Rank rank="Gold" level = "G3" />] Rocky Mountain Road Trip
+
+<br />
+- **tag** : bfs, shortest_path, dijkstra
+- **link** : https://www.acmicpc.net/problem/34295
+
+<br />
+
+전형적인 3차원 상태 공간 정의를 하는 다익 or BFS문제이다.
+<br/>
+- dist[x][y][0] : 지금 (x,y)에 있고 다음은 더 높은 칸으로 가야 함
+- dist[x][y][1] : 지금 (x,y)에 있고 다음은 더 낮은 칸으로 가야 함
+
+
+이런 식으로 놓고 bfs를 돌리든 다익을 돌리든 하면 된다.
+난 다익으로 풀었다.
+<br />
+
+```cpp showLineNumbers
+int n,m,sx,sy,ex,ey;
+int v[555][555];
+vector<vector<vector<int>>> dist(555, vvi(555, vi(2, INF)));
+
+void solve(){
+    cin >> n >> m;
+    for(int i = 0; i < n; i++) for(int j = 0; j < m; j++) cin >> v[i][j];
+    cin >> sx >> sy >> ex >> ey; --sx,--sy,--ex,--ey;
+    priority_queue<array<int, 4>, vector<array<int, 4>>, greater<>> pq;
+    for(int i = 0; i < 2; i++) pq.push({dist[sx][sy][i] = 0, i, sx, sy});
+    while(si(pq)){
+        auto [cdist, t, x, y] = pq.top(); pq.pop();
+        if(x == ex and y == ey){
+            cout << cdist << "\n";
+            return;
+        }
+        for(int d = 0; d < 8; d++){
+            auto nx = x + ddx[d], ny = y + ddy[d];
+            if(nx < 0 or nx >= n or ny < 0 or ny >= m) continue;
+            if(!t and v[nx][ny] >= v[x][y]) continue;
+            if(t and v[nx][ny] <= v[x][y]) continue;
+            auto nt = t ^ 1;
+            if(dist[nx][ny][nt] > cdist + 1) pq.push({dist[nx][ny][nt] = cdist + 1, nt, nx, ny});
+        }
+    }
+    cout << -1 << '\n';
+}
+```

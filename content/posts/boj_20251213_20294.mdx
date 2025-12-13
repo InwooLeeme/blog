@@ -1,0 +1,168 @@
+---
+title: "[BOJ] 20294번 에어컨 설치"
+date: "2025-12-13"
+summary: "BOJ 20294번 에어컨 설치 풀이"
+tags: [BOJ, PS]
+draft: false
+cover: ""
+---
+
+## [<Rank rank="Platinum" level = "P2" />] 에어컨 설치
+
+<br />
+- **tag** : bipartite_matching
+- **link** : https://www.acmicpc.net/problem/20294
+
+<br />
+
+주어진 3차원의 x,y,z 좌표의 합을 홀수, 짝수로 나누면 이분 그래프가 된다.
+그럼 이 이분그래프 상에서 최대매칭을 구한게 답이...될 줄 알았지만.... 그건 아니고
+최대매칭 + 고립된 점 이렇게 해줘야지만 전부 만족한다.
+
+<br />
+
+```cpp showLineNumbers
+#pragma GCC target("sse,sse2,sse3,ssse3,sse4,avx,avx2,fma")
+#pragma GCC optimize("Ofast")
+#pragma GCC optimize("unroll-loops")
+#include <bits/stdc++.h>
+#include <ext/rope>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace std;
+using namespace __gnu_cxx;
+using namespace __gnu_pbds;
+
+#define all(v) v.begin(), v.end()
+#define rall(v) v.rbegin(), v.rend()
+#define fi first
+#define se second
+#define pb push_back
+#define si(x) (int)x.size()
+#define int int_fast64_t
+
+using ll = long long;
+using pii = pair<int, int>;
+using ti3 = tuple<int, int, int>;
+using vi = vector<int>;
+using vvi = vector<vi>;
+
+const int PRECISION = 0;
+const int dx[4] = {0, 1, 0, -1}, dy[4] = {-1, 0, 1, 0};
+const int ddx[8] = {0, 1, 1, 1, 0, -1, -1, -1}, ddy[8] = {-1, -1, 0, 1, 1, 1, 0, -1};
+constexpr ll INF = 1LL << 30;
+constexpr ll NINF = -INF;
+
+int n;
+vector<ti3> l, r;
+int ldeg[2222], rdeg[2222];
+
+// n: 왼쪽 정점 개수, m: 오른쪽 정점 개수, 0-based
+struct HopcroftKarp{
+  int n, m;
+  vector<vector<int>> g;
+  vector<int> dst, le, ri;
+  vector<char> visit, track;
+  HopcroftKarp(int n, int m) : n(n), m(m) { clear(); }
+  void clear(){
+    g = vector<vector<int>>(n); dst = vector<int>(n, 0);
+    le = vector<int>(n, -1); ri = vector<int>(m, -1);
+    visit = vector<char>(n, 0); track = vector<char>(n+m, 0);
+  }
+  void add_edge(int s, int e){ g[s].push_back(e); }
+  bool bfs(){
+    bool res = false;
+    queue<int> que;
+    fill(dst.begin(), dst.end(), 0);
+    for(int i=0; i<n; i++) if(le[i] == -1) que.push(i), dst[i] = 1;
+    while(!que.empty()){
+      int v = que.front(); que.pop();
+      for(auto i : g[v]){
+        if(ri[i] == -1) res = true;
+        else if(!dst[ri[i]]) dst[ri[i]] = dst[v] + 1, que.push(ri[i]);
+      }
+    }
+    return res;
+  }
+  bool dfs(int v){
+    if(visit[v]) return false;
+    visit[v] = 1;
+    for(auto i : g[v]){
+      if(ri[i] == -1 || !visit[ri[i]] && dst[ri[i]] == dst[v] + 1 && dfs(ri[i])){
+        le[v] = i; ri[i] = v; return true;
+      }
+    }
+    return false;
+  }
+  int maximum_matching(){
+    int res = 0;
+    fill(le.begin(), le.end(), -1);
+    fill(ri.begin(), ri.end(), -1);
+    while(bfs()){
+      fill(visit.begin(), visit.end(), 0);
+      for(int i=0; i<n; i++) if(le[i] == -1) res += dfs(i);
+    }
+    return res;
+  }
+  vector<pair<int,int>> maximum_matching_edges(){
+    int matching = maximum_matching();
+    vector<pair<int,int>> edges; edges.reserve(matching);
+    for(int i=0; i<n; i++) if(le[i] != -1) edges.emplace_back(i, le[i]);
+    return edges;
+  }
+  void dfs_track(int v){
+    if(track[v]) return; track[v] = 1;
+    for(auto i : g[v]) track[n+i] = 1, dfs_track(ri[i]);
+  }
+  tuple<vector<int>, vector<int>, int> minimum_vertex_cover(){
+    int matching = maximum_matching();
+    fill(track.begin(), track.end(), 0);
+    for(int i=0; i<n; i++) if(le[i] == -1) dfs_track(i);
+    vector<int> lv, rv;
+    for(int i=0; i<n; i++) if(!track[i]) lv.push_back(i);
+    for(int i=0; i<m; i++) if(track[n+i]) rv.push_back(i);
+    assert(lv.size() + rv.size() == matching);
+    return {lv, rv, lv.size() + rv.size()};
+  }
+};
+
+void solve(){
+    cin >> n;
+    for(int i = 0; i < n; i++){
+        int a,b,c; cin >> a >> b >> c;
+        (((a + b + c) & 1) ? l : r).pb({a, b, c});
+    }
+    int N = si(l), M = si(r);
+    HopcroftKarp flow(N, M);
+    for(int i = 0; i < N; i++){
+        auto [x1, y1, z1] = l[i];
+        for(int j = 0; j < M; j++){
+            auto [x2, y2, z2] = r[j];
+            if(abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2) == 1){
+                flow.add_edge(i, j);
+                ldeg[i]++; rdeg[j]++;
+            }
+        }
+    }
+    int cnt = 0;
+    for(int i = 0; i < N; i++) cnt += (!ldeg[i]);
+    for(int i = 0; i < M; i++) cnt += (!rdeg[i]);
+    cout << flow.maximum_matching() + cnt << "\n";
+}
+
+void Main(){
+    int t = 1; 
+    //cin >> t;
+    while(t--) solve();
+    /* for(int tc = 1; tc <= t; tc++){
+    cout << "Case #" << tc << ": "; solve();
+    } */
+}
+
+int32_t main(){
+    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+    cout.setf(ios::fixed); cout.precision(PRECISION);
+    Main();
+    return 0;
+}
+```

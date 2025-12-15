@@ -1,0 +1,54 @@
+---
+title: "[BOJ] 33928번 나이트 오브 나이츠(Hard)"
+date: "2025-12-15"
+summary: "[BOJ] 33928번 나이트 오브 나이츠(Hard) 풀이"
+tags: [BOJ, PS]
+draft: false
+cover: ""
+---
+
+## [<Rank rank="Platinum" level = "P2" />] 나이트 오브 나이츠(Hard)
+
+<br />
+- **tag** : mfmc, bipartite_graph, max_flow, Maximum Independent Set
+- **link** : https://www.acmicpc.net/problem/33928
+
+<br />
+유량 문제에서 체스판이나 2차원 격자가 나오게 되면 주어진 2차원 격자를 이분 그래프로 모델링 할 수 있음은 잘 알려져있다.
+
+
+문제에서 구하고자 하는 것은 나이트를 적절히 배치하여 최대한 많은 점수를 확보하고자 하는 것이니, 왼쪽 정점들에서 오른쪽 정점들로 갈 수 있는 칸들만 연결해준 다음에
+
+Source -> 왼쪽 정점들(체스판에서 검은 칸), 오른쪽 정점들(체스판에서 하얀 칸) -> Sink로 놓고 max flow를 찾자.
+
+답은 전체 board의 값 - max flow이다.
+
+모델링이 어렵다면 아래의 코드를 참고하자.
+
+<br />
+
+```cpp showLineNumbers
+int n, v[555][555], S;
+bool bound(int x, int y){ return x < 0 or x >= n or y < 0 or y >= n; }
+
+inline int id(int x, int y){ return n*x + y; }
+
+void solve(){
+    cin >> n;
+    for(int i = 0; i < n; i++) for(int j = 0; j < n; j++) cin >> v[i][j], S += v[i][j];
+    Dinic<int> flow(n * n + 5);
+    int st = n * n + 2, en = n * n + 3;
+    for(int x = 0; x < n; x++){
+        for(int y = 0; y < n; y++){
+            if((x + y) & 1) flow.add_edge(st, id(x, y), v[x][y]);
+            else flow.add_edge(id(x, y), en, v[x][y]);
+            for(int d = 0; d < 8; d++){
+                auto nx = x + knx[d], ny = y + kny[d];
+                if(bound(nx, ny)) continue;
+                if(((x + y) & 1)) flow.add_edge(id(x, y), id(nx, ny), INF);
+            }
+        }
+    }
+    cout << S - flow.maximum_flow(st, en) << "\n";
+}
+```

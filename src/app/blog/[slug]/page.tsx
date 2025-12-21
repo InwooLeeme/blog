@@ -14,6 +14,9 @@ import TocbotSidebar from "@/app/components/mdx/toc";
 import * as React from "react";
 import Comments from "../../components/Comments";
 import { Rank } from "@/app/components/mdx/Rank";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+
 
 interface PageProps {
   params: Promise<{
@@ -95,7 +98,7 @@ export default async function PostPage({ params }: PageProps) {
               source={content}
               options={{
                 mdxOptions: {
-                  remarkPlugins: [remarkGfm],
+                  remarkPlugins: [remarkGfm, remarkMath],
                   rehypePlugins: [
                     rehypeSlug,
                     [rehypeAutolinkHeadings, { behavior: "wrap" }],
@@ -110,6 +113,7 @@ export default async function PostPage({ params }: PageProps) {
                         keepBackground: false, 
                       },
                     ],
+                    rehypeKatex,
                   ],
                 },
               }}

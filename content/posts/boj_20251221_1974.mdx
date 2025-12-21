@@ -1,0 +1,45 @@
+---
+title: "[BOJ] 1974번 Jump Jump Championship"
+date: "2025-12-21"
+summary: "[BOJ] 1974번 Jump Jump Championship 풀이"
+tags: [BOJ, PS]
+draft: false
+cover: ""
+---
+
+## [<Rank rank="Platinum" level = "P5" />] Jump Jump Championship
+
+정석적인 LIS + 역추적 문제에서 약간 변형이다.
+
+```cpp showLineNumbers
+vector<int> LIS(const vector<int>& v){
+    int n = si(v);
+    vector<int> pos(n), lis, res;
+    for(int i = 0; i < n; i++){
+        if(lis.empty() or lis.back() < v[i]){
+            lis.push_back(v[i]); pos[i] = si(lis);
+        }
+        else{
+            int idx = lower_bound(all(lis), v[i]) - lis.begin();
+            lis[idx] = v[i], pos[i] = idx + 1;
+        }
+    }
+    int len = si(lis);
+    for(int i = n - 1; i >= 0; i--) if(pos[i] == len) res.push_back(i),len--;
+    reverse(all(res));
+    return res;
+}
+
+void solve(){
+    int tc; cin >> tc;
+    while(tc--){
+        int n; cin >> n;
+        vector<int> v(n);
+        for(auto& i : v) cin >> i;
+        auto res = LIS(v);
+        cout << si(res) << "\n";
+        for(const auto& i : res) cout << i + 1 << " ";
+        cout << "\n";
+    }
+}
+```

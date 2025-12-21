@@ -77,10 +77,10 @@ export default function TagSidebar({
               {/* All Posts */}
               <Link href={basePath} className="block">
                 <Badge
-                  variant="secondary"
+                  variant="outline"
                   className={cn(
                     "w-full justify-between rounded-md py-2",
-                    !activeTag && "ring-2 ring-primary/50"
+                    !activeTag && "border-violet-600"
                   )}
                 >
                   <span>All Posts</span>
@@ -98,10 +98,10 @@ export default function TagSidebar({
                     className="block"
                   >
                     <Badge
-                      variant={selected ? "default" : "secondary"}
+                      variant={selected ? "outline" : "secondary"}
                       className={cn(
                         "w-full justify-between rounded-md py-2",
-                        selected && "ring-2 ring-primary/40"
+                        selected && "border-violet-600"
                       )}
                     >
                       <span className="truncate">{tag}</span>

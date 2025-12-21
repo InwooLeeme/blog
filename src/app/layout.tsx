@@ -8,7 +8,7 @@ import type { Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next"
 
 const BlogInfo = {
-  title: "InwooLeeme의 개발 블로그",
+  title: "InwooLeeme.dev",
 };
 
 const geistSans = Geist({

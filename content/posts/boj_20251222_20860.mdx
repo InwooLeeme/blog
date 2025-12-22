@@ -1,0 +1,53 @@
+---
+title: "[BOJ] 20860번 DuTub"
+date: "2025-12-22"
+summary: "[BOJ] 20860번 DuTub 풀이"
+tags: [BOJ, PS]
+draft: false
+cover: ""
+---
+
+## [<Rank rank="Gold" level = "G1" />] Jump Jump Championship
+
+<br />
+- **tag** : dp_bitfield
+- **link** : https://www.acmicpc.net/problem/20860
+
+<br />
+
+$D[i]$ : 현재 i비트를 보고 있을 때 필요한 시간으로 놓고 bitfield dp를 돌리면 된다.
+
+<br />
+
+```cpp showLineNumbers
+int n,en;
+map<char,int> I;
+
+void solve(){
+    cin >> n;
+    vi d(n); int idx = 0;
+    vector<string> s(n);
+    for(int i = 0; i < n; i++){
+        cin >> d[i] >> s[i];
+        for(int j = 0; j < si(s[i]); j++){
+            if(I.count(s[i][j])) continue;
+            I[s[i][j]] = idx++;
+        }
+    }
+    for(const auto& [a, b] : I) en |= (1 << b);
+    int N = si(I);
+    vi D(1 << N, INF);
+    D[0] = 0;
+    for(int i = 0; i < n; i++){
+        for(int bit = 0; bit < (1 << N); bit++){
+            int nxt = bit;
+            for(int j = 0; j < si(s[i]); j++){
+                if(nxt & (1 << I[s[i][j]])) continue;
+                nxt |= (1 << I[s[i][j]]);
+            }
+            D[nxt] = min<int>(D[nxt], D[bit] + d[i]);
+        }
+    }
+    cout << D[en] << '\n';
+}
+```

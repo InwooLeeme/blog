@@ -1,0 +1,80 @@
+---
+title: "[BOJ] 27958번 사격 연습"
+date: "2026-01-20"
+summary: "[BOJ] 27958번 사격 연습 풀이"
+tags: [BOJ, PS]
+draft: false
+cover: ""
+---
+
+## [<Rank rank="Gold" level = "G4" />] 사격 연습
+
+<br />
+- **tag** : simulation, bruteforcing
+- **link** : https://www.acmicpc.net/problem/27958
+
+<br />
+
+구현해주면 된다.
+
+<br />
+
+
+```cpp showLineNumbers
+int n, k, mx;
+int I[11][11], c[11][11],D[11][11];
+
+bool inline bound(int x, int y){ return x < 0 or x >= n or y < 0 or y >= n; }
+
+void C(){
+    for(int i = 0; i < n; i++) for(int j = 0; j < n; j++) c[i][j] = I[i][j];
+}
+
+void solve(){
+    // input
+    cin >> n >> k;
+    for(int i = 0; i < n; i++) for(int j = 0; j < n; j++) cin >> I[i][j];
+    vi K(k); for(auto& i : K) cin >> i;
+    for(int bit = 0; bit < pow(n, k); bit++){
+        int temp = bit;
+        vi cur(k);
+        for(int i = 0; i < k; i++){
+            cur[i] = temp % n;
+            temp /= n;
+        }
+        C();
+        memset(D, 0, sizeof(D));
+        int S = 0;
+        for(int i = 0; i < k; i++){
+            int bullet = K[i];
+            int r = cur[i];
+            for(int j = 0; j < n; j++){
+                if(c[r][j] >= 10){
+                    // bonus
+                    S += c[r][j]; c[r][j] = 0; 
+                    break;
+                }
+                else if(1 <= c[r][j] and c[r][j] <= 9){
+                    if(c[r][j] - D[r][j] <= bullet){
+                        S += c[r][j];
+                        if(c[r][j] / 4 != 0){
+                            for(int d = 0; d < 4; d++){
+                                auto nx = r + dx[d], ny = j + dy[d];
+                                if(bound(nx, ny) or c[nx][ny]) continue;
+                                c[nx][ny] = max<int>(0, (c[r][j] / 4));
+                            }
+                        }
+                        c[r][j] = 0;
+                        D[r][j] = 0;
+                    }
+                    else D[r][j] += bullet;
+                    c[r][j] = max<int>(0, c[r][j]);
+                    break;
+                }
+            }
+        }
+        mx = max<int>(mx, S);
+    }
+    cout << mx << "\n";
+}
+```

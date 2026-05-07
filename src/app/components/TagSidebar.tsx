@@ -33,14 +33,9 @@ export default function TagSidebar({
   profileName?: string;
   profileDescription? : string
 }) {
-  const [sort, setSort] = React.useState<"count" | "alpha">("count");
-
   const sorted = React.useMemo(() => {
-    const arr = [...tagCounts];
-    return sort === "count"
-      ? arr.sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag))
-      : arr.sort((a, b) => a.tag.localeCompare(b.tag));
-  }, [tagCounts, sort]);
+    return [...tagCounts].sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+  }, [tagCounts]);
   const fallback = React.useMemo(() => {
     const t = (profileName ?? "").trim();
     if (!t) return "B";
@@ -48,6 +43,38 @@ export default function TagSidebar({
   }, [profileName]);
 
   return (
+    <>
+      {/* 모바일: 수평 스크롤 태그 스트립 */}
+      <div className="lg:hidden mb-4 overflow-x-auto pb-2 -mx-1 px-1">
+        <div className="flex gap-2 min-w-max">
+          <Link href={basePath}>
+            <Badge
+              variant="outline"
+              className={cn("rounded-full py-1", !activeTag && "border-violet-600")}
+            >
+              All ({totalCount})
+            </Badge>
+          </Link>
+          {sorted.map(({ tag, count }) => (
+            <Link
+              key={tag}
+              href={`${tagBasePath}/${encodeURIComponent(tag)}`}
+            >
+              <Badge
+                variant={activeTag === tag ? "outline" : "secondary"}
+                className={cn(
+                  "rounded-full py-1",
+                  activeTag === tag && "border-violet-600"
+                )}
+              >
+                {tag} ({count})
+              </Badge>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* 데스크톱: 사이드바 */}
     <aside className="sticky top-24 hidden lg:block w-60 shrink-0">
       {/* 아바타 추가 */}
       <Card>
@@ -115,5 +142,6 @@ export default function TagSidebar({
         </CardContent>
       </Card>
     </aside>
+    </>
   );
 }

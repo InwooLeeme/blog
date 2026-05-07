@@ -69,7 +69,7 @@ export default async function PostPage({ params }: PageProps) {
   const { meta, content } = post;
 
   return (
-    <div className="mx-auto w-full max-w-6xl lg:max-w-6xl ">
+    <div className="mx-auto w-full max-w-6xl px-4 md:px-6 lg:px-8">
       {meta.cover ? (
         <div className="relative aspect-[1200/630] mb-8">
           <MdxImage

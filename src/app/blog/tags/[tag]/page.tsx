@@ -32,7 +32,7 @@ export default async  function BlogTagPage({ params }: { params: Promise<{ tag: 
   if (filtered.length === 0) return notFound();
 
   return (
-    <div className="w-full max-w-6xl mt-6">
+    <div className="w-full max-w-6xl mx-auto mt-6 px-4 md:px-6 lg:px-8">
       <div className="lg:flex lg:gap-10">
         <TagSidebar
           tagCounts={tagCounts}

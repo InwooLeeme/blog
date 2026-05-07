@@ -26,7 +26,7 @@ export default function Header({ title }: IHeader) {
   return (
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur">
       <ReadingProgressBar/>
-      <div className="w-full mx-auto flex justify-between h-14 px-20 max-md:flex-col max-md:h-20 max-md:items-center">
+      <div className="w-full mx-auto flex items-center justify-between h-14 px-4 sm:px-6 lg:px-20">
         <div className="flex flex-1 items-center gap-4">
           <Link
             href="/blog"

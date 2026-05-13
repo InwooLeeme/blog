@@ -81,45 +81,46 @@ export default async function PostPage({ params }: PageProps) {
           />
         </div>
       ) : null}
-      <article
-        id="post-article"
-        className="prose prose-zinc dark:prose-invert prose-main lg:text-xl"
-      >
-        <div className="flex gap-6">
-          <div className="w-full max-w-4xl lg:max-w-6xl">
-            <PostHeader
-              title={meta.title}
-              date={meta.date}
-              tags={meta.tags}
-              readingTime={meta.readingTime}
-            />
-            {/* MDX 본문 */}
-            <MDXRemote
-              source={content}
-              options={{
-                mdxOptions: {
-                  remarkPlugins: [remarkGfm, remarkMath],
-                  rehypePlugins: [
-                    rehypeSlug,
-                    [rehypeAutolinkHeadings, { behavior: "wrap" }],
-                    [rehypePrettyCode,
-                      {
-                        // 라이트/다크 테마 동시 지정 가능
-                        theme: {
-                          dark: "github-dark-dimmed",
-                          light: "github-light",
-                        },
-                        defaultLang: "plaintext",
-                        keepBackground: false, 
-                      },
-                    ],
-                    rehypeKatex,
+      <article id="post-article" className="w-full">
+        <PostHeader
+          title={meta.title}
+          date={meta.date}
+          tags={meta.tags}
+          readingTime={meta.readingTime}
+        />
+        {/* MDX 본문 */}
+        <div className="prose prose-zinc dark:prose-invert prose-main lg:text-xl">
+          <MDXRemote
+            source={content}
+            options={{
+              mdxOptions: {
+                remarkPlugins: [remarkGfm, remarkMath],
+                rehypePlugins: [
+                  rehypeSlug,
+                  [
+                    rehypeAutolinkHeadings,
+                    {
+                      behavior: "append",
+                      properties: { className: ["anchor"], ariaLabel: "Link to section" },
+                    },
                   ],
-                },
-              }}
-              components={components}
-            />
-          </div>
+                  [rehypePrettyCode,
+                    {
+                      // 라이트/다크 테마 동시 지정 가능
+                      theme: {
+                        dark: "github-dark-dimmed",
+                        light: "github-light",
+                      },
+                      defaultLang: "plaintext",
+                      keepBackground: false,
+                    },
+                  ],
+                  rehypeKatex,
+                ],
+              },
+            }}
+            components={components}
+          />
         </div>
       </article>
       <Comments />

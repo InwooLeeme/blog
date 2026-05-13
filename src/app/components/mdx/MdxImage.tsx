@@ -10,6 +10,8 @@ export default function MdxImage(props: any) {
             <Image
                 src={src}
                 alt={alt}
+                width={w}
+                height={h}
                 sizes="(min-width:1024px) 768px, 100vw"
                 className={`rounded-xl border ${className ?? ""}`}
                 {...rest}

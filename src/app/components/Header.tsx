@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import ReadingProgressBar from "./ReadingProgressBar";
+import SearchDialog from "./SearchDialog";
 
 interface IHeader {
   title: string | undefined;
@@ -49,6 +50,7 @@ export default function Header({ title }: IHeader) {
               {link.label}
             </Link>
           ))}
+          <SearchDialog />
           <Button asChild variant="ghost" size="icon" aria-label="Github">
             <Link
               href="https://github.com/InwooLeeme"
@@ -63,6 +65,7 @@ export default function Header({ title }: IHeader) {
 
         {/* 모바일: 햄버거 + 다크모드 + 깃허브(선택) */}
         <div className="md:hidden flex items-center gap-2">
+          <SearchDialog />
           <Button asChild variant="ghost" size="icon" aria-label="Github">
             <Link
               href="https://github.com/InwooLeeme"

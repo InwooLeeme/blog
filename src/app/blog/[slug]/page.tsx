@@ -5,13 +5,12 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
-import { getAllPosts, getPostBySlug } from "@/lib/posts";
+import { getPostBySlug, getPublishedSlugs } from "@/lib/posts";
 import PreWithCopy from "../../components/mdx/pre-with-copy";
 import { Callout } from "@/app/components/mdx/Callout/index";
 import MdxImage from "@/app/components/mdx/MdxImage";
 import PostHeader from "@/app/components/mdx/PostHeader";
 import TocbotSidebar from "@/app/components/mdx/toc";
-import * as React from "react";
 import Comments from "../../components/Comments";
 import { Rank } from "@/app/components/mdx/Rank";
 import remarkMath from "remark-math";
@@ -26,15 +25,11 @@ interface PageProps {
 
 // 정적 경로 생성
 export function generateStaticParams() {
-  return getAllPosts().map((p) => ({ slug: p.slug }));
+  return getPublishedSlugs().map((slug) => ({ slug }));
 }
 
 // 정적 메타데이터
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const post = getPostBySlug((await params).slug);
   if (!post) return {};
   const { meta } = post;
@@ -45,20 +40,11 @@ export async function generateMetadata({
 }
 
 const components = {
-  pre: (
-    props: React.HTMLAttributes<HTMLPreElement> & { children?: React.ReactNode }
-  ) => <PreWithCopy {...props} />,
-  Callout: (props: {
-    type?: "info" | "warn" | "danger" | "normal";
-    children: React.ReactNode;
-  }) => <Callout {...props} />,
-  img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    <MdxImage {...props} />
-  ),
-  Image: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    <MdxImage {...props} />
-  ),
-  Rank: Rank
+  pre: PreWithCopy,
+  Callout,
+  img: MdxImage,
+  Image: MdxImage,
+  Rank,
 };
 
 export default async function PostPage({ params }: PageProps) {
@@ -124,9 +110,7 @@ export default async function PostPage({ params }: PageProps) {
         </div>
       </article>
       <Comments />
-      <div className="hidden xl:block">
-        <TocbotSidebar />
-      </div>
+      <TocbotSidebar />
     </div>
   );
 }

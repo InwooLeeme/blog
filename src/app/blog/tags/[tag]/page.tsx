@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getAllPosts, getAllTags, getTagCounts, getPostItemsByTag } from "@/lib/posts"; 
-import TagSidebar from "../../../components/TagSidebar"; 
-import PostCard from './../../../components/PostCard';
+import { getAllPosts, getAllTags, getTagCounts, getPostItemsByTag } from "@/lib/posts";
+import TagSidebar from "../../../components/TagSidebar";
+import PostCard from "../../../components/PostCard";
 
 export function generateStaticParams() {
   const metas = getAllPosts().map((p) => p.meta);

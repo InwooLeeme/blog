@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import rt from "reading-time"
+import { cache } from "react"
 
 export type PostMeta = {
   title: string
@@ -32,12 +33,27 @@ export function getPostSlugs() {
 }
 
 /**
+* 발행된(draft가 아닌) 게시글의 slug 목록만 반환합니다.
+* - 본문은 파싱하지 않고 frontmatter만 읽어 draft 필터링에 사용합니다.
+* - generateStaticParams 등 본문이 필요 없는 경로에서 사용하세요.
+*/
+export function getPublishedSlugs() {
+  return getPostSlugs()
+    .filter((f) => {
+      const file = fs.readFileSync(path.join(POSTS_DIR, f), "utf8")
+      const { data } = matter(file)
+      return !(data as PostMeta).draft
+    })
+    .map((f) => f.replace(/\.mdx$/, ""))
+}
+
+/**
 * slug(또는 파일명)로부터 특정 게시글의 메타데이터(frontmatter)와 본문(content)을 읽어 반환합니다.
 * 주의/예외:
 * - 해당 MDX 파일이 없으면 fs.readFileSync에서 예외가 발생합니다.
 * - frontmatter의 타입은 PostMeta로 단언(cast)하고 있으므로, 필수 필드 누락 시 런타임에만 문제될 수 있습니다.
 */
-export function getPostBySlug(slug: string) {
+export const getPostBySlug = cache((slug: string) => {
   const realSlug = slug.replace(/\.mdx$/, "")
   const fullPath = path.join(POSTS_DIR, `${realSlug}.mdx`)
   const file = fs.readFileSync(fullPath, "utf8")
@@ -49,7 +65,7 @@ export function getPostBySlug(slug: string) {
     meta: { ...(data as PostMeta), readingTime: minutes },
     content,
   }
-}
+})
 /**
 * 모든 게시글을 읽어와 "발행 가능한 목록"으로 정리해 반환합니다.
 * 반환 값:

@@ -26,7 +26,7 @@ export default function TocbotSidebar() {
   }, []);
 
   return (
-    <aside className="fixed top-60 right-6 hidden lg:block bg-background w-60 shrink-0">
+    <aside className="fixed top-60 right-6 hidden xl:block bg-background w-60 shrink-0">
       <Card className="w-full">
         <CardContent>
           <div className="text-sm font-medium text-muted-foreground mb-3">

@@ -20,6 +20,10 @@ interface IHeader {
 
 const navLinks = [
   {
+    href: "/about",
+    label: "소개",
+  },
+  {
     href: "/playground",
     label: "플레이그라운드",
   },

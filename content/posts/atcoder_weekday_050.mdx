@@ -1,0 +1,60 @@
+---
+title: "Atcoder Weekday Contest 050"
+date: "2026-05-18"
+summary: "Atcoder Weekday Contest 050 풀이"
+tags: [Atcoder]
+draft: false
+cover: ""
+---
+
+## Atcoder Weekday Contest 050 풀이
+
+대회 링크는 아래와 같다
+- **link** : https://atcoder.jp/contests/awc0050
+
+<br/>
+
+### 1. A - Matching Sequences
+
+- tag : implement
+- link : https://atcoder.jp/contests/awc0050/tasks/awc0050_a
+
+수열 $A$와 $B$를 보았을 때 각 인덱스의 값이 같게 만드는 최소횟수를 구하는 문제인데,
+이를 위해선 각 연산을 관찰했을 때 1씩 증가 or 감소되기 때문에 그냥 $abs(A[i] - B[i])$를 해주면 된다는 사실을
+관찰할 수 있다.
+
+### 2. B - Orchard Harvest
+
+- tag : greedy, math
+- link : https://atcoder.jp/contests/awc0050/tasks/awc0050_b
+
+그리디하게 처리해주면 되는데, $K$의 범위가 커서 시뮬레이션을 쓰면 안되고 수학적으로 계산해줘야한다
+값 $A, B$가 있을 때 $floor(A, B)$일 동안 $B$를 수확할 수 있고, $A % B$일만큼 1씩 수확할 수 있다.
+따라서 날짜를 기준으로 내림차순 정렬해서 그리디하게 처리해주면 된다.
+
+### 3. C - Stacking Cards
+
+- tag : stack, xor, hash_map
+- link : https://atcoder.jp/contests/awc0050/tasks/awc0050_c
+
+stack을 이용해서 각 쿼리 순으로 처리해준 다음에 map을 이용해서 look의 연산이 들어온 횟수를 관리해주면 된다.
+
+### 4. 	D - City Walk and Tolls
+
+- tag : dijkstra
+- link : https://atcoder.jp/contests/awc0050/tasks/awc0050_d
+
+문제를 읽어보면 정점 가중치를 가지는 다익을 쓰면 된다는 걸 알 수 있다.
+
+### 5. E - Minimum Cost Guard Plan
+
+- tag : bit_dp
+- link : https://atcoder.jp/contests/awc0050/tasks/awc0050_e
+
+$dp[i]$를 현재 i번 집합까지 봤을 때 필요한 돈의 최솟값
+이라고 정의한 다음에 dp를 돌리면 된다.
+ps. mcmf도 가능한 듯, mcmf로 풀려다가 bitdp가 더 쉬운 것 같아서 bitdp로 품
+
+
+#### 총평
+음..... 1시간 잡고 풀기 좋은 것 같다.

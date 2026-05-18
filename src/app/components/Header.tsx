@@ -24,6 +24,10 @@ const navLinks = [
     label: "소개",
   },
   {
+    href: "/notes",
+    label: "Notes",
+  },
+  {
     href: "/playground",
     label: "플레이그라운드",
   },

@@ -1,0 +1,21 @@
+---
+title: "Dijkstra"
+description: "인접 그래프 위에서 Dijkstra"
+---
+
+```cpp
+constexpr int inf = 1LL << 60;
+vector<int> dijkstra(vector<vector<pair<int, int>>>& g, int st){
+    vector<int> dist(n + 1, inf);
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
+    pq.push({dist[st] = 0, st});
+    while(pq.size()){
+        auto [cdist, cur] = pq.top(); pq.pop();
+        if(dist[cur] < cdist) continue;
+        for(const auto& [cost, nxt] : g[cur]){
+            if(dist[nxt] > cdist + cost) pq.push({dist[nxt] = cdist + cost, nxt});
+        }
+    }
+    return dist;
+}
+```

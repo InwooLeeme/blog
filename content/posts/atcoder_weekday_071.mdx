@@ -1,0 +1,56 @@
+---
+title: "Atcoder Weekday Contest 071"
+date: "2026-05-19"
+summary: "Atcoder Weekday Contest 071 풀이"
+tags: [Atcoder]
+draft: false
+cover: ""
+---
+
+
+## Atcoder Weekday Contest 071 풀이
+
+### 1. A - Depth of Parentheses
+
+- tag : implement
+- link : https://atcoder.jp/contests/awc0071/tasks/awc0071_a
+
+스택인줄 알았는데 그냥 시뮬로도 풀린다.
+
+### 2. B - Sandwich Melody
+
+- tag : implement, ad_hoc
+- link : https://atcoder.jp/contests/awc0071/tasks/awc0071_b
+
+부분 문자열은 정확히 3개의 연속된 덩어리를 가져야한다는 것을 관찰하면 된다.
+
+### 3. C - Equal Load Distribution
+
+- tag : prefix_sum, ad_hoc
+- link : https://atcoder.jp/contests/awc0071/tasks/awc0071_c
+
+관찰 3가지를 하자.
+- 1. 첫 번째 카트의 경계는 무조건 수열의 처음부터 시작된다
+- 2. 카트의 개수 $k$와 하나의 카트 무게 $w$는 반비례 관계이다
+- 3. 누적 합 배열은 항상 오름차순이다
+
+### 4. D - Delivery
+
+- tag : dijkstra
+- link : https://atcoder.jp/contests/awc0071/tasks/awc0071_d
+
+$S$에서 $G$로 $G$에서 $T$로 다익을 돌리면 된다.
+
+### 5. E - Installation of Wi-Fi Access Points
+
+- tag : flow, HopcroftKarp
+- link : https://atcoder.jp/contests/awc0071/tasks/awc0071_e
+
+...여기서 얘가 왜 나오는지 모르겠는데 문제에서 이분그래프임이 보장된다고 하니 이분그래프를 일단 만들자.
+
+입력으로 들어온 그래프를 이분그래프로 분할한 다음 $N$의 제한이 크니 호프크로프트-카프로 이분매칭을 돌리면 된다.
+
+#### 총평
+진짜 $E$번은 거의 플2짜리가 튀어나왔는데 난이도 커브가 왜 이럴까.
+
+내일은 시간이 된다면 EDPC를 풀어보는 걸로?

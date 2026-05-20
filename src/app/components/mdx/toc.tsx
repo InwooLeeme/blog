@@ -2,8 +2,6 @@
 
 import { useEffect } from "react";
 import tocbot from "tocbot";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card, CardContent } from "@/components/ui/card";
 
 export default function TocbotSidebar() {
   useEffect(() => {
@@ -26,17 +24,13 @@ export default function TocbotSidebar() {
   }, []);
 
   return (
-    <aside className="fixed top-60 right-6 hidden xl:block bg-background w-60 shrink-0">
-      <Card className="w-full">
-        <CardContent>
-          <div className="text-sm font-medium text-muted-foreground mb-3">
-            On this page
-          </div>
-          <ScrollArea className="max-h-[calc(100vh-8rem)] pr-3">
-            <nav className="js-toc" />
-          </ScrollArea>
-        </CardContent>
-      </Card>
+    <aside className="hidden xl:block w-60 shrink-0">
+      <div className="sticky top-32">
+        <div className="mb-3 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+          On this page
+        </div>
+        <nav className="js-toc pr-2" />
+      </div>
     </aside>
   );
 }

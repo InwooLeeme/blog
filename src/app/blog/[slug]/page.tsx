@@ -5,7 +5,12 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
-import { getPostBySlug, getPublishedSlugs } from "@/lib/posts";
+import {
+  getAdjacentPosts,
+  getPostBySlug,
+  getPublishedSlugs,
+  getRelatedPosts,
+} from "@/lib/posts";
 import PreWithCopy from "../../components/mdx/pre-with-copy";
 import { Callout } from "@/app/components/mdx/Callout/index";
 import MdxImage from "@/app/components/mdx/MdxImage";
@@ -13,6 +18,8 @@ import PostHeader from "@/app/components/mdx/PostHeader";
 import PostTags from "@/app/components/mdx/PostTags";
 import TocbotSidebar from "@/app/components/mdx/toc";
 import Comments from "../../components/Comments";
+import PostNavigation from "@/app/components/PostNavigation";
+import RelatedPosts from "@/app/components/RelatedPosts";
 import { Rank } from "@/app/components/mdx/Rank";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -54,6 +61,8 @@ export default async function PostPage({ params }: PageProps) {
   if (!post) return notFound();
 
   const { meta, content } = post;
+  const { prev, next } = getAdjacentPosts(slug);
+  const related = getRelatedPosts(slug, 3);
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 md:px-6 lg:px-8">
@@ -113,6 +122,8 @@ export default async function PostPage({ params }: PageProps) {
         <TocbotSidebar />
       </div>
       <PostTags tags={meta.tags} />
+      <PostNavigation prev={prev} next={next} />
+      <RelatedPosts posts={related} />
       <Comments />
     </div>
   );

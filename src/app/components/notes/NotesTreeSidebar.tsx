@@ -50,10 +50,10 @@ export default function NotesTreeSidebar({ tree }: Props) {
   const header = (
     <div className="mb-3 flex items-center justify-between gap-2 border-b pb-3">
       <div className="flex items-center gap-2 text-sm font-semibold">
-        <ListTree className="h-4 w-4 text-violet-600" />
+        <ListTree className="h-4 w-4 text-accent-brand" />
         <span>Notes</span>
       </div>
-      <span className="rounded-full bg-violet-600/10 px-2 py-0.5 text-[0.7rem] font-medium text-violet-700 dark:text-violet-300 tabular-nums">
+      <span className="rounded-full bg-accent-brand/10 px-2 py-0.5 text-[0.7rem] font-medium text-accent-brand dark:text-accent-brand tabular-nums">
         {totalCount}
       </span>
     </div>
@@ -85,9 +85,9 @@ export default function NotesTreeSidebar({ tree }: Props) {
       <details className="lg:hidden mb-4 group">
         <summary className="cursor-pointer list-none rounded-lg border bg-card px-4 py-2.5 text-sm font-medium flex items-center gap-2 transition hover:bg-muted/50">
           <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
-          <ListTree className="h-4 w-4 text-violet-600" />
+          <ListTree className="h-4 w-4 text-accent-brand" />
           <span>목차</span>
-          <span className="ml-auto rounded-full bg-violet-600/10 px-2 py-0.5 text-[0.7rem] font-medium text-violet-700 dark:text-violet-300 tabular-nums">
+          <span className="ml-auto rounded-full bg-accent-brand/10 px-2 py-0.5 text-[0.7rem] font-medium text-accent-brand dark:text-accent-brand tabular-nums">
             {totalCount}
           </span>
         </summary>
@@ -166,9 +166,9 @@ function FolderRow({
           )}
         />
         {open ? (
-          <FolderOpen className="h-4 w-4 shrink-0 text-violet-600" />
+          <FolderOpen className="h-4 w-4 shrink-0 text-accent-brand" />
         ) : (
-          <Folder className="h-4 w-4 shrink-0 text-violet-600" />
+          <Folder className="h-4 w-4 shrink-0 text-accent-brand" />
         )}
         <span className="truncate text-[0.875rem] font-medium">{node.name}</span>
         <span className="ml-auto rounded bg-muted px-1.5 py-0.5 text-[0.65rem] text-muted-foreground tabular-nums group-hover:bg-background">
@@ -215,20 +215,20 @@ function FileRow({
         className={cn(
           "relative flex items-center gap-1.5 rounded-md py-1.5 pl-7 pr-2 text-[0.875rem] transition",
           isActive
-            ? "bg-violet-600/10 text-violet-700 dark:text-violet-300 font-medium"
+            ? "bg-accent-brand/10 text-accent-brand dark:text-accent-brand font-medium"
             : "text-foreground/80 hover:bg-muted/70 hover:text-foreground",
         )}
       >
         {isActive ? (
           <span
-            className="absolute left-0 top-1/2 h-5 w-[2px] -translate-y-1/2 rounded-full bg-violet-600"
+            className="absolute left-0 top-1/2 h-5 w-[2px] -translate-y-1/2 rounded-full bg-accent-brand"
             aria-hidden
           />
         ) : null}
         <FileCode2
           className={cn(
             "h-3.5 w-3.5 shrink-0",
-            isActive ? "text-violet-600" : "text-muted-foreground",
+            isActive ? "text-accent-brand" : "text-muted-foreground",
           )}
         />
         <span className="truncate">{node.name}</span>

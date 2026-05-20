@@ -38,7 +38,7 @@ const ReadingProgressBar = () => {
     return (
         <div className={cn('fixed top-0 left-0 h-1 z-20 w-full','bg-transparent')}>
             <div
-              className="h-full bg-violet-600 transition-transform duration-100 ease-out shadow-lg shadow-indigo-500/50"
+              className="h-full bg-accent-brand transition-transform duration-100 ease-out shadow-lg shadow-accent-brand/50"
               style={{
                 width: `${scrollProgress}%`,
                 transform: 'translateX(0%)'

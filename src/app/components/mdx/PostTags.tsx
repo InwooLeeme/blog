@@ -13,7 +13,7 @@ export default function PostTags({ tags }: IPostTagsProps) {
             {tags.map((tag, index) => (
                 <span
                     key={index}
-                    className="group inline-flex items-center gap-1.5 rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-bold text-white border border-zinc-700 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:border-violet-500 hover:bg-violet-600 hover:shadow-md hover:shadow-violet-500/30"
+                    className="group inline-flex items-center gap-1.5 rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-bold text-white border border-zinc-700 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:border-accent-brand hover:bg-accent-brand hover:text-zinc-900 hover:shadow-md hover:shadow-accent-brand/30"
                 >
                     <Tag className="h-3.5 w-3.5 transition-transform duration-200 group-hover:rotate-12" />
                     {tag}

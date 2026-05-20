@@ -10,6 +10,7 @@ import PreWithCopy from "../../components/mdx/pre-with-copy";
 import { Callout } from "@/app/components/mdx/Callout/index";
 import MdxImage from "@/app/components/mdx/MdxImage";
 import PostHeader from "@/app/components/mdx/PostHeader";
+import PostTags from "@/app/components/mdx/PostTags";
 import TocbotSidebar from "@/app/components/mdx/toc";
 import Comments from "../../components/Comments";
 import { Rank } from "@/app/components/mdx/Rank";
@@ -67,50 +68,52 @@ export default async function PostPage({ params }: PageProps) {
           />
         </div>
       ) : null}
-      <article id="post-article" className="w-full">
-        <PostHeader
-          title={meta.title}
-          date={meta.date}
-          tags={meta.tags}
-          readingTime={meta.readingTime}
-        />
-        {/* MDX 본문 */}
-        <div className="prose prose-zinc dark:prose-invert prose-main lg:text-xl">
-          <MDXRemote
-            source={content}
-            options={{
-              mdxOptions: {
-                remarkPlugins: [remarkGfm, remarkMath],
-                rehypePlugins: [
-                  rehypeSlug,
-                  [
-                    rehypeAutolinkHeadings,
-                    {
-                      behavior: "append",
-                      properties: { className: ["anchor"], ariaLabel: "Link to section" },
-                    },
-                  ],
-                  [rehypePrettyCode,
-                    {
-                      // 라이트/다크 테마 동시 지정 가능
-                      theme: {
-                        dark: "github-dark-dimmed",
-                        light: "github-light",
-                      },
-                      defaultLang: "plaintext",
-                      keepBackground: false,
-                    },
-                  ],
-                  rehypeKatex,
-                ],
-              },
-            }}
-            components={components}
+      <div className="xl:flex xl:gap-8 xl:items-stretch">
+        <article id="post-article" className="w-full min-w-0 xl:flex-1">
+          <PostHeader
+            title={meta.title}
+            date={meta.date}
+            readingTime={meta.readingTime}
           />
-        </div>
-      </article>
+          {/* MDX 본문 */}
+          <div className="prose prose-zinc dark:prose-invert prose-main lg:text-xl">
+            <MDXRemote
+              source={content}
+              options={{
+                mdxOptions: {
+                  remarkPlugins: [remarkGfm, remarkMath],
+                  rehypePlugins: [
+                    rehypeSlug,
+                    [
+                      rehypeAutolinkHeadings,
+                      {
+                        behavior: "append",
+                        properties: { className: ["anchor"], ariaLabel: "Link to section" },
+                      },
+                    ],
+                    [rehypePrettyCode,
+                      {
+                        // 라이트/다크 테마 동시 지정 가능
+                        theme: {
+                          dark: "github-dark-dimmed",
+                          light: "github-light",
+                        },
+                        defaultLang: "plaintext",
+                        keepBackground: false,
+                      },
+                    ],
+                    rehypeKatex,
+                  ],
+                },
+              }}
+              components={components}
+            />
+          </div>
+        </article>
+        <TocbotSidebar />
+      </div>
+      <PostTags tags={meta.tags} />
       <Comments />
-      <TocbotSidebar />
     </div>
   );
 }

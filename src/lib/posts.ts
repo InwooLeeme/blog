@@ -119,3 +119,58 @@ export function getTagCounts(metas: PostMeta[]): TagCount[] {
 export function getPostItemsByTag(posts: PostItem[], tag: string): PostItem[] {
   return posts.filter((p) => p.meta.tags?.includes(tag) ?? false);
 }
+
+export type AdjacentPosts = {
+  prev: PostItem | null;
+  next: PostItem | null;
+};
+
+/**
+* 현재 글의 이전/다음 글을 반환합니다.
+* - 정렬 기준은 date 내림차순(최신이 먼저).
+* - prev = 더 오래된 글(=배열에서 뒤쪽), next = 더 최신 글(=배열에서 앞쪽).
+*/
+export function getAdjacentPosts(slug: string): AdjacentPosts {
+  const posts = getAllPosts();
+  const idx = posts.findIndex((p) => p.slug === slug);
+  if (idx === -1) return { prev: null, next: null };
+  const next = idx > 0 ? posts[idx - 1] : null;
+  const prev = idx < posts.length - 1 ? posts[idx + 1] : null;
+  return { prev, next };
+}
+
+/**
+* 태그 겹침 기반으로 관련 글을 추천합니다.
+* - 점수: 공통 태그 수. 동률이면 최신순.
+* - 공통 태그가 0인 경우는 후보에서 제외(태그가 전혀 없는 글은 자기 자신 외에는 추천하지 않음).
+* - 한 개도 없으면 최신 글로 fallback.
+*/
+export function getRelatedPosts(slug: string, limit = 3): PostItem[] {
+  const posts = getAllPosts();
+  const current = posts.find((p) => p.slug === slug);
+  if (!current) return [];
+
+  const currentTags = new Set(current.meta.tags ?? []);
+
+  const scored = posts
+    .filter((p) => p.slug !== slug)
+    .map((p) => {
+      const overlap = (p.meta.tags ?? []).reduce(
+        (acc, t) => acc + (currentTags.has(t) ? 1 : 0),
+        0,
+      );
+      return { post: p, score: overlap };
+    })
+    .filter((x) => x.score > 0)
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.post.meta.date < b.post.meta.date ? 1 : -1;
+    })
+    .slice(0, limit)
+    .map((x) => x.post);
+
+  if (scored.length > 0) return scored;
+
+  // fallback: 태그 매칭이 없으면 최신 글 N개
+  return posts.filter((p) => p.slug !== slug).slice(0, limit);
+}

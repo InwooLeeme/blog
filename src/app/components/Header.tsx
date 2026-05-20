@@ -53,7 +53,7 @@ export default function Header({ title }: IHeader) {
             <Link
               key={link.href}
               href={link.href}
-              className="hover:text-violet-600 font-bold"
+              className="hover:text-accent-brand font-bold"
             >
               {link.label}
             </Link>

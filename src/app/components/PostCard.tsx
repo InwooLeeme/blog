@@ -17,7 +17,7 @@ export default function PostCard({ slug, meta }: { slug: string; meta: PostMeta 
 
     return (
         <Link href={`/blog/${slug}`} className="group block" aria-label={meta.title}>
-            <Card className="overflow-hidden h-full rounded-2xl transition hover:shadow-lg hover:-translate-y-0.5 hover:border-violet-600">
+            <Card className="overflow-hidden h-full rounded-2xl transition hover:shadow-lg hover:-translate-y-0.5 hover:border-accent-brand">
                 {meta.cover ? (
                     <div className="relative">
                         <AspectRatio ratio={16 / 9}>

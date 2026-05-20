@@ -50,7 +50,7 @@ export default function TagSidebar({
           <Link href={basePath}>
             <Badge
               variant="outline"
-              className={cn("rounded-full py-1", !activeTag && "border-violet-600")}
+              className={cn("rounded-full py-1", !activeTag && "border-accent-brand")}
             >
               All ({totalCount})
             </Badge>
@@ -64,7 +64,7 @@ export default function TagSidebar({
                 variant={activeTag === tag ? "outline" : "secondary"}
                 className={cn(
                   "rounded-full py-1",
-                  activeTag === tag && "border-violet-600"
+                  activeTag === tag && "border-accent-brand"
                 )}
               >
                 {tag} ({count})
@@ -107,7 +107,7 @@ export default function TagSidebar({
                   variant="outline"
                   className={cn(
                     "w-full justify-between rounded-md py-2",
-                    !activeTag && "border-violet-600"
+                    !activeTag && "border-accent-brand"
                   )}
                 >
                   <span>All Posts</span>
@@ -128,7 +128,7 @@ export default function TagSidebar({
                       variant={selected ? "outline" : "secondary"}
                       className={cn(
                         "w-full justify-between rounded-md py-2",
-                        selected && "border-violet-600"
+                        selected && "border-accent-brand"
                       )}
                     >
                       <span className="truncate">{tag}</span>

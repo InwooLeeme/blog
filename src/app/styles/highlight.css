@@ -13,6 +13,13 @@
     @apply rounded-lg border p-4 overflow-x-auto;
 }
 
+/* 코드 블럭 안의 글자 크기 — 본문 lg:text-xl보다 작게 */
+.prose pre code,
+.prose-main pre code {
+    font-size: 0.85em;
+    line-height: 1.5;
+}
+
 /* 라인 넘버 */
 code[data-line-numbers] {
     counter-reset: line;

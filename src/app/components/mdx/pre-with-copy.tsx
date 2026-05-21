@@ -4,11 +4,15 @@ import * as React from "react"
 import { Button } from "@/components/ui/button"
 import { Check, Copy } from "lucide-react"
 
-type PreProps = React.HTMLAttributes<HTMLPreElement> & { children?: React.ReactNode }
+type PreProps = React.HTMLAttributes<HTMLPreElement> & {
+  children?: React.ReactNode
+  "data-language"?: string
+}
 
 export default function PreWithCopy({ className = "", children, ...props }: PreProps) {
   const preRef = React.useRef<HTMLPreElement>(null)
   const [copied, setCopied] = React.useState(false)
+  const language = props["data-language"]
 
   async function onCopy() {
     const text =
@@ -23,7 +27,15 @@ export default function PreWithCopy({ className = "", children, ...props }: PreP
 
   return (
     <div className="relative group">
-      {/* 버튼을 pre 바깥에 올려 z-index 충돌을 피함 */}
+      {language ? (
+        <span
+          className="absolute right-20 top-2 z-10 select-none rounded-md border bg-background/80 dark:bg-zinc-900/70 px-2 py-0.5 text-[0.65rem] font-mono font-semibold uppercase tracking-wider text-muted-foreground backdrop-blur supports-[backdrop-filter]:backdrop-blur"
+          aria-hidden
+        >
+          {language}
+        </span>
+      ) : null}
+
       <Button
         type="button"
         onClick={onCopy}

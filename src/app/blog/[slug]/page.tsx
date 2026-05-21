@@ -5,6 +5,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
+import { transformerNotationDiff } from "@shikijs/transformers";
 import {
   getAdjacentPosts,
   getPostBySlug,
@@ -102,13 +103,13 @@ export default async function PostPage({ params }: PageProps) {
                     ],
                     [rehypePrettyCode,
                       {
-                        // 라이트/다크 테마 동시 지정 가능
                         theme: {
-                          dark: "github-dark-dimmed",
-                          light: "github-light",
+                          dark: "monokai",
+                          light: "monokai",
                         },
                         defaultLang: "plaintext",
-                        keepBackground: false,
+                        keepBackground: true,
+                        transformers: [transformerNotationDiff()],
                       },
                     ],
                     rehypeKatex,

@@ -177,8 +177,17 @@ article :is(h2,h3){ scroll-margin-top: 6rem; }
 }
 
 .prose pre code {
-  display: block;
-  padding: 1rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding: 1rem 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* 모든 라인은 좌우 padding을 직접 가짐 → 배경이 가로 스크롤 시에도 끝까지 이어짐 */
+[data-line] {
+  padding: 0 1rem;
 }
 
 /* 라이트/다크 테마 변수 적용 (prefers-color-scheme 대신 class 기반) */
@@ -211,10 +220,77 @@ code[data-line-numbers] > [data-line]::before {
   user-select: none;
 }
 
-/* 줄 하이라이트 */
+/* 줄 하이라이트 — 라이트/다크 양쪽 동작 */
 [data-highlighted-line] {
-  background: rgba(255,255,255,0.06);
-  display: block;
-  margin: 0 -1rem;
-  padding: 0 1rem;
+  background: rgba(127, 127, 127, 0.12);
+  border-left: 2px solid var(--accent-brand);
+  padding-left: calc(1rem - 2px);
+}
+
+/* 단어/구간 하이라이트 */
+[data-highlighted-chars] {
+  background: color-mix(in oklab, var(--accent-brand) 22%, transparent);
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+
+/* diff 라인 — GitHub 스타일 (@shikijs/transformers의 notationDiff) */
+.diff {
+  position: relative;
+}
+[data-line].diff.add {
+  background: rgba(63, 185, 80, 0.15);
+}
+.diff.add::before {
+  content: "+";
+  position: absolute;
+  left: 0.3rem;
+  color: rgba(63, 185, 80, 0.9);
+  font-weight: 700;
+}
+[data-line].diff.remove {
+  background: rgba(248, 81, 73, 0.15);
+}
+.diff.remove::before {
+  content: "-";
+  position: absolute;
+  left: 0.3rem;
+  color: rgba(248, 81, 73, 0.9);
+  font-weight: 700;
+}
+
+/* 파일명/타이틀 헤더 (figure > figcaption) */
+figure[data-rehype-pretty-code-figure] {
+  margin: 1.5rem 0;
+}
+figure[data-rehype-pretty-code-figure] figcaption[data-rehype-pretty-code-title] {
+  background: color-mix(in oklab, var(--background) 92%, var(--foreground));
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+figure[data-rehype-pretty-code-figure] figcaption[data-rehype-pretty-code-title]::before {
+  content: "";
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--accent-brand);
+}
+/* PreWithCopy가 pre를 div로 감싸므로 figcaption의 직접 형제는 div */
+figure[data-rehype-pretty-code-figure] figcaption[data-rehype-pretty-code-title] + div {
+  margin-top: 0;
+}
+.prose figure[data-rehype-pretty-code-figure] figcaption[data-rehype-pretty-code-title] + div > pre {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  margin-top: 0;
 }

@@ -22,6 +22,9 @@ import Comments from "../../components/Comments";
 import PostNavigation from "@/app/components/PostNavigation";
 import RelatedPosts from "@/app/components/RelatedPosts";
 import { Rank } from "@/app/components/mdx/Rank";
+import { ProblemMeta } from "@/app/components/mdx/ProblemMeta";
+import { Complexity } from "@/app/components/mdx/Complexity";
+import { Steps, Step } from "@/app/components/mdx/Steps";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 
@@ -54,6 +57,10 @@ const components = {
   img: MdxImage,
   Image: MdxImage,
   Rank,
+  ProblemMeta,
+  Complexity,
+  Steps,
+  Step,
 };
 
 export default async function PostPage({ params }: PageProps) {

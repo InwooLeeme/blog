@@ -33,6 +33,7 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-accent-brand: var(--accent-brand);
+  --color-accent-brand-fg: var(--accent-brand-fg);
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -53,6 +54,7 @@
   --radius: 0.625rem;
   /* 브랜드 악센트 색상 — 라이트 모드 기본값. 다크 모드는 아래 .dark 블록 참조 */
   --accent-brand: #0070f3;
+  --accent-brand-fg: #ffffff;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -89,6 +91,7 @@
 .dark {
   /* 브랜드 악센트 색상 — 다크 모드 */
   --accent-brand: #fff383;
+  --accent-brand-fg: #18181b;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);

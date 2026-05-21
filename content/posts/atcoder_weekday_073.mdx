@@ -1,0 +1,97 @@
+---
+title: "Atcoder Weekday Contest 073"
+date: "2026-05-21"
+summary: "Atcoder Weekday Contest 073 풀이"
+tags: [Atcoder]
+draft: false
+cover: ""
+---
+
+## Atcoder Weekday Contest 073 풀이
+
+오늘도 어김없이...
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0073/tasks/awc0073_a"
+    title = "A - Lottery Number Matching" tags = "data_structure"
+/>
+
+map이나 set을 쓰면 쉽다
+
+```cpp showLineNumbers
+int res;
+auto mint = [](){
+    int n,m; cin >> n >> m;
+    map<int, int> M;
+    for(int i = 0; i < n; i++){
+        int x; cin >> x; M[x]++;
+    }
+    for(int i = 0; i < m; i++){
+        int x; cin >> x; res += (M.count(x));
+    }
+    cout << res << "\n";
+};
+```
+<Complexity time="O(N log N)" />
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0073/tasks/awc0073_b"
+    title = "B - Flipping Cards" tags = "bruteforce"
+/>
+
+브루트포스로 $nCk$를 구해주면 된다
+
+```cpp showLineNumbers
+int n,k,mx;
+
+auto mint = [](){
+    cin >> n >> k;
+    vector<array<int, 2>> w(n);
+    for(int i = 0; i < n; i++) cin >> w[i][0] >> w[i][1];
+    vector<int> v;
+    for(int i = 0; i < n; i++) v.pb(i < k ? 0 : 1);
+    do{
+        int s = 0;
+        for(int i = 0; i < n; i++) s += (v[i] ? w[i][0] : w[i][1]);
+        mx = max<int>(mx, s);
+    }while(next_permutation(all(v)));
+    cout << mx << "\n";
+};
+```
+
+<Complexity time="O(nCr * N)" space="O(N)" />
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0073/tasks/awc0073_d"
+    title = "D - Package Delivery" tags = "floyd"
+/>
+
+정점의 개수인 $M$이 $M \leq 200$이다 플로이드를 돌리면 된다
+
+```cpp showLineNumbers
+int q,n,m,res;
+constexpr int inf = 1LL << 50;
+
+auto mint = [](){
+    cin >> q >> n >> m;
+    vector<vector<int>> dist(n + 1, vector<int>(n + 1, inf));
+    for(int i = 0; i < m; i++){
+        int a,b,c; cin >> a >> b >> c;
+        dist[a][b] = dist[b][a] = c;
+    }
+    for(int i = 1; i <=n; i++) dist[i][i] = 0;
+    for(int k = 1; k <=n; k++) for(int i = 1; i <= n; i++){
+        for(int j = 1; j <= n; j++){
+            dist[i][j] = min<int>(dist[i][j], dist[i][k] + dist[k][j]);
+        }
+    }
+    while(q--){
+        int a,b; cin >> a >> b;
+        res += dist[a][b];
+    }
+    cout << res << "\n";
+};
+```
+
+<Complexity time="O(N^3 + M + Q)" space="O(N^2)" />
+
+### 총평
+이 사람 $C, E$번은 안풀었나요?
+$C$번은 걍 귀찮아서 넘겼고요, $E$번은 유명한?문제인 것 같아서 내일 별도로 포스팅 올릴 예정입니다. 

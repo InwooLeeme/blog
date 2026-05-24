@@ -9,7 +9,12 @@ import { Analytics } from "@vercel/analytics/next"
 
 const BlogInfo = {
   title: "InwooLeeme.dev",
+  description: "알고리즘과 개발 이야기",
 };
+
+const SITE_URL =
+  process.env.SITE_URL ||
+  "https://blog-git-main-inwooleemes-projects.vercel.app";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,8 +32,25 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: BlogInfo.title,
-  description: BlogInfo.title,
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: BlogInfo.title,
+    template: `%s · ${BlogInfo.title}`,
+  },
+  description: BlogInfo.description,
+  openGraph: {
+    type: "website",
+    siteName: BlogInfo.title,
+    title: BlogInfo.title,
+    description: BlogInfo.description,
+    url: SITE_URL,
+    locale: "ko_KR",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: BlogInfo.title,
+    description: BlogInfo.description,
+  },
 };
 
 export default function RootLayout({

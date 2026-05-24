@@ -42,12 +42,26 @@ export function generateStaticParams() {
 
 // 정적 메타데이터
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const post = getPostBySlug((await params).slug);
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
   if (!post) return {};
   const { meta } = post;
   return {
     title: meta.title,
     description: meta.summary,
+    openGraph: {
+      type: "article",
+      title: meta.title,
+      description: meta.summary,
+      url: `/blog/${slug}`,
+      publishedTime: meta.date,
+      tags: meta.tags,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: meta.title,
+      description: meta.summary,
+    },
   };
 }
 

@@ -1,0 +1,202 @@
+---
+title: "Atcoder Weekday Contest 075"
+date: "2026-05-24"
+summary: "Atcoder Weekday Contest 075 풀이"
+tags: [Atcoder]
+draft: false
+cover: ""
+---
+
+## Atcoder Weekday Contest 075 풀이
+
+오랜만에? 푸는 것 같다
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0075/tasks/awc0075_a"
+    title = "A - Zigzag of Mountain Range" tags = "implementation"
+/>
+
+문제의 조건에 맞게 구현만 해주면 된다
+
+```cpp showLineNumbers
+int n,res, v[1 << 18];
+
+auto mint = [](){
+    cin >> n;
+    for(int i = 1; i <= n; i++) cin >> v[i];
+    for(int i = 3; i <= n; i++){
+        int a = v[i - 2], b = v[i - 1], c = v[i];
+        res += ((a < b and b > c) or (a > b and b < c));
+    }
+    cout << res << "\n";
+};
+```
+<Complexity time="O(N)" />
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0075/tasks/awc0075_b"
+    title = "B - Fruit Harvest" tags = "prefix_sum, sliding_window"
+/>
+
+누적합과 슬라이딩 윈도우를 쓰면 된다.
+
+```cpp showLineNumbers
+int n,k, v[1 << 18];
+
+auto mint = [](){
+    cin >> n >> k;
+    for(int i = 1; i <= n; i++){
+        int x; cin >> x;
+        v[i] = v[i - 1] + x;
+    }
+    int mn = 1LL << 50;
+    for(int i = k; i <= n; i++){
+        mn = min<int>(mn, v[i] - v[i - k]);
+    }
+    cout << mn << "\n";
+};
+```
+
+<Complexity time="O(N)" />
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0075/tasks/awc0075_c"
+    title = "C - Shopping Within Budget" tags = "dp"
+/>
+
+정석적인 0-1 배낭 DP
+
+```cpp showLineNumbers
+int n, s, t;
+
+auto mint = [](){
+    cin >> n >> s >> t;
+    int m = s - t;
+    vector<int> dp(m + 1, 0);
+    for(int i = 0; i < n; i++){
+        int a,b; cin >> a >> b;
+        for(int j = m; j >= a; j--) dp[j] = max<int>(dp[j], dp[j - a] + b);
+    }
+    cout << dp[m] << "\n";
+};
+```
+
+<Complexity time="O(n * (s - t))" />
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0075/tasks/awc0075_c"
+    title = "D - Sorting Bouquets" tags = "parametric_search"
+/>
+
+줄기 길이를 오름차순으로 정렬한 후, 이분 탐색을 통해 최적의 최대 길이 차이 $D$를 결정한 다음,
+각 $D$값에 대해 투 포인터로 $M$개 이하의 꽃을 최대 크기로 묶어 총 묶음 개수가 $K$개 이하가 되는지 판별하여 최솟값을 찾으면 된다.
+
+
+```cpp showLineNumbers
+int n, k, m;
+vector<int> a;
+
+bool check(int d) {
+    int cnt = 0, i = 0;
+    while(i < n) {
+        int j = i;
+        while(j < n && j - i + 1 <= m && a[j] - a[i] <= d) {
+            j++;
+        }
+        cnt++;
+        i = j;
+    }
+    return cnt <= k;
+}
+
+auto mint = [](){
+    cin >> n >> k >> m;
+    a.resize(n);
+    for (auto& i : a) cin >> i;
+    sort(all(a));
+    int low = 0, high = a[n - 1] - a[0], res = high;
+    while(low <= high) {
+        int mid = low + (high - low) / 2;
+        if(check(mid)){
+            res = mid;
+            high = mid - 1;
+        } 
+        else low = mid + 1;
+    }
+    cout << res << "\n";
+};
+```
+
+<Complexity time="O(N * log(N) + N * log(max_A))" />
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0075/tasks/awc0075_e"
+    title = "E - Lost Kittens" tags = "bfs, bitfield_dp"
+/>
+
+요새 자주 보이는 bfs + tsp 조합
+그냥 나오면 복붙할 템플릿을 짜둬야하나...
+
+```cpp showLineNumbers
+int n,m,k;
+deque<pair<int, int>> X;
+int sx,sy,ex,ey;
+int C[15][15], dist[222][222];
+const int dx[4] = {1, 0, -1 ,0};
+const int dy[4] = {0, 1, 0, -1};
+int D[13][1 << 13];
+constexpr int inf = 1LL << 50;
+
+auto mint = [](){
+    cin >> n >> m >> k;
+    memset(C, -1, sizeof(C));
+    memset(D, -1, sizeof(D));
+    vector<string> v(n); for(auto& i : v) cin >> i;
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < m; j++){
+            if(v[i][j] == '@') {sx = i, sy = j; }
+            else if(v[i][j] == 'F') X.pb({i ,j});
+            else if(v[i][j] == 'G') ex = i,ey = j;
+        }
+    }
+    X.push_front({sx, sy}); X.pb({ex, ey});
+    int N = si(X);
+    for(int _ = 0; _ < N; _++){
+        auto [r, c] = X[_];
+        queue<pair<int, int>> q;
+        memset(dist, -1, sizeof(dist));
+        dist[r][c] = 0; q.push({r, c});
+        while(si(q)){
+            auto [x, y] = q.front(); q.pop();
+            for(int d = 0; d < 4; d++){
+                auto nx = x + dx[d], ny = y + dy[d];
+                if(nx < 0 or nx >= n or ny < 0 or ny >= m) continue;
+                if(dist[nx][ny] != -1 or v[nx][ny] == '#') continue;
+                dist[nx][ny] = dist[x][y] + 1; q.push({nx, ny});
+            }
+        }
+        for(int j = 0; j < N; j++){
+            auto [r2, c2] = X[j];
+            C[_][j] = dist[r2][c2];
+        }
+    }
+    int FULL = 1 << (k + 1);
+    auto tsp = [&](int cur, int state, auto&& tsp) -> int{
+        if(state == FULL - 1){
+            return (C[cur][N - 1] == -1 ? inf : C[cur][N - 1]);
+        }
+        int& ret = D[cur][state];
+        if(ret != -1) return ret;
+        ret = inf;
+        for(int nxt = 1; nxt <= k; nxt++){
+            if(state & 1 << nxt) continue;
+            if(C[cur][nxt] == -1) continue;
+            ret=min<int>(ret,tsp(nxt, state|(1<<nxt),tsp)+C[cur][nxt]);
+        }
+        return ret;
+    };
+    int res = tsp(0, 1, tsp);
+    cout << (res == inf ? -1 : res) << "\n";
+};
+```
+
+<Complexity time="O(K * N * M + K^2 * 2^K)" />
+
+### 총평
+싸피 코테나 SK 인적성이 겹쳐서 요새 좀 많이 문제를 못 풀었는데
+앳코더는 꾸준히 풀자...

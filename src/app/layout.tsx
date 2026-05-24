@@ -13,8 +13,7 @@ const BlogInfo = {
 };
 
 const SITE_URL =
-  process.env.SITE_URL ||
-  "https://blog-git-main-inwooleemes-projects.vercel.app";
+  process.env.SITE_URL || "https://inwooleeme.vercel.app";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

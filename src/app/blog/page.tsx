@@ -26,7 +26,7 @@ export default function BlogIndexPage() {
                 All Posts ({posts.length})
               </h1>
 
-              <div className="flex flex-col gap-6 mt-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
                 {posts.map(({ slug, meta }) => (
                   <PostCard key={slug} slug={slug} meta={meta} />
                 ))}

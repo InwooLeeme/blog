@@ -1,6 +1,7 @@
 import { getAllPosts, getTagCounts } from "@/lib/posts"
 import PostCard from "../components/PostCard"
 import TagSidebar from "../components/TagSidebar";
+import LatestHero from "../components/LatestHero";
 
 
 export default function BlogIndexPage() {
@@ -21,12 +22,14 @@ export default function BlogIndexPage() {
         {/* main */}
         <main className="min-w-0 flex-1">
           <div className="mx-auto w-full max-w-6xl space-y-8">
+            <LatestHero posts={posts} />
+
             <div className="space-y-8">
               <h1 className="text-2xl md:text-[30px] font-bold mt-2 mb-2">
                 All Posts ({posts.length})
               </h1>
 
-              <div className="flex flex-col gap-6 mt-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
                 {posts.map(({ slug, meta }) => (
                   <PostCard key={slug} slug={slug} meta={meta} />
                 ))}

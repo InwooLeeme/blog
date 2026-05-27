@@ -177,15 +177,15 @@ article :is(h2,h3){ scroll-margin-top: 6rem; }
   overflow-x: auto;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.08);
+  /* monokai 테마(shiki) 배경 — code[data-theme]의 inline 변수는 pre에 cascade 안 되므로 직접 지정 */
+  background-color: #272822;
 }
 
 .prose pre code {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, max-content);
   padding: 1rem 0;
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-wrap: anywhere;
+  white-space: pre;
 }
 
 /* 모든 라인은 좌우 padding을 직접 가짐 → 배경이 가로 스크롤 시에도 끝까지 이어짐 */

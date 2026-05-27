@@ -40,6 +40,9 @@ export function generateStaticParams() {
   return getPublishedSlugs().map((slug) => ({ slug }));
 }
 
+// generateStaticParams에 없는 슬러그는 404 처리
+export const dynamicParams = false;
+
 // 정적 메타데이터
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;

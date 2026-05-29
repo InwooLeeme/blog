@@ -1,0 +1,127 @@
+---
+title: "pbds"
+description: "GNU C++ Policy-Based Data Structures — Order Statistics Tree, Hash Table"
+---
+
+## Order Statistics Tree
+
+`std::set` + `order_of_key`, `find_by_order` 두 연산이 $O(\log N)$에 추가됨.
+
+```cpp
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+
+// 중복 허용 안 함 (set 처럼)
+template<typename T>
+using ordered_set = tree<
+    T,
+    null_type,
+    less<T>,
+    rb_tree_tag,
+    tree_order_statistics_node_update
+>;
+
+// 중복 허용 (multiset 처럼) — less_equal 사용
+// 주의: erase(value), find(value)가 정상 동작하지 않음
+//      → 지울 때는 find_by_order(order_of_key(value))로 iterator 얻어 erase
+template<typename T>
+using ordered_multiset = tree<
+    T,
+    null_type,
+    less_equal<T>,
+    rb_tree_tag,
+    tree_order_statistics_node_update
+>;
+```
+
+### 사용 예시
+
+```cpp
+ordered_set<int> os;
+os.insert(10);
+os.insert(20);
+os.insert(30);
+os.insert(40);
+os.insert(50);
+
+// order_of_key(x) : x보다 작은 원소의 개수
+cout << os.order_of_key(30) << "\n"; // 2  (10, 20)
+cout << os.order_of_key(35) << "\n"; // 3  (10, 20, 30)
+
+// find_by_order(k) : k번째 (0-indexed) 원소 iterator
+cout << *os.find_by_order(0) << "\n"; // 10
+cout << *os.find_by_order(2) << "\n"; // 30
+cout << *os.find_by_order(4) << "\n"; // 50
+
+// set과 동일한 인터페이스
+os.erase(20);
+cout << os.size() << "\n"; // 4
+```
+
+### ordered_multiset 지우기
+
+```cpp
+ordered_multiset<int> oms;
+oms.insert(5); oms.insert(5); oms.insert(7);
+
+// oms.erase(5) 는 동작 안 함 (모두 지우거나 누락됨)
+// → 이렇게 지운다
+int target = 5;
+auto it = oms.find_by_order(oms.order_of_key(target));
+if(it != oms.end() && *it == target) oms.erase(it);
+```
+
+## Hash Table — gp_hash_table
+
+`unordered_map`보다 2~3배 빠른 경우가 많음. 단, **anti-hash 공격 방지를 위해 커스텀 hash 필수**.
+
+```cpp
+#include <ext/pb_ds/assoc_container.hpp>
+#include <chrono>
+using namespace __gnu_pbds;
+
+struct chash {
+    static uint64_t splitmix64(uint64_t x){
+        x += 0x9e3779b97f4a7c15;
+        x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
+        x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
+        return x ^ (x >> 31);
+    }
+    size_t operator()(uint64_t x) const {
+        static const uint64_t FIXED_RANDOM =
+            chrono::steady_clock::now().time_since_epoch().count();
+        return splitmix64(x + FIXED_RANDOM);
+    }
+};
+
+template<typename K, typename V>
+using fast_map = gp_hash_table<K, V, chash>;
+
+template<typename T>
+using fast_set = gp_hash_table<T, null_type, chash>;
+```
+
+### 사용 예시
+
+```cpp
+fast_map<int, int> mp;
+mp[3] = 100;
+mp[7] = 200;
+cout << mp[3] << "\n"; // 100
+cout << (mp.find(5) == mp.end()) << "\n"; // 1 (없음)
+
+fast_set<long long> st;
+st.insert(1'000'000'007LL);
+cout << (st.find(1'000'000'007LL) != st.end()) << "\n"; // 1
+```
+
+## 정리
+
+| 구조 | 용도 | 시간복잡도 |
+|---|---|---|
+| `ordered_set<T>` | 정렬된 집합 + 순위/k번째 조회 | 모든 연산 $O(\log N)$ |
+| `ordered_multiset<T>` | 중복 허용 + 순위/k번째 | 동일, 지우기 주의 |
+| `gp_hash_table<K, V, chash>` | 빠른 해시맵 | 평균 $O(1)$, hash 필수 |
+
+PBDS는 GCC 전용 확장이므로 Clang/MSVC 환경에선 동작하지 않는다. Codeforces, AtCoder, BOJ 모두 GCC 기본이라 PS 환경에선 안전하게 쓸 수 있다.

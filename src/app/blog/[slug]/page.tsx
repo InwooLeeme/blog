@@ -25,7 +25,6 @@ import { Rank } from "@/app/components/mdx/Rank";
 import { ProblemMeta } from "@/app/components/mdx/ProblemMeta";
 import { Complexity } from "@/app/components/mdx/Complexity";
 import { Steps, Step } from "@/app/components/mdx/Steps";
-import { Definition } from "@/app/components/mdx/Definition";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 
@@ -79,7 +78,6 @@ const components = {
   Complexity,
   Steps,
   Step,
-  Definition,
 };
 
 export default async function PostPage({ params }: PageProps) {

@@ -1,0 +1,128 @@
+---
+title: "중국인 우체부 문제 (Chinese Postman Problem)"
+date: "2026-05-29"
+summary: "그래프의 모든 간선을 적어도 한 번 지나는 최소 비용 닫힌 경로 찾기. 오일러 회로와 최소 가중치 완전 매칭의 결합."
+tags: [algorithm]
+draft: false
+cover: ""
+---
+
+## 문제
+
+연결 그래프에서 **모든 간선을 최소 한 번씩** 지나면서 시작점으로 돌아오는 닫힌 경로(closed walk) 중 비용이 최소인 것을 찾는 문제다.
+
+1962년 중국 수학자 관매곡(管梅谷, Kwan Mei-Ko)이 제안해서 "중국인 우체부 문제(Chinese Postman Problem, CPP)"라는 이름이 붙었다. **Route Inspection Problem** 이라고도 부른다.
+
+비슷해 보이는 외판원 문제(TSP)와 헷갈리기 쉬운데 결정적인 차이가 있다.
+
+- **TSP**: 모든 **정점**을 정확히 한 번씩 방문
+- **CPP**: 모든 **간선**을 한 번 이상 방문
+
+우체부가 자기 구역의 모든 도로(간선)를 빠짐없이 다녀야 한다고 생각하면 이름이 직관적이다.
+
+## 핵심 관찰: 오일러 회로
+
+<Definition term="오일러 회로 (Eulerian Circuit)">
+모든 간선을 정확히 한 번씩 지나며 시작점으로 돌아오는 닫힌 경로. 무방향 연결 그래프에서는 **모든 정점의 차수가 짝수**일 때, 그리고 그때만 존재한다.
+</Definition>
+
+그래프가 오일러 그래프라면? 답은 그냥 **모든 간선의 가중치 합**이다. 한 번씩만 지나면 충분하니까.
+
+문제는 **홀수 차수 정점이 존재**할 때다. 어떤 정점이 홀수 차수라면 그 정점을 한 번 들어가고 나갈 때마다 두 개씩 간선을 쓰는데, 홀수개라서 반드시 어떤 간선을 두 번 이상 써야 한다.
+
+즉, 일부 간선을 **추가로 한 번 더 지나야** 하고, 그 추가 비용을 최소화하는 것이 CPP의 본질이다.
+
+## 알고리즘 (무방향, 음수 가중치 없음)
+
+<Steps>
+
+<Step title="홀수 차수 정점 찾기">
+$V_{odd}$ 집합을 구성. 핸드셰이크 정리($\sum \deg(v) = 2|E|$)에 따라 $|V_{odd}|$는 항상 짝수다.
+</Step>
+
+<Step title="홀수 정점 쌍 간 최단 거리 계산">
+$V_{odd}$의 모든 정점 쌍에 대해 Floyd-Warshall 또는 다익스트라로 최단 거리 $d(u, v)$를 구한다.
+</Step>
+
+<Step title="최소 가중치 완전 매칭">
+$V_{odd}$를 두 정점씩 짝지을 때 거리 합이 최소가 되는 매칭을 찾는다.
+
+- $|V_{odd}|$가 작으면(≤ 20) **비트마스크 DP**로 풀 수 있다.
+</Step>
+
+<Step title="매칭된 쌍의 경로를 간선으로 복제">
+매칭 결과에 따라 두 정점 사이 최단 경로의 간선들을 그래프에 한 번 더 추가한다. 이렇게 하면 모든 정점의 차수가 짝수가 된다.
+</Step>
+
+<Step title="오일러 회로 = 정답 경로">
+Hierholzer 알고리즘으로 오일러 회로를 찾는다. 정답 비용 = 원본 간선 합 + 매칭에서 추가된 비용.
+</Step>
+
+</Steps>
+
+## 비트마스크 DP로 최소 매칭
+
+홀수 차수 정점 개수 $k$가 작을 때 가장 깔끔한 구현이다.
+
+코드는 다음과 같다.
+
+```cpp showLineNumbers
+// odd[]   : 홀수 차수 정점 목록 (크기 k, 짝수)
+// d[u][v] : 정점 u, v 사이 최단 거리 (Floyd-Warshall 결과)
+// dp[mask]: mask에 표시된 정점들을 모두 매칭했을 때 최소 비용
+int k;
+vector<int> odd;
+int d[MAXV][MAXV];
+int dp[1 << 20];
+
+int match(int mask){
+    if(mask == (1 << k) - 1) return 0;
+    int& ret = dp[mask];
+    if(ret != -1) return ret;
+    ret = INT_MAX;
+
+    // 가장 작은 미사용 비트 i를 고정 → 그 정점과 짝지을 j를 탐색
+    int i = 0;
+    while(mask & (1 << i)) i++;
+
+    for(int j = i + 1; j < k; j++){
+        if(mask & (1 << j)) continue;
+        int nxt = mask | (1 << i) | (1 << j);
+        ret = min(ret, match(nxt) + d[odd[i]][odd[j]]);
+    }
+    return ret;
+}
+```
+
+가장 작은 미사용 비트를 고정하는 이유는 매칭은 순서가 무관하므로 한쪽 끝을 고정하면 중복 탐색이 제거된다. 그렇지 않으면 같은 매칭을 $\frac{k!}{(k/2)! \cdot 2^{k/2}}$번 카운팅하게 된다.
+
+## 답 계산
+
+```cpp showLineNumbers
+memset(dp, -1, sizeof(dp));
+
+int total = 0;
+for(auto& [u, v, w] : edges) total += w;   // 원본 간선 합
+int extra = match(0);                       // 추가로 지나야 하는 비용
+
+cout << total + extra << "\n";
+```
+
+<Complexity time="O(V^3 + 2^k · k)" space="O(V^2 + 2^k)" />
+
+- $V^3$: Floyd-Warshall
+- $2^k \cdot k$: 비트마스크 DP
+
+## 연습문제
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0073/tasks/awc0073_e"
+    title = "E - Snow Plow Routing" tags = "bitfield_dp, dijkstra"
+/>
+
+최근에 AWC에서 처음 봐서 한번 정리해보았다..
+
+### 출처
+
+- https://en.wikipedia.org/wiki/Chinese_postman_problem
+
+- https://gazelle-and-cs.tistory.com/47

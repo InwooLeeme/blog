@@ -9,6 +9,7 @@ export default function TocbotSidebar() {
       tocSelector: ".js-toc",
       contentSelector: "#post-article",
       headingSelector: "h2, h3, h4",
+      ignoreSelector: ".toc-ignore",
       linkClass: "toc-link",
       activeLinkClass: "is-active-link",
       listClass: "toc-list",

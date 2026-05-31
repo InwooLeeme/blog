@@ -1,0 +1,302 @@
+---
+title: "Atcoder Weekday Contest 074"
+date: "2026-05-31"
+summary: "Atcoder Weekday Contest 074 풀이"
+tags: [Atcoder]
+draft: false
+cover: ""
+---
+
+## Atcoder Weekday Contest 074 풀이
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0074/tasks/awc0074_a"
+    title = "A - Ribbon Cut" tags = "implementation"
+/>
+
+단순 구현이다.
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0074/tasks/awc0074_b"
+    title = "B - Maximum Sum of a Contiguous Subarray" tags = "dp"
+/>
+
+dp를 쓰면 풀린다. 
+에디토리얼을 보니깐 카데인 알고리즘?이라고 알려진 것 같다.
+
+```cpp showLineNumbers
+int n,mx,cur;
+
+auto Mint = [](){
+    cin >> n;
+    vector<int> v(n + 1);
+    for(int i = 1; i <= n; i++) cin >> v[i];
+    for(int i = 1; i <= n; i++){
+        cur = max<int>(v[i], cur + v[i]);
+        mx = max<int>(mx, cur);
+    }
+    cout << mx << "\n";
+};
+```
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0074/tasks/awc0074_c"
+    title = "C - Light Switch Operation" tags = "prefix_sum"
+/>
+
+imos법을 이용해서 체크한 다음에 누적합을 만들고 홀수인 부분만 카운팅하면 쉽다.
+
+```cpp showLineNumbers
+int n,m,res;
+
+auto Mint = [](){
+    cin >> n >> m;
+    vector<int> v(n + 2);
+    while(m--){
+        int a,b; cin >> a >> b;
+        v[a]++, v[b + 1]--;
+    }
+    for(int i = 1; i <= n + 1; i++) v[i] += v[i - 1];
+    for(int i = 1; i <= n; i++) res += (v[i] & 1);
+    cout << res << "\n";
+};
+```
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0074/tasks/awc0074_d"
+    title = "D - Safe School Route" tags = "dijkstra, union_find, sorting"
+/>
+
+문제가 살짝...이해가 안갔는데 옛날에 백준이 존재했던 시절에 중량제한? 문제처럼 풀면 된다.
+
+<Steps>
+<Step title="K에서 시작해서 다익을 돌린다">$K$에서 시작해서 다익을 돌린다</Step>
+<Step title="간선 리스트를 돌면서 거리의 최솟값을 전처리한다">간선 리스트를 돌면서 거리의 최솟값을 전처리한다</Step>
+<Step title="간선을 내림차순 정렬한다">간선을 내림차순 정렬한다</Step>
+<Step title="유파를 이용해서 S와 T가 연결될 때의 간선 값이 최대 안전 점수이다">유파를 이용해서 S와 T가 연결될 때의 간선 값이 최대 안전 점수이다</Step>
+</Steps>
+
+```cpp showLineNumbers
+int n,m,s,t,k;
+vector<array<int, 3>> E,edge;
+
+struct UnionFind{
+    vector<int> p;
+    UnionFind(int n):p(n + 1){
+        iota(all(p), 0);
+    }
+    int F(int x){ return x == p[x] ? x : p[x] = F(p[x]); }
+    bool U(int a, int b){
+        a = F(a),b = F(b);
+        if(a == b) return 0;
+        p[b] = a; return 1;
+    }
+};
+
+constexpr int inf = 1LL << 60;
+vector<int> dijkstra(vector<vector<pair<int, int>>>& g, int st){
+    vector<int> dist(n + 1, inf);
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
+    pq.push({dist[st] = 0, st});
+    while(pq.size()){
+        auto [cdist, cur] = pq.top(); pq.pop();
+        if(dist[cur] < cdist) continue;
+        for(const auto& [cost, nxt] : g[cur]){
+            if(dist[nxt] > cdist + cost) {
+                pq.push({dist[nxt] = cdist + cost, nxt});
+            }
+        }
+    }
+    return dist;
+}
+
+auto Mint = [](){
+    cin >> n >> m >> s >> t >> k;
+    vector<vector<pair<int, int>>> g(n + 1);
+
+    for(int i = 0; i < m; i++){
+        int a,b,c; cin >> a >> b >> c;
+        edge.pb({a, b, c});
+        g[a].pb({c, b}); g[b].pb({c, a});
+    }
+    if(s == k){
+        cout << 0 << "\n";
+        return;
+    }
+    auto dist = dijkstra(g, k);
+    for(const auto& [a, b, c] : edge){
+        E.pb({min<int>(dist[a], dist[b]), a, b});
+    }
+    sort(rall(E));
+    int mn = inf;
+    UnionFind uf(n + 1);
+    for(const auto& [c,a,b] : E){
+        if(uf.F(a) != uf.F(b)){
+            uf.U(a, b);
+            if(uf.F(s) == uf.F(t)){
+                mn = min<int>({c, mn, dist[a], dist[b]});
+                if(mn == inf) cout << "INF\n";
+                else cout << mn << "\n";
+                return;
+            }
+        }
+    }
+    cout << "INF\n";
+};
+```
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0074/tasks/awc0074_e"
+    title = "E - Jamming and Communication Network" tags = "sorting, union_find, mst, hld, lazy_seg"
+/>
+
+이런게 왜 여기서 나오는 건지 모르겠는데...
+
+본인이 백준에서 **안전한 비상 연락망** 문제를 풀어봤다면 쉽게 풀 수 있다.
+
+mst를 이용해서 삼각형 찾기를 한 다음에 최대값을 찾아주면 된다.
+
+~~난 그냥 예전에 푼거 복붙 날먹했다~~
+
+```cpp showLineNumbers
+int n,m;
+
+struct UnionFind{
+    vector<int> P;
+    UnionFind(int n):P(n + 1){
+        iota(all(P), 0);
+    }
+    int Find(int x){ return x == P[x] ? x : P[x] = Find(P[x]); }
+    bool Union(int a, int b){
+        a = Find(a), b = Find(b);
+        if(a == b) return 0;
+        P[b] = a; return 1;
+    }
+};
+
+template<size_t sz>
+struct SegTree {
+	vector<int> tree, lazy;
+	SegTree() : tree(sz << 1, inf), lazy(sz << 1, inf) {}
+	void Push(int node, int L, int R) {
+		if (node < sz) for (const int nxt : { node << 1, node << 1 | 1}) lazy[nxt] = min<int>(lazy[nxt], lazy[node]);
+		tree[node] = min<int>(tree[node], lazy[node]), lazy[node] = inf;
+	}
+	void Update(int l, int r, int val, int node = 1, int L = 1, int R = sz) {
+		Push(node, L, R);
+		if (r < L || R < l) return;
+		if (l <= L && R <= r) { lazy[node] = val, Push(node, L, R); return; }
+		int mid = L + R >> 1;
+		Update(l, r, val, node << 1, L, mid);
+		Update(l, r, val, node << 1 | 1, mid + 1, R);
+		tree[node] = min<int>(tree[node << 1], tree[node << 1 | 1]);
+	}
+	int Query(int l, int r, int node = 1, int L = 1, int R = sz) {
+		Push(node, L, R);
+		if (r < L || R < l) return inf;
+		if (l <= L && R <= r) return tree[node];
+		int mid = L + R >> 1;
+		return min<int>(Query(l, r, node << 1, L, mid), Query(l, r, node << 1 | 1, mid + 1, R));
+	}
+};
+
+SegTree<1 << 17> ST;
+const int sz = 1 << 17;
+int Top[sz], Par[sz], Dep[sz], Sz[sz], In[sz], Out[sz], Cost[sz], temp;
+vector<int> G[sz], Inp[sz];
+
+void Connect(int a, int b){
+    Inp[a].pb(b); Inp[b].pb(a);
+}
+
+void DFS(int cur = 1, int prev = -1){
+    for(auto& nxt : Inp[cur]){
+        if(nxt == prev) continue;
+        G[cur].pb(nxt); 
+        DFS(nxt, cur);
+    }
+}
+
+void DFS1(int cur = 1){
+    Sz[cur] = 1;
+    for(auto& nxt : G[cur]){
+        Dep[nxt] = Dep[cur] + 1; Par[nxt] = cur;
+        DFS1(nxt); Sz[cur] += Sz[nxt];
+        if(Sz[nxt] > Sz[G[cur][0]]) swap(nxt, G[cur][0]);
+    }
+}
+
+void DFS2(int cur = 1){
+    In[cur] = ++temp;
+    for(const auto& nxt : G[cur]){
+        Top[nxt] = (nxt == G[cur][0] ? Top[cur] : nxt);
+        DFS2(nxt);
+    }
+    Out[cur] = temp;
+}
+
+void Init(){
+    DFS(); DFS1(); DFS2(Top[1] = 1);
+}
+
+void Update(int a, int b, int c){
+    for(; Top[a] != Top[b]; a = Par[Top[a]]){
+        if(Dep[Top[a]] < Dep[Top[b]]) swap(a, b);
+        ST.Update(In[Top[a]], In[a], c);
+    }
+    if(In[a] > In[b]) swap(a, b);
+    ST.Update(In[a] + 1, In[b], c);
+}
+
+int Query(int a, int b){
+    int ret = inf;
+    for(; Top[a] != Top[b]; a = Par[Top[a]]){
+        if(Dep[Top[a]] < Dep[Top[b]]) swap(a, b);
+        ret = min<int>(ret, ST.Query(In[Top[a]], In[a]));
+    }
+    if(In[a] > In[b]) swap(a, b);
+    ret = min<int>(ret, ST.Query(In[a] + 1, In[b]));
+    return ret;
+}
+
+auto solve = [](){
+    ri(n, m);
+    vector<array<int, 5>> E;
+    vector<int> ret(m, -1);
+    for(int i = 0; i < m; i++){
+        int a,b,c; ri(a, b, c);
+        E.pb({c, a, b, 0, i});
+    }
+    sort(all(E));
+    UnionFind UF(n + 1);
+    int mst = 0,cnt = 0;
+    for(int i = 0; i < m; i++){
+        auto c = E[i][0], a = E[i][1], b = E[i][2], k = E[i][3], idx = E[i][4];
+        if(UF.Union(a, b)){
+            mst += c;
+            E[i][3] = 1;
+            Connect(a, b);
+            if(++cnt == n - 1) break;
+        }
+    }
+    Init();
+    for(int i = 0; i < m; i++){
+        auto c = E[i][0], a = E[i][1], b = E[i][2], k = E[i][3], idx = E[i][4];
+        if(!k) Update(a, b, c);
+    }
+    sort(all(E), [&](array<int, 5>& a, array<int, 5>& b){
+        return a[4] < b[4];
+    });
+    for(int i = 0; i < m; i++){
+        auto c = E[i][0], a = E[i][1], b = E[i][2], k = E[i][3], idx = E[i][4];
+        if(!k) ret[idx] = mst;
+        else{
+            auto t = Query(a, b);
+            if(t == inf) ret[idx] = -1;
+            else ret[idx] = mst + t - c;
+        }
+    }
+    int mx = 0;
+    for(const auto& i : ret) chmax(mx, i);
+    po(mx);
+};
+```
+
+### 총평
+난이도가 요새 이상한 것 같은데? 저번에는 C에서 세그 나오고
+이번에는 E가 다이아고..ㅋㅋㅋㅋㅋㅋ

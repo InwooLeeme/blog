@@ -166,9 +166,24 @@
   .callout[data-variant="danger"] .callout__icon { @apply text-rose-600 dark:text-rose-400; }
 }
 
-html { scrollbar-gutter: stable; scroll-behavior: smooth; }   
+html { scrollbar-gutter: stable; scroll-behavior: smooth; }
 
 body{ margin: 0; }
+
+/* ===== 테마 토글 원형 리플 (View Transitions) ===== */
+/* 기본 크로스페이드 제거 → clip-path 리플만 보이도록 */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+/* 새 테마가 위에서 원형으로 펼쳐지며 이전 테마를 덮음 */
+::view-transition-old(root) {
+  z-index: 0;
+}
+::view-transition-new(root) {
+  z-index: 1;
+}
 
 article :is(h2,h3){ scroll-margin-top: 6rem; }
 

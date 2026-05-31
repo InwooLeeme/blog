@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import PageTransition from "./components/PageTransition";
 import { ThemeProvider } from "./components/ThemeProvider";
 import type { Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next"
@@ -70,7 +71,9 @@ export default function RootLayout({
         >
           <div className="flex flex-col min-h-screen">
             <Header title={BlogInfo.title} />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1">
+              <PageTransition>{children}</PageTransition>
+            </main>
             <Analytics />
             <Footer />
           </div>

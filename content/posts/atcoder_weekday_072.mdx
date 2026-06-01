@@ -1,0 +1,184 @@
+---
+title: "Atcoder Weekday Contest 072"
+date: "2026-06-01"
+summary: "Atcoder Weekday Contest 072 풀이"
+tags: [Atcoder]
+draft: false
+cover: ""
+---
+
+## Atcoder Weekday Contest 072 풀이
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0072/tasks/awc0072_a"
+    title = "A - Matching of Notes" tags = "implementation"
+/>
+
+지문에 나온 내용대로 구현해주면 된다.
+
+```cpp showLineNumbers
+int n;
+string s,t,res;
+bool ng;
+
+auto solve = [](){
+    ri(n, s, t);
+    for(int i = 0; i < n; i++){
+        if(s[i] == t[i]) res += s[i];
+        else{
+            if(isalpha(s[i]) and isalpha(t[i])){
+                ng = 1;
+                res += '!';
+            }
+            else{
+                if(isalpha(s[i])) res += s[i];
+                else res += t[i];
+            }
+        }
+    }
+    po(res);
+    Yes(ng);
+};
+```
+
+<Complexity time="O(n)" space="O(n)" />
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0072/tasks/awc0072_b"
+    title = "B - Tending the Flower Bed" tags = "prefix_sum"
+/>
+
+누적합을 이용해서 K개의 연속한 구간을 관리해주면 된다.
+
+```cpp showLineNumbers
+int n,k,mx = -inf;
+
+auto solve = [](){
+    ri(n, k);
+    vi v(n); ri(v);
+    auto p = psum(v);
+    vi w(n);
+    for(int i = 0; i < n; i++) w[i] = (v[i] > 0 ? v[i] : 0);
+    auto pw = psum(w);
+    for(int i = 0; i <= n - k; i++){
+        int cur = p[i + k] - p[i];
+        int l = pw[i] - pw[0];
+        int r = pw[n] - pw[i + k];
+        chmax(mx, cur + l + r);
+    }
+    po(mx);
+};
+```
+
+<Complexity time="O(n)" space="O(n)" />
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0072/tasks/awc0072_c"
+    title = "C - Battery Remaining" tags = "prefix_sum, imos"
+/>
+
+imos법을 이용해서 $Q$개의 쿼리를 처리한 다음 누적합을 만들고 출력해주면 간단하다.
+
+```cpp showLineNumbers
+int n,q, v[1 << 18], w[1 << 18];
+
+auto solve = [](){
+    ri(n, q);
+    for(int i = 1; i <= n; i++) ri(v[i]);
+    while(q--){
+        int a,b; ri(a, b); w[a]++, w[b + 1]--;
+    }
+    for(int i = 1; i < (1 << 18); i++) w[i] += w[i - 1];
+    for(int i = 1; i <= n; i++) cout << max<int>(0, v[i] - w[i]) << " ";
+};
+```
+
+<Complexity time="O(n)" space="O(n)" />
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0072/tasks/awc0072_d"
+    title = "D - Mountain Traverse" tags = "tree_dp, dfs"
+/>
+
+tree dp를 이용해서 가장 긴 최장경로를 구해주면 된다.
+
+dag dp도 가능
+
+```cpp showLineNumbers
+int n,m;
+const int sz = 1 << 18;
+vi g[sz];
+int dp[sz], v[sz];
+
+int dfs(int cur){
+    int& ret = dp[cur];
+    if(ret != -1) return ret;
+    ret = 1;
+    for(const auto& nxt : g[cur]){
+        if(v[cur] > v[nxt]) continue;
+        ret = max<int>(ret, dfs(nxt) + 1);
+    }
+    return ret;
+}
+
+auto solve = [](){
+    ri(n, m);
+    memset(dp, -1, sizeof(dp));
+    for(int i = 1; i <= n; i++) ri(v[i]);
+    while(m--){
+        int a,b; ri(a, b);
+        g[a].pb(b);
+    }
+    po(dfs(1));
+};
+```
+
+<Complexity time="O(n + m)" space="O(n + m)" />
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0072/tasks/awc0072_e"
+    title = "E - Checking Seats and Lunches" tags = "segment_tree"
+/>
+
+$Si < Pi$인 곳인 중요하기 때문에 해당 인덱스를 체크한 다음에 이걸 세그로 관리해주면 된다.
+
+```cpp showLineNumbers
+int n,q;
+
+struct segtree{
+    const int sz = 1 << 18;
+    vi tree;
+    segtree():tree(sz << 1){}
+
+    void update(int i, int val){
+        --i |= sz; tree[i] += val;
+        while(i >>= 1) tree[i] = tree[i << 1] + tree[i << 1 | 1];
+    }
+    int query(int l, int r){
+        int ret = 0;
+        --l |= sz; --r |= sz;
+        while(l <= r){
+            if(l & 1) ret += tree[l++];
+            if(~r & 1) ret += tree[r--];
+            l >>= 1, r >>= 1;
+        }
+        return ret;
+    }
+} seg;
+
+auto solve = [](){
+    ri(n, q);
+    vi s(n + 1),p(n + 1);
+    for(int i = 1; i <= n; i++) ri(s[i]);
+    for(int i = 1; i <= n; i++) ri(p[i]);
+    for(int i = 1; i <= n; i++){
+        int r = (s[i] < p[i]);
+        if(r) seg.update(i, 1);
+    }
+    while(q--){
+        int l,r; ri(l, r);
+        Yes(!seg.query(l, r));
+    }
+};
+```
+
+<Complexity time="O((n + q) log n)" space="O(n)"/>
+
+### 총평
+
+이번 세트는 쉬운 듯

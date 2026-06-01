@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { Code2, Trophy, Medal, PenTool, FolderGit2, BadgeCheck, ExternalLink } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 import Reveal from "../components/Reveal";
+import IconGithub from "../components/icon/IconGithub";
+import { techChipStyle } from "@/lib/tech-colors";
 import {
   techStack,
   awards,
@@ -152,36 +154,64 @@ export default function AboutPage() {
         <Reveal>
           <section id="projects" className="scroll-mt-24">
             <SectionHeading icon={<FolderGit2 className="h-5 w-5" />}>프로젝트</SectionHeading>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-4">
               {projects.map((p) => (
                 <div
                   key={p.name}
-                  className="rounded-lg border bg-card p-4 transition hover:border-accent-brand"
+                  className="rounded-lg border bg-card p-5 transition hover:border-accent-brand"
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-semibold">{p.name}</h3>
-                    {p.href ? (
-                      <a
-                        href={p.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        aria-label={`${p.name} 링크`}
-                        className="text-muted-foreground transition hover:text-accent-brand"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
-                    ) : null}
-                  </div>
-                  <p className="mt-2 text-sm text-muted-foreground">{p.description}</p>
+                  <h3 className="text-lg font-bold tracking-tight">{p.name}</h3>
+                  {p.subtitle ? (
+                    <p className="mt-0.5 text-sm font-medium text-accent-brand">
+                      {p.subtitle}
+                    </p>
+                  ) : null}
+
+                  {p.highlights.length > 0 ? (
+                    <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
+                      {p.highlights.map((h, i) => (
+                        <li key={i} className="flex gap-2">
+                          <span
+                            aria-hidden
+                            className="mt-[0.45rem] h-1 w-1 shrink-0 rounded-full bg-accent-brand"
+                          />
+                          <span>{h}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+
                   {p.tech && p.tech.length > 0 ? (
-                    <div className="mt-3 flex flex-wrap gap-1.5">
+                    <div className="mt-4 flex flex-wrap gap-1.5">
                       {p.tech.map((t) => (
                         <span
                           key={t}
-                          className="rounded bg-accent-brand/10 px-1.5 py-0.5 text-[0.65rem] font-medium text-accent-brand"
+                          style={techChipStyle(t)}
+                          className="rounded-full border px-2.5 py-0.5 text-xs font-medium"
                         >
                           {t}
                         </span>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  {p.links && p.links.length > 0 ? (
+                    <div className="mt-4 flex flex-wrap items-center gap-4 border-t pt-3 text-sm">
+                      {p.links.map((l) => (
+                        <a
+                          key={l.href}
+                          href={l.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 text-muted-foreground transition hover:text-accent-brand"
+                        >
+                          {l.type === "github" ? (
+                            <IconGithub width={16} height={16} />
+                          ) : (
+                            <ExternalLink className="h-4 w-4" />
+                          )}
+                          {l.label}
+                        </a>
                       ))}
                     </div>
                   ) : null}

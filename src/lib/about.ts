@@ -39,19 +39,34 @@ export const contestWorks: ContestWork[] = [
 ];
 
 /** 프로젝트 */
+export type ProjectLink = {
+  label: string;
+  href: string;
+  type?: "github" | "external"; // 아이콘 결정 (기본: external)
+};
+
 export type Project = {
   name: string;
-  description: string;
+  subtitle?: string; // 도메인/한 줄 부제 (accent 색으로 표시)
+  highlights: string[]; // 불릿 설명
   tech?: string[];
-  href?: string;
+  links?: ProjectLink[];
 };
 
 export const projects: Project[] = [
   {
-    name: "개인 기술 블로그",
-    description: "Next.js + MDX 기반 알고리즘·개발 블로그. 동적 OG 이미지, RSS, 커스텀 MDX 컴포넌트 등을 직접 구현.",
-    tech: ["Next.js", "TypeScript", "MDX", "Tailwind CSS"],
-    href: "https://github.com/InwooLeeme/blog",
+    name: "개인 알고리즘·기술 블로그",
+    subtitle: "inwooleeme.vercel.app",
+    highlights: [
+      "Next.js + MDX를 활용한 알고리즘·개발 블로그 구축",
+      "다크모드·스크롤 등장·페이지 전환 등 인터랙션 적용",
+      "Vercel을 통한 정적 사이트 호스팅"
+    ],
+    tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "MDX"],
+    links: [
+      { label: "GitHub", href: "https://github.com/InwooLeeme/blog", type: "github" },
+      { label: "Page", href: "https://inwooleeme.vercel.app", type: "external" },
+    ],
   },
   // TODO: 다른 프로젝트 추가
 ];

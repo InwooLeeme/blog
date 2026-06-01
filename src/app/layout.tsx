@@ -39,6 +39,11 @@ export const metadata: Metadata = {
     template: `%s · ${BlogInfo.title}`,
   },
   description: BlogInfo.description,
+  alternates: {
+    types: {
+      "application/rss+xml": "/feed.xml",
+    },
+  },
   openGraph: {
     type: "website",
     siteName: BlogInfo.title,

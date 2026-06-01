@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Rss } from "lucide-react";
 import IconGithub from "./icon/IconGithub";
 import { siteConfig, footerLinks } from "@/lib/site";
 
@@ -12,6 +13,11 @@ const socials: Social[] = [
     href: siteConfig.githubUrl,
     external: true,
     icon: <IconGithub width={18} height={18} />,
+  },
+  {
+    label: "RSS",
+    href: "/feed.xml",
+    icon: <Rss className="h-[18px] w-[18px]" />,
   },
 ];
 

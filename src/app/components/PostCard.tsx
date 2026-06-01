@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Calendar } from "lucide-react";
+import { Calendar, ArrowRight } from "lucide-react";
 
 const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
     year: "numeric",
@@ -15,10 +15,11 @@ export default function PostCard({ slug, meta }: { slug: string; meta: PostMeta 
     const date = new Date(meta.date);
     const formatted = DATE_FORMATTER.format(date);
     const coverSrc = meta.cover || `/blog/${slug}/opengraph-image`;
+    const tags = meta.tags?.slice(0, 3) ?? [];
 
     return (
         <Link href={`/blog/${slug}`} className="group block" aria-label={meta.title}>
-            <Card className="overflow-hidden h-full rounded-xl py-0 gap-0 transition hover:shadow-md hover:-translate-y-0.5 hover:border-accent-brand">
+            <Card className="overflow-hidden h-full rounded-xl py-0 gap-0 transition duration-300 hover:-translate-y-1 hover:border-accent-brand hover:shadow-xl hover:shadow-accent-brand/15">
                 <div className="relative overflow-hidden">
                     <AspectRatio ratio={16 / 9}>
                         <Image
@@ -35,7 +36,22 @@ export default function PostCard({ slug, meta }: { slug: string; meta: PostMeta 
                 </div>
 
                 <CardContent className="p-4">
-                    <h3 className="text-base font-bold leading-snug line-clamp-2">{meta.title}</h3>
+                    {tags.length > 0 ? (
+                        <div className="mb-2 flex flex-wrap gap-1.5">
+                            {tags.map((tag) => (
+                                <span
+                                    key={tag}
+                                    className="rounded-full bg-accent-brand/10 px-2 py-0.5 text-[0.65rem] font-medium text-accent-brand"
+                                >
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+                    ) : null}
+
+                    <h3 className="text-base font-bold leading-snug line-clamp-2 transition-colors group-hover:text-accent-brand">
+                        {meta.title}
+                    </h3>
 
                     <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Calendar className="h-3 w-3" aria-hidden />
@@ -53,6 +69,11 @@ export default function PostCard({ slug, meta }: { slug: string; meta: PostMeta 
                             {meta.summary}
                         </p>
                     ) : null}
+
+                    <div className="mt-3 flex items-center gap-1 text-xs font-medium text-accent-brand opacity-0 -translate-x-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+                        읽기
+                        <ArrowRight className="h-3.5 w-3.5" />
+                    </div>
                 </CardContent>
             </Card>
         </Link>

@@ -68,6 +68,46 @@ export const projects: Project[] = [
       { label: "Page", href: "https://inwooleeme.vercel.app", type: "external" },
     ],
   },
+  {
+    name: "Daum 뉴스 크롤러",
+    subtitle: "2024",
+    highlights: [
+      "Daum 뉴스 포털에서 기사 데이터를 수집하는 웹 스크래퍼",
+      "기사 제목·본문·작성 시각·언론사·기자명 등 추출",
+      "BeautifulSoup + requests 기반, 수집 데이터를 JSON으로 구조화",
+    ],
+    tech: ["Python", "BeautifulSoup", "requests"],
+    links: [
+      {
+        label: "GitHub",
+        href: "https://github.com/InwooLeeme/daum_news_crawling",
+        type: "github",
+      },
+    ],
+  },
+  {
+    name: "NASDAQ 주가 데이터 시각화",
+    subtitle: "2024 · 팀 프로젝트",
+    highlights: [
+      "데이터 베이스 수업 실습 프로젝트",
+      "프론트엔드 개발을 주도적으로 담당 (React 기반 UI 구현)",
+      "ApexCharts 캔들스틱 차트로 NASDAQ 주가 데이터 시각화",
+      "입력한 기간·비율에 따라 FastAPI 백엔드와 연동해 차트 렌더링",
+    ],
+    tech: ["React", "JavaScript", "ApexCharts", "Sqlite"],
+    links: [
+      {
+        label: "GitHub",
+        href: "https://github.com/InwooLeeme/database-nasdaq",
+        type: "github",
+      },
+      {
+        label: "Page",
+        href: "https://database-nasdaq-dyb7.vercel.app/",
+        type: "external"
+      }
+    ],
+  },
   // TODO: 다른 프로젝트 추가
 ];
 

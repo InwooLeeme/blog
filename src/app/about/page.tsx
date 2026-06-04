@@ -72,6 +72,28 @@ export default function AboutPage() {
         <p className="mt-2 text-muted-foreground">{siteConfig.description}</p>
       </header>
 
+      {/* solved.ac 프로필 카드 — 클릭 시 프로필로 이동, 티어 변동 시 자동 갱신 */}
+      <Reveal>
+        <div className="mb-12 flex justify-center">
+          <a
+            href={siteConfig.solvedacUrl}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="solved.ac 프로필 보기"
+            className="block w-full max-w-lg transition-transform duration-300 hover:scale-[1.015]"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={siteConfig.solvedacCardUrl}
+              alt={`${siteConfig.author}의 solved.ac 프로필 카드`}
+              width={626}
+              height={422}
+              className="h-auto w-full"
+            />
+          </a>
+        </div>
+      </Reveal>
+
       {/* 목차 */}
       <nav className="mb-12 rounded-lg border bg-muted/30 p-4">
         <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">

@@ -8,6 +8,9 @@ export const siteConfig = {
   description: "알고리즘과 개발 이야기",
   url: process.env.SITE_URL ?? "https://inwooleeme.vercel.app",
   githubUrl: "https://github.com/InwooLeeme",
+  solvedacUrl: "https://solved.ac/profile/inwooleeme",
+  solvedacCardUrl:
+    "https://raw.githubusercontent.com/InwooLeeme/InwooLeeme/main/solvedac-inwooleeme-v1.svg",
 } as const;
 
 export type NavLink = { href: string; label: string };

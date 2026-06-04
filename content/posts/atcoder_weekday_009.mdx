@@ -1,0 +1,189 @@
+---
+title: "Atcoder Weekday Contest 009"
+date: "2026-06-04"
+summary: "Atcoder Weekday Contest 009 풀이"
+tags: [Atcoder]
+draft: false
+cover: ""
+---
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0009/tasks/awc0009_a"
+    title = "A - Total Shopping Amount" tags = "implementation"
+/>
+
+구현하자!
+
+```cpp showLineNumbers
+int n,m,res,s;
+
+void solve(){
+	ri(n, m);
+	for(int i = 0; i < n; i++){
+		int x; ri(x);
+		s += x;
+	}
+	po(s % m);
+}
+```
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0009/tasks/awc0009_b"
+    title = "B - Dungeon Exploration" tags = "implementation"
+/>
+
+단순 구현
+
+```cpp showLineNumbers
+int n,s,res,c;
+
+void solve(){
+	ri(n, s, c);
+	for(int i = 0; i < n; i++){
+		int a, b; ri(a, b);
+		if(s >= a) s -= a, s += b;
+		else res++;
+	}
+	po(res * c);
+}
+```
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0009/tasks/awc0009_c"
+    title = "C - Apple Harvest" tags = "implementation"
+/>
+
+최대값과 최솟값 찾기
+
+```cpp showLineNumbers
+int n,t,k,mx,res;
+
+void solve(){
+	int mn = INF;
+	ri(n, t, k);
+	vi v(n); for(auto& i : v){
+		ri(i); mn = min<int>(mn, i);
+	}
+	mx = t + k + (mn - 1);
+	for(int i = 0; i < n; i++){
+		if(v[i] <= mx) res++;
+	}
+	po(res);
+}
+```
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0009/tasks/awc0009_d"
+    title = "D - Planting Flower Seeds" tags = "sorting, sweeping"
+/>
+
+웰노운 스위핑
+
+```cpp showLineNumbers
+int n,m,res;
+
+void solve(){
+	ri(n, m);
+	vp v(m); for(auto& [a, b] : v) ri(a, b);
+	if(m == 0){
+		po(n);
+		return;
+	}
+	sort(all(v));
+	auto [st, en] = v[0];
+	if(st > 1){
+		int diff = st - 1;
+		if(diff >= n){
+			po(n);
+			return;
+		}
+		n -= diff;
+	}
+	bool ok = 0;
+	for(int i = 1; i < m; i++){
+		auto [s, e] = v[i];
+		if(s <= en) en = max<int>(en, e);
+		else{
+			int cnt = (s - en) - 1;
+			if(n <= cnt){
+				res = n + en;
+				ok = 1;
+				break;
+			}
+			else{
+				n = max<int>(n - cnt, 0);
+				st = s, en = e;
+			}
+		}
+	}
+	if(n > 0 and !ok) res = en + n;
+	po(res);
+}
+```
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0009/tasks/awc0009_e"
+    title = "E - Temperature Fluctuation Survey" tags = "segment_tree"
+/>
+
+minseg와 maxseg 두 개를 써서 $Q$개의 쿼리를 처리해주면 된다
+
+```cpp showLineNumbers
+struct mxsegtree{
+	const int sz = 1 << 17;
+	vector<int> tree;
+
+	mxsegtree():tree(sz << 1, -INF){}
+	
+	void update(int i, int val){
+		--i |= sz; tree[i] = val;
+		while(i >>= 1) tree[i] = max<int>(tree[i << 1], tree[i << 1 | 1]);
+	}
+	int query(int l, int r){
+		int lv = -INF,rv = -INF;
+		--l |= sz; --r |= sz;
+		while(l <= r){
+			if(l & 1) lv = max<int>(lv, tree[l++]);
+			if(~r & 1) rv = max<int>(tree[r--], rv);
+			l >>= 1, r >>= 1;
+		}
+		return max<int>(lv, rv);
+	}
+} seg1;
+
+struct mnsegtree{
+	const int sz = 1 << 17;
+	vector<int> tree;
+
+	mnsegtree():tree(sz << 1, INF){}
+	
+	void update(int i, int val){
+		--i |= sz; tree[i] = val;
+		while(i >>= 1) tree[i] = min<int>(tree[i << 1], tree[i << 1 | 1]);
+	}
+	int query(int l, int r){
+		int lv = INF,rv = INF;
+		--l |= sz; --r |= sz;
+		while(l <= r){
+			if(l & 1) lv = min<int>(lv, tree[l++]);
+			if(~r & 1) rv = min<int>(tree[r--], rv);
+			l >>= 1, r >>= 1;
+		}
+		return min<int>(lv, rv);
+	}
+} seg2;
+
+int n,q;
+
+void solve(){
+	ri(n, q);
+	for(int i = 1; i <= n; i++){
+		int x; ri(x);
+		seg1.update(i, x); seg2.update(i, x);
+	}
+	while(q--){
+		int a,b; ri(a, b);
+		if(a == b) po(0);
+		else po(seg1.query(a, b) - seg2.query(a, b));
+	}
+}
+```
+
+### 총평
+
+좀 많이 쉬운 셋인듯? $E$번은 그냥 세그 구현..

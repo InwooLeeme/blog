@@ -33,25 +33,11 @@ export function getPostSlugs() {
 }
 
 /**
-* 발행된(draft가 아닌) 게시글의 slug 목록만 반환합니다.
-* - 본문은 파싱하지 않고 frontmatter만 읽어 draft 필터링에 사용합니다.
-* - generateStaticParams 등 본문이 필요 없는 경로에서 사용하세요.
-*/
-export function getPublishedSlugs() {
-  return getPostSlugs()
-    .filter((f) => {
-      const file = fs.readFileSync(path.join(POSTS_DIR, f), "utf8")
-      const { data } = matter(file)
-      return !(data as PostMeta).draft
-    })
-    .map((f) => f.replace(/\.mdx$/, ""))
-}
-
-/**
 * slug(또는 파일명)로부터 특정 게시글의 메타데이터(frontmatter)와 본문(content)을 읽어 반환합니다.
 * 주의/예외:
 * - 해당 MDX 파일이 없으면 fs.readFileSync에서 예외가 발생합니다.
 * - frontmatter의 타입은 PostMeta로 단언(cast)하고 있으므로, 필수 필드 누락 시 런타임에만 문제될 수 있습니다.
+* - cache()로 감싸 동일 요청 내 같은 slug는 한 번만 읽습니다.
 */
 export const getPostBySlug = cache((slug: string) => {
   const realSlug = slug.replace(/\.mdx$/, "")
@@ -66,17 +52,26 @@ export const getPostBySlug = cache((slug: string) => {
     content,
   }
 })
+
 /**
 * 모든 게시글을 읽어와 "발행 가능한 목록"으로 정리해 반환합니다.
-* 반환 값:
-* - { slug, meta, content } 형태의 게시글 객체 배열
+* - draft 제외, date 내림차순(최신 먼저) 정렬.
+* - cache()로 감싸 동일 요청 내 파일 스캔을 한 번으로 공유합니다.
 */
-export function getAllPosts() {
-  const slugs = getPostSlugs()
-  const posts = slugs.map((s) => getPostBySlug(s))
+export const getAllPosts = cache(() => {
+  const posts = getPostSlugs().map((s) => getPostBySlug(s))
   return posts
     .filter((p) => !p.meta.draft)
     .sort((a, b) => (a.meta.date < b.meta.date ? 1 : -1))
+})
+
+/**
+* 발행된(draft가 아닌) 게시글의 slug 목록만 반환합니다.
+* - getAllPosts를 재사용하므로 별도 파일 스캔 없이 draft 필터링을 공유합니다.
+* - generateStaticParams 등에서 사용하세요.
+*/
+export function getPublishedSlugs() {
+  return getAllPosts().map((p) => p.slug)
 }
 
 /* 

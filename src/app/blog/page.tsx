@@ -1,8 +1,7 @@
 import { getAllPosts, getTagCounts } from "@/lib/posts"
-import PostCard from "../components/PostCard"
+import PostGrid from "../components/PostGrid";
 import TagSidebar from "../components/TagSidebar";
 import LatestHero from "../components/LatestHero";
-import Reveal from "../components/Reveal";
 
 
 export default function BlogIndexPage() {
@@ -29,13 +28,7 @@ export default function BlogIndexPage() {
                 All Posts ({posts.length})
               </h1>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                {posts.map(({ slug, meta }, i) => (
-                  <Reveal key={slug} delay={(i % 2) * 100}>
-                    <PostCard slug={slug} meta={meta} />
-                  </Reveal>
-                ))}
-              </div>
+              <PostGrid posts={posts} />
             </div>
           </div>
         </main>

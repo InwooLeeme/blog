@@ -2,8 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getAllPosts, getAllTags, getTagCounts, getPostItemsByTag } from "@/lib/posts";
 import TagSidebar from "../../../components/TagSidebar";
-import PostCard from "../../../components/PostCard";
-import Reveal from "../../../components/Reveal";
+import PostGrid from "../../../components/PostGrid";
 
 export function generateStaticParams() {
   const tags = getAllTags(getAllPosts());
@@ -45,13 +44,7 @@ export default async  function BlogTagPage({ params }: { params: Promise<{ tag: 
             #{tag} ({filtered.length})
           </h1>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-            {filtered.map(({ slug, meta }, i) => (
-              <Reveal key={slug} delay={(i % 2) * 100}>
-                <PostCard slug={slug} meta={meta} />
-              </Reveal>
-            ))}
-          </div>
+          <PostGrid posts={filtered} />
         </main>
       </div>
     </div>

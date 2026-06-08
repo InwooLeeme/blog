@@ -3,12 +3,7 @@ import Image from "next/image";
 import { Calendar, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PostItem } from "@/lib/posts";
-
-const DATE_FORMATTER = new Intl.DateTimeFormat("ko-KR", {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-});
+import { formatPostDate, getCoverSrc } from "@/lib/post-display";
 
 export default function LatestHero({ posts }: { posts: PostItem[] }) {
   const latest = posts.slice(0, 4);
@@ -20,7 +15,7 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
 
       <div className="group/row flex gap-1 h-[24rem]">
         {latest.map(({ slug, meta }, i) => {
-          const coverSrc = meta.cover || `/blog/${slug}/opengraph-image`;
+          const coverSrc = getCoverSrc(slug, meta);
           const primaryTag = meta.tags?.[0];
           return (
             <Link
@@ -61,7 +56,7 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
                   <span className="inline-flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
                     <time dateTime={meta.date}>
-                      {DATE_FORMATTER.format(new Date(meta.date))}
+                      {formatPostDate(meta.date)}
                     </time>
                   </span>
                   {meta.readingTime ? (

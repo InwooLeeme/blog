@@ -1,12 +1,7 @@
 import Link from "next/link";
 import { Calendar } from "lucide-react";
 import type { PostItem } from "@/lib/posts";
-
-const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-});
+import { formatPostDate } from "@/lib/post-display";
 
 interface IRelatedPostsProps {
     posts: PostItem[];
@@ -31,7 +26,7 @@ export default function RelatedPosts({ posts }: IRelatedPostsProps) {
                             <div className="mt-auto flex items-center gap-1.5 text-xs text-muted-foreground">
                                 <Calendar className="h-3.5 w-3.5" aria-hidden />
                                 <time dateTime={p.meta.date}>
-                                    {DATE_FORMATTER.format(new Date(p.meta.date))}
+                                    {formatPostDate(p.meta.date)}
                                 </time>
                                 {p.meta.readingTime ? (
                                     <>

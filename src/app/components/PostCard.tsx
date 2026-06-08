@@ -1,20 +1,14 @@
 import { PostMeta } from "@/lib/posts";
+import { formatPostDate, getCoverSrc } from "@/lib/post-display";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Calendar, ArrowRight } from "lucide-react";
 
-const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-});
-
 export default function PostCard({ slug, meta }: { slug: string; meta: PostMeta }) {
-    const date = new Date(meta.date);
-    const formatted = DATE_FORMATTER.format(date);
-    const coverSrc = meta.cover || `/blog/${slug}/opengraph-image`;
+    const formatted = formatPostDate(meta.date);
+    const coverSrc = getCoverSrc(slug, meta);
     const tags = meta.tags?.slice(0, 3) ?? [];
 
     return (

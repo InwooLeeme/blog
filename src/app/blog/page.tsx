@@ -7,8 +7,7 @@ import Reveal from "../components/Reveal";
 
 export default function BlogIndexPage() {
   const posts = getAllPosts();
-  const metas = posts.map((p) => p.meta);
-  const tagCounts = getTagCounts(metas);
+  const tagCounts = getTagCounts(posts);
   return (
     <div className="w-full max-w-6xl mx-auto mt-6 px-4 md:px-6 lg:px-8">
       <div className="lg:flex lg:gap-10">

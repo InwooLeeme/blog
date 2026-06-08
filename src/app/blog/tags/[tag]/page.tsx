@@ -6,8 +6,7 @@ import PostCard from "../../../components/PostCard";
 import Reveal from "../../../components/Reveal";
 
 export function generateStaticParams() {
-  const metas = getAllPosts().map((p) => p.meta);
-  const tags = getAllTags(metas);
+  const tags = getAllTags(getAllPosts());
 
   return tags.map((tag) => ({ tag: encodeURIComponent(tag) }));
 }
@@ -26,8 +25,7 @@ export default async  function BlogTagPage({ params }: { params: Promise<{ tag: 
   const tag = decodeURIComponent(rawTag);
 
   const posts = getAllPosts();
-  const metas = posts.map((p) => p.meta);
-  const tagCounts = getTagCounts(metas);
+  const tagCounts = getTagCounts(posts);
 
   const filtered = getPostItemsByTag(posts, tag);
   if (filtered.length === 0) return notFound();

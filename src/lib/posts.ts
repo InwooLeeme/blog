@@ -82,26 +82,19 @@ export function getAllPosts() {
 /* 
 모든 포스트에서 고유한 태그 목록을 추출합니다.
 */
-export function getAllTags(posts: PostMeta[]): string[] {
-  const allTags = posts.flatMap(post => post.tags ?? []);
+export function getAllTags(posts: PostItem[]): string[] {
+  const allTags = posts.flatMap((post) => post.meta.tags ?? []);
   // Set을 사용하여 중복을 제거합니다.
   return Array.from(new Set(allTags)).sort((a, b) => a.localeCompare(b));
 }
 
-/**
-* 특정 태그를 가진 포스트 목록을 필터링합니다.
-*/
-export function getPostsByTag(posts: PostMeta[], tag: string): PostMeta[] {
-  return posts.filter((post) => post.tags?.includes(tag) ?? false);
-}
-
 export type TagCount = { tag: string; count: number };
 
-export function getTagCounts(metas: PostMeta[]): TagCount[] {
+export function getTagCounts(posts: PostItem[]): TagCount[] {
   const map = new Map<string, number>();
 
-  for (const m of metas) {
-    for (const t of m.tags ?? []) {
+  for (const p of posts) {
+    for (const t of p.meta.tags ?? []) {
       map.set(t, (map.get(t) ?? 0) + 1);
     }
   }

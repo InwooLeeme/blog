@@ -1,8 +1,21 @@
 import Image, { type ImageProps } from "next/image"
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function MdxImage(props: any) {
-    const { src, alt = "", width, height, className, ...rest } = props
+
+type MdxImageProps = Omit<ImageProps, "src" | "alt" | "width" | "height"> & {
+    src: string
+    alt?: string
+    width?: number | string
+    height?: number | string
+}
+
+export default function MdxImage({
+    src,
+    alt = "",
+    width,
+    height,
+    className,
+    ...rest
+}: MdxImageProps) {
     const w = width ? Number(width) : 1200
     const h = height ? Number(height) : 675
     return (

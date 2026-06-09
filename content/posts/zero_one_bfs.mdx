@@ -1,0 +1,140 @@
+---
+title: "가중치가 0과 1뿐이라면: 0-1 BFS"
+date: "2026-06-09"
+summary: "간선 가중치가 0과 1만 있는 그래프의 최단 경로 — 우선순위 큐 없이 덱(deque)으로 푸는 0-1 BFS. AtCoder ABC176 D로 연습한다."
+tags: [algorithm]
+draft: false
+cover: ""
+---
+
+## 다익스트라는 좀 과한데
+
+[다익스트라 글](/blog/dijkstra)에서 가중치 그래프의 최단 경로를 우선순위 큐로 풀었다. 비용은 $O(E \log V)$, 그 $\log$는 "매번 가장 가까운 정점을 골라야 해서" 붙는 값이다.
+
+그런데 만약 **간선 가중치가 0 아니면 1뿐**이라면? 굳이 우선순위 큐로 정렬까지 할 필요가 없다. 거리가 0이나 1씩만 차이 나니까, 큐의 **앞뒤만 잘 쓰면** 항상 가장 가까운 것을 꺼낼 수 있다. 이게 0-1 BFS다.
+
+## 핵심 아이디어
+
+<Definition term="0-1 BFS">
+모든 간선의 가중치가 **0 또는 1**인 그래프에서 최단 경로를 구하는 방법. 일반 BFS의 큐를 **덱(deque)**으로 바꾸고, 가중치 0 간선으로 가는 정점은 **앞(front)**에, 가중치 1 간선으로 가는 정점은 **뒤(back)**에 넣는다.
+</Definition>
+
+왜 이게 되는지 생각해보자. 보통의 BFS가 옳은 이유는 모든 간선이 1이라 큐 안의 거리가 항상 정렬돼 있기 때문이다. 0-1 BFS도 똑같다.
+
+- **0짜리 간선**으로 이동하면 거리가 그대로 → 지금 꺼낸 정점과 같은 거리 → 큐 **맨 앞**에 두면 정렬 유지
+- **1짜리 간선**으로 이동하면 거리가 +1 → 한 단계 뒤 → 큐 **맨 뒤**에 두면 정렬 유지
+
+그래서 덱에는 항상 거리 $k$와 $k+1$ 두 종류만 섞여 있고, 앞에서 꺼내면 늘 가장 가까운 정점이다. 우선순위 큐가 하던 일을 덱의 양쪽 끝이 공짜로 해준다.
+
+## 문제
+
+<ProblemMeta
+  platform="AtCoder"
+  id="ABC176 D"
+  title="Wizard in Maze"
+  tags="0-1 BFS, graph, grid"
+  link="https://atcoder.jp/contests/abc176/tasks/abc176_d"
+/>
+
+$H \times W$ 격자가 있다. `.`는 길, `#`는 벽이다. 시작 칸에서 목표 칸으로 가려고 한다. 두 가지 행동을 할 수 있다.
+
+- **걷기**: 상하좌우 인접한 **길** 칸으로 이동한다. 공짜.
+- **순간이동**: 현재 칸을 중심으로 한 $5 \times 5$ 범위(행·열 차이가 각각 2 이하)의 아무 **길** 칸으로 점프한다. 마법 1회 소모.
+
+목표 칸까지 가는 데 필요한 **마법 사용 횟수의 최솟값**을 구하라. 불가능하면 $-1$
+
+## 그래프로 보기
+
+칸 하나하나를 정점으로 보면, 행동이 곧 간선이다.
+
+- 걷기 → 가중치 **0** 간선
+- 순간이동 → 가중치 **1** 간선
+
+그러면 "마법 사용 횟수 최소화"는 정확히 "**가중치 합이 최소인 경로 찾기**"가 된다. 가중치가 0과 1뿐이니, 다익스트라 대신 0-1 BFS를 그대로 적용하면 끝이다.
+
+## 구현
+
+```cpp showLineNumbers
+#include <bits/stdc++.h>
+using namespace std;
+const int INF = 1e9;
+
+int H, W, Ch, Cw, Dh, Dw;
+char board[1010][1010];
+int dist[1010][1010];
+
+int main(){
+    cin >> H >> W >> Ch >> Cw >> Dh >> Dw;
+    for(int i = 1; i <= H; i++)
+        for(int j = 1; j <= W; j++){
+            cin >> board[i][j];
+            dist[i][j] = INF;
+        }
+
+    deque<tuple<int,int,int>> dq;   // {거리, 행, 열}
+    dist[Ch][Cw] = 0;
+    dq.push_front({0, Ch, Cw});
+
+    int dx[] = {-1, 1, 0, 0}, dy[] = {0, 0, -1, 1};
+
+    while(!dq.empty()){
+        auto [d, r, c] = dq.front(); dq.pop_front();
+        if(d > dist[r][c]) continue;            // 낡은 항목 무시
+
+        // 걷기: 인접 4칸 — 비용 0
+        for(int k = 0; k < 4; k++){
+            int nr = r + dx[k], nc = c + dy[k];
+            if(nr < 1 || nr > H || nc < 1 || nc > W) continue;
+            if(board[nr][nc] == '#') continue;
+            if(d < dist[nr][nc]){
+                dist[nr][nc] = d;
+                dq.push_front({d, nr, nc});     // 0 → 앞으로
+            }
+        }
+        // 순간이동: 5x5 범위 — 비용 1
+        for(int a = -2; a <= 2; a++)
+            for(int b = -2; b <= 2; b++){
+                int nr = r + a, nc = c + b;
+                if(nr < 1 || nr > H || nc < 1 || nc > W) continue;
+                if(board[nr][nc] == '#') continue;
+                if(d + 1 < dist[nr][nc]){
+                    dist[nr][nc] = d + 1;
+                    dq.push_back({d + 1, nr, nc}); // 1 → 뒤로
+                }
+            }
+    }
+
+    int ans = dist[Dh][Dw];
+    cout << (ans == INF ? -1 : ans);
+}
+```
+
+구조는 BFS와 거의 같다. 다른 점은 딱 두 가지 — **큐가 덱이고**, 넣을 때 비용에 따라 **앞/뒤를 구분**한다는 것뿐이다.
+
+## 짚어둘 점
+
+<Callout type="warn">
+0짜리는 `push_front`, 1짜리는 `push_back`. 이걸 반대로 넣으면 거리 정렬이 깨져서 틀린 답이 나온다.
+</Callout>
+
+`if(d > dist[r][c]) continue;`로 낡은 항목을 거르는 건 다익스트라와 똑같다. 0-1 BFS도 한 정점을 덱에 여러 번 넣을 수 있어서, 꺼냈을 때 이미 더 짧게 처리됐으면 건너뛴다.
+
+<Callout type="info">
+순간이동 범위($5 \times 5$)가 인접 칸까지 포함하지만 신경 쓸 필요 없다. 인접 칸은 걷기(비용 0)로 먼저 더 짧게 처리되므로, 같은 칸을 비용 1로 또 갱신하려는 시도는 자연히 무시된다.
+</Callout>
+
+## 시간복잡도
+
+<Complexity time="O(V + E)" space="O(V)" />
+
+- 각 정점·간선을 상수 번만 보기 때문에 $O(V + E)$ — 다익스트라의 $\log$는 없다
+- 이 문제에선 정점이 $H \times W$, 정점마다 간선이 상수 개($4 + 25$)라 사실상 $O(HW)$
+
+## 정리
+
+- **언제**: 간선 가중치가 **0과 1뿐인** 그래프의 최단 경로
+- **어떻게**: BFS의 큐를 덱으로 — 0짜리는 앞, 1짜리는 뒤
+- **왜**: 덱 안의 거리가 $k$, $k+1$ 두 종류로만 유지돼 항상 정렬된 상태
+- **복잡도**: $O(V + E)$, 다익스트라보다 $\log$만큼 빠름
+
+~~push_front랑 push_back 바꿔 넣으면 개꿀이다~~

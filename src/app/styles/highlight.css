@@ -8,9 +8,9 @@
     @apply rounded-t-none mt-0;
 }
 
-/* pre 기본 스타일 */
+/* pre 기본 스타일 — 패딩은 code/[data-line]에서 처리(가로 스크롤 배경 유지) */
 .prose pre {
-    @apply rounded-lg border p-4 overflow-x-auto;
+    @apply rounded-lg border overflow-x-auto;
 }
 
 /* 코드 블럭 안의 글자 크기 — 본문 lg:text-xl보다 작게 */
@@ -80,7 +80,7 @@ code[data-line-numbers]>[data-line]::before {
     }
 
     .prose-main pre {
-        @apply rounded-xl border bg-muted/30 p-4 overflow-x-auto;
+        @apply rounded-xl border bg-muted/30 overflow-x-auto;
     }
 
     /* 블록 인용문 — 카드형 (좌측 accent 바 + 연한 배경 + 둥근 모서리) */

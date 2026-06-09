@@ -202,13 +202,13 @@ article :is(h2,h3){ scroll-margin-top: 6rem; }
 .prose pre code {
   display: grid;
   grid-template-columns: minmax(0, max-content);
-  padding: 1rem 0;
+  padding: 0;
   white-space: pre;
 }
 
 /* 모든 라인은 좌우 padding을 직접 가짐 → 배경이 가로 스크롤 시에도 끝까지 이어짐 */
 [data-line] {
-  padding: 0 1rem;
+  padding: 0;
 }
 
 /* 라이트/다크 테마 변수 적용 (prefers-color-scheme 대신 class 기반) */

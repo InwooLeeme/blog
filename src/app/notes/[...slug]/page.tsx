@@ -80,11 +80,11 @@ export default async function NotePage({ params }: PageProps) {
                   rehypePrettyCode,
                   {
                     theme: {
-                      dark: "github-dark-dimmed",
-                      light: "github-light",
+                      dark: "one-dark-pro",
+                      light: "one-light",
                     },
                     defaultLang: "plaintext",
-                    keepBackground: false,
+                    keepBackground: true,
                   },
                 ],
                 rehypeKatex,

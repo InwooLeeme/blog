@@ -191,9 +191,12 @@ article :is(h2,h3){ scroll-margin-top: 6rem; }
 .prose pre {
   overflow-x: auto;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.08);
-  /* monokai 테마(shiki) 배경 — code[data-theme]의 inline 변수는 pre에 cascade 안 되므로 직접 지정 */
-  background-color: #272822;
+  border: 1px solid var(--border);
+  /* shiki 듀얼 테마(vitesse-light/dark) 배경 — 모드별 자동 적용 */
+  background-color: var(--shiki-light-bg);
+}
+.dark .prose pre {
+  background-color: var(--shiki-dark-bg);
 }
 
 .prose pre code {

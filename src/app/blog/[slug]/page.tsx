@@ -130,8 +130,8 @@ export default async function PostPage({ params }: PageProps) {
                     [rehypePrettyCode,
                       {
                         theme: {
-                          dark: "monokai",
-                          light: "monokai",
+                          dark: "one-dark-pro",
+                          light: "one-light",
                         },
                         defaultLang: "plaintext",
                         keepBackground: true,

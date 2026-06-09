@@ -90,7 +90,7 @@
 
 .dark {
   /* 브랜드 악센트 색상 — 다크 모드 */
-  --accent-brand: #fff383;
+  --accent-brand: #31CED2;
   --accent-brand-fg: #18181b;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);

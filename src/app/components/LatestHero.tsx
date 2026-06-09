@@ -23,8 +23,8 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
               href={`/blog/${slug}`}
               aria-label={meta.title}
               className={cn(
-                "group relative basis-0 overflow-hidden rounded-xl border bg-card",
-                "transition-[flex-grow,border-color] duration-300 ease-out",
+                "group relative basis-0 overflow-hidden rounded-md border bg-card",
+                "transition-[flex-grow,border-color] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
                 i === 0 ? "grow-[4] border-accent-brand" : "grow",
                 "group-hover/row:grow group-hover/row:border-border",
                 "hover:!grow-[4] hover:!border-accent-brand"

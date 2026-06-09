@@ -18,7 +18,7 @@ export default function PostNavigation({ prev, next }: IPostNavigationProps) {
             {prev ? (
                 <Link
                     href={`/blog/${prev.slug}`}
-                    className="group flex flex-col gap-1 rounded-xl border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent-brand hover:shadow-md"
+                    className="group flex flex-col gap-1 rounded-md border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent-brand hover:shadow-md"
                 >
                     <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                         <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
@@ -34,7 +34,7 @@ export default function PostNavigation({ prev, next }: IPostNavigationProps) {
             {next ? (
                 <Link
                     href={`/blog/${next.slug}`}
-                    className="group flex flex-col gap-1 rounded-xl border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent-brand hover:shadow-md sm:items-end sm:text-right"
+                    className="group flex flex-col gap-1 rounded-md border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent-brand hover:shadow-md sm:items-end sm:text-right"
                 >
                     <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                         다음 글

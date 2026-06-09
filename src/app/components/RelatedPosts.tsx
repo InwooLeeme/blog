@@ -18,7 +18,7 @@ export default function RelatedPosts({ posts }: IRelatedPostsProps) {
                     <li key={p.slug}>
                         <Link
                             href={`/blog/${p.slug}`}
-                            className="group flex h-full flex-col gap-2 rounded-xl border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent-brand hover:shadow-md"
+                            className="group flex h-full flex-col gap-2 rounded-md border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent-brand hover:shadow-md"
                         >
                             <h3 className="font-bold leading-snug line-clamp-2 group-hover:text-accent-brand">
                                 {p.meta.title}

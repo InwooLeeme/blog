@@ -87,14 +87,16 @@ export const projects: Project[] = [
   },
   {
     name: "NASDAQ 주가 데이터 시각화",
-    subtitle: "2024 · 팀 프로젝트",
+    subtitle: "2024–2026 · 팀 프로젝트",
     highlights: [
       "데이터 베이스 수업 실습 프로젝트",
       "프론트엔드 개발을 주도적으로 담당 (React 기반 UI 구현)",
-      "ApexCharts 캔들스틱 차트로 NASDAQ 주가 데이터 시각화",
+      "캔들스틱 차트로 NASDAQ 주가 데이터 시각화 — 2026년 ApexCharts→lightweight-charts(캔버스)로 교체, gzip·CDN 엣지 캐싱으로 응답 약 87% 감소",
       "입력한 기간·비율에 따라 FastAPI 백엔드와 연동해 차트 렌더링",
+      "2026: 개인 작업으로 백엔드를 API 전용으로 분리하고 프론트엔드를 Vercel에 배포",
+      "2026: 코사인·피어슨 유사도로 기준 구간과 닮은 과거 구간을 찾는 유사 패턴 분석 추가",
     ],
-    tech: ["React", "JavaScript", "ApexCharts", "Sqlite"],
+    tech: ["React", "JavaScript", "lightweight-charts", "FastAPI", "Sqlite", "Vercel"],
     links: [
       {
         label: "GitHub",

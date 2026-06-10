@@ -1,0 +1,45 @@
+---
+title: "Mo's Algorithm"
+description: "오프라인 구간 쿼리를 제곱근 분할로 처리하는 기법"
+---
+
+`Push` / `Pop`만 문제에 맞게 채우면 된다.
+
+```cpp
+// 1-based, 닫힌 구간 [l, r] 쿼리
+int sqrtN;
+
+struct Query{
+    int l, r, idx;
+    bool operator<(const Query& o) const {
+        int b = l / sqrtN, ob = o.l / sqrtN;
+        if(b != ob) return b < ob;
+        return (b & 1) ? (r < o.r) : (r > o.r);
+    }
+};
+
+int cur;
+void Push(int i){
+    
+}
+void Pop(int i){
+    
+}
+
+vector<int> mo(int n, vector<Query>& Q){
+    sqrtN = max(1, (int)sqrt(n));
+    sort(Q.begin(), Q.end());
+    vector<int> ans(Q.size());
+    int L = 1, R = 0;
+    for(const auto& [l, r, idx] : Q){
+        while(L > l) Push(--L);
+        while(R < r) Push(++R);
+        while(L < l) Pop(L++);
+        while(R > r) Pop(R--);
+        ans[idx] = cur;
+    }
+    return ans;
+}
+```
+
+- 시간 복잡도: $O((N + Q)\sqrt{N})$

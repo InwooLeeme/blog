@@ -8,7 +8,7 @@ export type TechCategory = { category: string; items: string[] };
 export const techStack: TechCategory[] = [
   { category: "Languages", items: ["C++", "TypeScript", "Python"] },
   { category: "Frontend", items: ["React", "Next.js", "Tailwind CSS"] },
-  { category: "Tooling", items: ["Git", "Vercel", "VS Code"] },
+  { category: "Tooling", items: ["Git", "Vercel"] },
 ];
 
 /** 수상 이력 */

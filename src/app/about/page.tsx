@@ -4,7 +4,8 @@ import { Code2, Trophy, Medal, PenTool, FolderGit2, BadgeCheck, ExternalLink } f
 import { siteConfig } from "@/lib/site";
 import Reveal from "../components/Reveal";
 import IconGithub from "../components/icon/IconGithub";
-import { techChipStyle } from "@/lib/tech-colors";
+import BrandIcon from "../components/icon/BrandIcon";
+import { techChipStyle } from "@/lib/tech";
 import {
   techStack,
   awards,
@@ -128,8 +129,10 @@ export default function AboutPage() {
                     {group.items.map((item) => (
                       <span
                         key={item}
-                        className="rounded-md border bg-card px-2.5 py-1 text-sm transition hover:border-accent-brand"
+                        style={techChipStyle(item)}
+                        className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-sm font-medium shadow-sm transition hover:-translate-y-0.5 hover:shadow"
                       >
+                        <BrandIcon tech={item} className="shrink-0 text-[1.05em]" />
                         {item}
                       </span>
                     ))}

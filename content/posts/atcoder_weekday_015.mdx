@@ -1,0 +1,168 @@
+---
+title: "Atcoder Weekday Contest 015"
+date: "2026-06-10"
+summary: "Atcoder Weekday Contest 015 풀이"
+tags: [Atcoder]
+draft: false
+cover: "/Atcoder_Thumbnail.png"
+---
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0015/tasks/awc0015_a"
+    title = "A - Dot Product Calculation" tags = "implementation"
+/>
+
+구현
+
+```cpp showLineNumbers
+auto solve = [](){
+    vi a(7),b(7);
+    ri(a); ri(b);
+    for(int i = 0; i < si(a); i++) res += (a[i] * b[i]);
+    po(res);
+};
+```
+
+<Complexity time="O(N)" />
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0015/tasks/awc0015_b"
+    title = "B - First Alert" tags = "implementation"/>
+
+구현
+
+```cpp showLineNumbers
+int n,k;
+
+auto solve = [](){
+    ri(n, k);
+    for(int i = 1; i <= n; i++){
+        int x; ri(x);
+        if(x >= k){
+            po(i);
+            return;
+        }
+    }
+    po(-1);
+};
+```
+
+<Complexity time="O(N)" />
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0015/tasks/awc0015_c"
+    title = "C - Matchup Card Combinations" tags = "hash_map"/>
+
+$map$을 이용하면 쉽다
+
+```cpp showLineNumbers
+int n,res;
+safe_map<int, safe_map<int, int>> M;
+safe_map<int, int> C;
+
+auto solve = [](){
+    ri(n);
+    for(int i = 0; i < n; i++){
+        int a,b; ri(a, b);
+        M[a][b]++;
+        C[a]++;
+    }
+    for(const auto& [a, b] : M){
+        int cnt = C[a];
+        res += (cnt * (cnt - 1)) / 2;
+        for(const auto& [x, y] : b){
+            int cnt2 = y;
+            res -= (cnt2 * (cnt2 - 1)) / 2;
+        }
+    }
+    po(res);
+};
+```
+
+<Complexity time="O(N*logN)" />
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0015/tasks/awc0015_d"
+    title = "D - Assignment of Cooking Tasks" tags = "tree_set"/>
+
+$set$의 lower_bound 활용 연습문제
+
+```cpp showLineNumbers
+int n,m,k,res;
+
+auto solve = [](){
+    ri(n, m, k);
+    multiset<int> s;
+    for(int i = 0; i < n; i++){
+        int x; ri(x); s.insert(x);
+    }
+    for(int i = 0; i < m; i++){
+        int x; ri(x);
+        auto it = s.lower_bound(x);
+        if(it == s.end()) continue;
+        s.erase(it);
+        res++;
+    }
+    po(res * k);
+};
+```
+
+<Complexity time="O(N*logN)" />
+
+<ProblemMeta platform = "AtCoder" link = "https://atcoder.jp/contests/awc0015/tasks/awc0015_e"
+    title = "E - Count the Types of Flowers" tags = "offline_query, mo's"/>
+
+mo's 알고리즘 연습문제
+
+```cpp showLineNumbers
+const int sz = 1 << 17;
+int n, sqrtN, q;
+struct query{
+    int l, r, idx;
+    bool operator<(const query& other) const {
+        int block_this = l / sqrtN;
+        int block_other = other.l / sqrtN;
+        if (block_this != block_other) {
+            return block_this < block_other;
+        }
+        return (block_this & 1) ? (r < other.r) : (r > other.r);
+    }
+};
+int v[sz];
+int res[sz]; 
+int cnt[sz]; 
+int cur;
+
+void Push(int x){
+    if(cnt[v[x]] == 0) cur++;
+    cnt[v[x]]++;
+}
+
+void Pop(int x){
+    cnt[v[x]]--;
+    if(cnt[v[x]] == 0) cur--;
+}
+
+auto solve = [](){
+    ri(n, q);
+    for(int i = 1; i <= n; i++) ri(v[i]);
+    sqrtN = sqrt(n);
+    vector<query> Q(q);
+    for(int i = 0; i < q; i++){
+        int l,r; ri(l, r);
+        Q[i] = {l, r, i + 1};
+    }
+    sort(all(Q));
+    int L = 1, R = 0;
+    for(const auto& [l, r, idx] : Q){
+        while(L > l) { L--; Push(L); }
+        while(R < r) { R++; Push(R); }
+        while(L < l) { Pop(L); L++; }
+        while(R > r) { Pop(R); R--; }
+        res[idx] = cur;
+    }
+    for(int i = 1; i <= q; i++) po(res[i]);
+};
+```
+
+<Complexity time="O((N + Q)√N)" />
+
+### 총평
+
+D번까진 쉽다가 왜 E번에서 mo's가 나오는지 모르겠는..ㅋㅋ

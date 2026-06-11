@@ -25,7 +25,7 @@ export type Competition = { date: string; name: string; result?: string };
 
 export const competitions: Competition[] = [
   { date: "2022", name: "UCPC 예선", result: "240th" },
-  { date: "2024", name: "UCPC 에선", result: "132th" },
+  { date: "2024", name: "UCPC 예선", result: "132th" },
   { date: "2025", name: "UCPC 예선", result: "135th" }
 ];
 

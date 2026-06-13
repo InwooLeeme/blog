@@ -41,7 +41,7 @@ export default function Header({ title }: IHeader) {
         <div className="flex flex-1 items-center gap-4">
           <Link
             href="/blog"
-            className="font-semibold tracking-tight max-[360px]:text-sm"
+            className="font-display font-bold tracking-tight text-gradient-brand max-[360px]:text-sm"
             title={title}
           >
             {title}

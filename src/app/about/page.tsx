@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Code2, Trophy, Medal, PenTool, FolderGit2, BadgeCheck, ExternalLink } from "lucide-react";
+import { Code2, Trophy, Medal, PenTool, FolderGit2, BadgeCheck, ExternalLink, Bot } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 import Reveal from "../components/Reveal";
+import ChatbotEmbed from "../components/ChatbotEmbed";
 import IconGithub from "../components/icon/IconGithub";
 import BrandIcon from "../components/icon/BrandIcon";
 import { techChipStyle } from "@/lib/tech";
@@ -28,6 +29,9 @@ const sections = [
   { id: "projects", label: "프로젝트" },
   { id: "certifications", label: "자격증" },
 ];
+
+// TODO: 실제 챗봇 배포 URL로 교체
+const CHATBOT_URL = "https://portfolio-chatbot-six-theta.vercel.app";
 
 function SectionHeading({ icon, children }: { icon: ReactNode; children: ReactNode }) {
   return (
@@ -94,6 +98,9 @@ export default function AboutPage() {
           </a>
         </div>
       </Reveal>
+
+      {/* AI 챗봇 */}
+      <ChatbotEmbed src={CHATBOT_URL} />
 
       {/* 목차 */}
       <nav className="mb-12 rounded-lg border bg-muted/30 p-4">

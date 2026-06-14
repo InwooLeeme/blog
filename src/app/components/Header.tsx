@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ModeToggle from "./ThemeToggle";
@@ -21,99 +22,179 @@ interface IHeader {
   title: string | undefined;
 }
 
-function GithubButton() {
+function useScrolled(threshold = 8) {
+  const [scrolled, setScrolled] = React.useState(false);
+  React.useEffect(() => {
+    const read = () => setScrolled(window.scrollY > threshold);
+    window.addEventListener("scroll", read, { passive: true });
+    read();
+    return () => window.removeEventListener("scroll", read);
+  }, [threshold]);
+  return scrolled;
+}
+
+function Wordmark({ title }: { title: string | undefined }) {
   return (
-    <Button asChild variant="ghost" size="icon" aria-label="GitHub">
-      <Link href={siteConfig.githubUrl} target="_blank" rel="noreferrer">
-        <IconGithub width={20} height={20} />
-      </Link>
-    </Button>
+    <Link
+      href="/blog"
+      title={title}
+      className="font-display font-bold tracking-tight text-gradient-brand max-[360px]:text-sm"
+    >
+      {title}
+    </Link>
+  );
+}
+
+// 데스크톱/모바일 공용 컨트롤
+function Controls() {
+  return (
+    <>
+      <SearchDialog />
+      <Button asChild variant="ghost" size="icon" aria-label="GitHub">
+        <Link href={siteConfig.githubUrl} target="_blank" rel="noreferrer">
+          <IconGithub width={20} height={20} />
+        </Link>
+      </Button>
+      <ModeToggle />
+    </>
+  );
+}
+
+function DesktopNav({ pathname }: { pathname: string }) {
+  const activeIndex = navLinks.findIndex((l) => isActivePath(pathname, l.href));
+  const [hovered, setHovered] = React.useState<number | null>(null);
+  const navRef = React.useRef<HTMLElement>(null);
+  const itemsRef = React.useRef<(HTMLAnchorElement | null)[]>([]);
+  const [pill, setPill] = React.useState({ left: 0, width: 0, opacity: 0 });
+
+  // 강조 대상: 호버 항목, 없으면 현재 경로의 active 항목
+  const target = hovered ?? (activeIndex >= 0 ? activeIndex : null);
+
+  // 레이아웃 변동 시 ResizeObserver가 pill 위치 재측정
+  React.useEffect(() => {
+    const measure = () => {
+      if (target === null) {
+        setPill((p) => ({ ...p, opacity: 0 }));
+        return;
+      }
+      const el = itemsRef.current[target];
+      if (el) setPill({ left: el.offsetLeft, width: el.offsetWidth, opacity: 1 });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    if (navRef.current) observer.observe(navRef.current);
+    return () => observer.disconnect();
+  }, [target]);
+
+  return (
+    <nav
+      ref={navRef}
+      className="relative hidden items-center gap-1 text-sm md:flex"
+      onMouseLeave={() => setHovered(null)}
+    >
+      <span
+        aria-hidden
+        className="absolute top-1/2 h-8 -translate-y-1/2 rounded-full bg-accent-brand/10 transition-all duration-300 ease-out"
+        style={{ left: pill.left, width: pill.width, opacity: pill.opacity }}
+      />
+      {navLinks.map((link, i) => (
+        <Link
+          key={link.href}
+          href={link.href}
+          ref={(el) => {
+            itemsRef.current[i] = el;
+          }}
+          onMouseEnter={() => setHovered(i)}
+          aria-current={i === activeIndex ? "page" : undefined}
+          className={cn(
+            "relative rounded-full px-3 py-1.5 font-medium transition-colors",
+            i === target
+              ? "text-accent-brand"
+              : "text-foreground/80 hover:text-foreground",
+          )}
+        >
+          {link.href === "/about" ? (
+            <span className="animate-diagonal-shake">{link.label}</span>
+          ) : (
+            link.label
+          )}
+        </Link>
+      ))}
+      <div className="flex items-center gap-1 pl-2">
+        <Controls />
+      </div>
+    </nav>
+  );
+}
+
+function MobileNav({ pathname }: { pathname: string }) {
+  return (
+    <div className="flex items-center gap-2 md:hidden">
+      <Controls />
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="outline" size="icon" aria-label="메뉴 열기">
+            <Menu className="h-5 w-5" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="right" className="w-72">
+          <nav className="mt-4 flex flex-col gap-1">
+            {navLinks.map((n) => {
+              const active = isActivePath(pathname, n.href);
+              return (
+                <SheetClose asChild key={n.href}>
+                  <Link
+                    href={n.href}
+                    aria-current={active ? "page" : undefined}
+                    className={cn(
+                      "rounded-md px-3 py-2 text-base transition-colors",
+                      active
+                        ? "bg-accent-brand/10 font-semibold text-accent-brand"
+                        : "text-foreground hover:bg-muted/70",
+                    )}
+                  >
+                    {n.label}
+                  </Link>
+                </SheetClose>
+              );
+            })}
+          </nav>
+        </SheetContent>
+      </Sheet>
+    </div>
   );
 }
 
 export default function Header({ title }: IHeader) {
   const pathname = usePathname() ?? "";
+  const scrolled = useScrolled();
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur">
+    <div className="sticky top-0 z-50">
       <ReadingProgressBar />
-      <div className="w-full mx-auto flex items-center justify-between h-14 px-4 sm:px-6 lg:px-20">
-        <div className="flex flex-1 items-center gap-4">
-          <Link
-            href="/blog"
-            className="font-display font-bold tracking-tight text-gradient-brand max-[360px]:text-sm"
-            title={title}
-          >
-            {title}
-          </Link>
-        </div>
 
-        {/* 우측: 데스크톱 내비 */}
-        <nav className="hidden md:flex gap-5 text-sm items-center">
-          {navLinks.map((link) => {
-            const active = isActivePath(pathname, link.href);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "group relative font-medium transition-colors hover:text-accent-brand",
-                  active ? "text-accent-brand" : "text-foreground",
-                )}
-              >
-                {link.label}
-                <span
-                  className={cn(
-                    "absolute -bottom-1 left-0 h-0.5 w-full origin-left bg-accent-brand transition-transform duration-300",
-                    active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100",
-                  )}
-                />
-              </Link>
-            );
-          })}
-          <SearchDialog />
-          <GithubButton />
-          <ModeToggle />
-        </nav>
-
-        {/* 모바일: 검색 + 깃허브 + 다크모드 + 햄버거 */}
-        <div className="md:hidden flex items-center gap-2">
-          <SearchDialog />
-          <GithubButton />
-          <ModeToggle />
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon" aria-label="메뉴 열기">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-72">
-              <nav className="mt-4 flex flex-col gap-1">
-                {navLinks.map((n) => {
-                  const active = isActivePath(pathname, n.href);
-                  return (
-                    <SheetClose asChild key={n.href}>
-                      <Link
-                        href={n.href}
-                        aria-current={active ? "page" : undefined}
-                        className={cn(
-                          "rounded-md px-3 py-2 text-base transition-colors",
-                          active
-                            ? "bg-accent-brand/10 font-semibold text-accent-brand"
-                            : "text-foreground hover:bg-muted/70",
-                        )}
-                      >
-                        {n.label}
-                      </Link>
-                    </SheetClose>
-                  );
-                })}
-              </nav>
-            </SheetContent>
-          </Sheet>
+      <div
+        className={cn(
+          "transition-all duration-300",
+          scrolled ? "px-4 pt-3" : "px-0 pt-0",
+        )}
+      >
+        {/* 평상시: full-width 바(border-b) → 스크롤: 떠있는 pill */}
+        <div
+          className={cn(
+            "mx-auto flex items-center backdrop-blur transition-all duration-300",
+            scrolled
+              ? "h-12 max-w-3xl rounded-full border bg-background/85 px-5 shadow-lg"
+              : "h-14 max-w-[120rem] rounded-none border-b bg-background/70 px-4 sm:px-6 lg:px-20",
+          )}
+        >
+          <div className="flex flex-1 items-center gap-4">
+            <Wordmark title={title} />
+          </div>
+          <DesktopNav pathname={pathname} />
+          <MobileNav pathname={pathname} />
         </div>
       </div>
-    </header>
+    </div>
   );
 }

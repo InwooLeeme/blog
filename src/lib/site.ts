@@ -1,6 +1,5 @@
 /**
  * 사이트 전역 설정 — Header·Footer·메타데이터 등에서 공유.
- * 브랜드 정보나 링크를 바꿀 때 이 파일만 수정하면 된다.
  */
 export const siteConfig = {
   name: "InwooLeeme.dev",
@@ -15,24 +14,21 @@ export const siteConfig = {
 
 export type NavLink = { href: string; label: string };
 
-/** 헤더 내비게이션 — 메뉴 추가 시 여기에만 추가 */
+/** 헤더 내비게이션 */
 export const navLinks: NavLink[] = [
-  { href: "/about", label: "소개" },
+  { href: "/about", label: "Profile" },
   { href: "/notes", label: "Notes" },
-  { href: "/playground", label: "플레이그라운드" },
+  { href: "/playground", label: "Playground" },
 ];
 
-/** 푸터 빠른 링크 */
+/** 푸터 */
 export const footerLinks: NavLink[] = [
   { href: "/blog", label: "블로그" },
   { href: "/notes", label: "Notes" },
-  { href: "/about", label: "소개" },
+  { href: "/about", label: "Profile" },
 ];
 
-/**
- * 현재 경로가 해당 링크에 속하는지 판단 (active 표시용).
- * 정확히 일치하거나 하위 경로(/notes/foo)면 active.
- */
+
 export function isActivePath(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(href + "/");
 }

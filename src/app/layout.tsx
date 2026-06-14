@@ -28,11 +28,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// 제목용 디스플레이 폰트 (라틴) — 한글은 자동으로 sans 폴백
+// 제목용 디스플레이 폰트
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["600", "700"], 
 });
 
 export const viewport: Viewport = {

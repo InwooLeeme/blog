@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import IconGithub from "./icon/IconGithub";
 import { siteConfig } from "@/lib/site";
+import ShootingStars from "./ShootingStars";
 
 /**
  * 랜딩 히어로 — 브랜드 첫인상.
@@ -10,12 +11,13 @@ import { siteConfig } from "@/lib/site";
 export default function LandingHero() {
   return (
     <section className="relative isolate overflow-hidden">
-      {/* 배경 슬롯 — Phase 3에서 갤럭시 시뮬레이터로 교체 */}
+      {/* 배경 — 브랜드 글로우(앰비언트) 위에 별빛 필드 */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div
           className="absolute left-1/2 top-1/2 h-[34rem] w-[48rem] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-25 blur-[100px]"
           style={{ background: "var(--accent-gradient)" }}
         />
+        <ShootingStars />
       </div>
 
       <div className="mx-auto max-w-4xl px-4 py-24 text-center sm:py-32">

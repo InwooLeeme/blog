@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import Fuse, { type IFuseOptions } from "fuse.js";
+import type Fuse from "fuse.js";
+import type { IFuseOptions } from "fuse.js";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,19 +26,25 @@ const FUSE_OPTIONS: IFuseOptions<Item> = {
 export default function SearchDialog() {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<Item[] | null>(null);
+  const [fuse, setFuse] = useState<Fuse<Item> | null>(null);
   const [query, setQuery] = useState("");
 
   useEffect(() => {
     if (!open || items) return;
     let cancelled = false;
-    fetch("/search-index.json")
-      .then((r) => r.json())
-      .then((data: Item[]) => {
-        if (!cancelled) setItems(data);
-      })
-      .catch(() => {
+    (async () => {
+      try {
+        const [data, fuseModule] = await Promise.all([
+          fetch("/search-index.json").then((r) => r.json() as Promise<Item[]>),
+          import("fuse.js"),
+        ]);
+        if (cancelled) return;
+        setItems(data);
+        setFuse(new fuseModule.default(data, FUSE_OPTIONS));
+      } catch {
         if (!cancelled) setItems([]);
-      });
+      }
+    })();
     return () => {
       cancelled = true;
     };
@@ -46,11 +53,6 @@ export default function SearchDialog() {
   useEffect(() => {
     if (!open) setQuery("");
   }, [open]);
-
-  const fuse = useMemo(
-    () => (items ? new Fuse(items, FUSE_OPTIONS) : null),
-    [items]
-  );
 
   const results = useMemo<Item[]>(() => {
     if (!items) return [];

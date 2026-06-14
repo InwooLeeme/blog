@@ -23,6 +23,8 @@ export default function PostCard({ slug, meta }: { slug: string; meta: PostMeta 
                             className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                             sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
                             priority={false}
+                            // cover 없는 글은 이미 완성된 OG PNG로 폴백 → 재최적화 생략(400 방지)
+                            unoptimized={!meta.cover}
                         />
                     </AspectRatio>
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

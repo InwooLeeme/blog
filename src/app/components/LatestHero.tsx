@@ -37,6 +37,8 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 sizes="(min-width:1024px) 50vw, 25vw"
                 priority={i === 0}
+                // cover 없는 글은 이미 완성된 OG PNG로 폴백 → 재최적화 생략(400 방지)
+                unoptimized={!meta.cover}
               />
 
               {/* dark gradient overlay */}

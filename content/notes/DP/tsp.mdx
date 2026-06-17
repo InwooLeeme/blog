@@ -1,0 +1,29 @@
+---
+title: "tsp"
+description: "tsp"
+---
+
+`dist[i][j]`만 채우면 된다. 0번에서 출발해 모든 정점을 한 번씩 방문하고 시작점으로 돌아오는 최소 비용.
+
+```cpp
+// dist[i][j] = i -> j 비용
+int n;
+int dist[20][20];
+int dp[1 << 20][20];
+
+int tsp(int cur, int visited){
+    if(visited == (1 << n) - 1) return dist[cur][0];
+    int& ret = dp[visited][cur];
+    if(ret != -1) return ret;
+    ret = INF;
+    for(int nxt = 0; nxt < n; nxt++){
+        if(visited & (1 << nxt)) continue;
+        ret = min(ret, dist[cur][nxt] + tsp(nxt, visited | (1 << nxt)));
+    }
+    return ret;
+}
+
+// memset(dp, -1, sizeof dp);
+```
+
+- 시간 복잡도: $O(2^N \cdot N^2)$

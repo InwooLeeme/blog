@@ -18,6 +18,15 @@ interface ProblemMetaProps {
   link: string;
 }
 
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s가-힣-]/g, "")
+    .replace(/\s+/g, "-");
+}
+
 export function ProblemMeta({ platform, id, title, tags, link }: ProblemMetaProps) {
   const tagList = tags
     ? tags.split(",").map((t) => t.trim()).filter(Boolean)
@@ -46,7 +55,10 @@ export function ProblemMeta({ platform, id, title, tags, link }: ProblemMetaProp
       </div>
 
       {title ? (
-        <h3 className="mt-2 text-lg font-semibold leading-snug text-foreground">
+        <h3
+          id={slugify(title)}
+          className="mt-2 text-lg font-semibold leading-snug text-foreground"
+        >
           {title}
         </h3>
       ) : null}

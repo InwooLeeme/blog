@@ -1,0 +1,168 @@
+---
+title: "Atcoder Weekday Contest 017"
+date: "2026-06-17"
+summary: "Atcoder Weekday Contest 017 풀이"
+tags: [Atcoder]
+draft: false
+cover: "/Atcoder_Thumbnail.png"
+---
+
+<ProblemMeta platform="AtCoder" link="https://atcoder.jp/contests/awc0017/tasks/awc0017_a"
+    title="A - Organizing the Bookshelf" tags="implementation" />
+
+구현... 구현을 하자
+
+```cpp showLineNumbers
+int n,k;
+ll res;
+
+auto solve = [](){
+    ri(n, k);
+    for(int i = 0; i < n; i++){
+        ll a,b; ri(a, b);
+        if(a <= k) res += b;
+    }
+    po(res);
+};
+```
+
+<Complexity time="O(N)" />
+
+<ProblemMeta platform="AtCoder" link="https://atcoder.jp/contests/awc0017/tasks/awc0017_b"
+    title="B - Brightness of Street Lights" tags="implementation" />
+
+구현을 해주자..
+
+```cpp showLineNumbers
+int n,m;
+int v[1 << 18];
+
+void f(int x){
+    if(x < 1 or x > n) return;
+    v[x]++;
+}
+
+auto solve = [](){
+    ri(n, m);
+    for(int i = 1; i <= n; i++) ri(v[i]);
+    while(m--){
+        int x; ri(x);
+        f(x - 1); f(x); f(x + 1);
+    }
+    for(int i = 1; i <= n; i++) cout << v[i] << " ";
+};
+```
+
+<Complexity time="O(N)" />
+
+<ProblemMeta platform="AtCoder" link="https://atcoder.jp/contests/awc0017/tasks/awc0017_c"
+    title="C - Same Color Check in the Flower Bed" tags="prefix_sum" />
+
+인접한 개수를 가지는 누적합을 만들면 쿼리 당 $O(1)$에 처리할 수 있다
+
+```cpp showLineNumbers
+int n,q;
+ll v[1 << 18], s[1 << 18];
+
+auto solve = [](){
+    ri(n, q);
+    for(int i = 1; i <= n; i++) ri(v[i]);
+    for(int i = 1; i <= n; i++){
+        s[i] = (v[i] == v[i - 1]);
+    }
+    for(int i = 1; i <= n; i++) s[i] += s[i - 1];
+    while(q--){
+        int a,b; ri(a, b);
+        po(s[b] - s[a]);
+    }
+};
+```
+
+<Complexity time="O(N + Q)" />
+
+<ProblemMeta platform="AtCoder" link="https://atcoder.jp/contests/awc0017/tasks/awc0017_d"
+    title="D - Team Building" tags="brute_force" />
+
+$nCk$를 구현하면 된다. 최대값을 초기화할 때 0으로 초기화하면 틀린다. 주의
+~~내가 틀려서 하는 말 아님~~
+
+```cpp showLineNumbers
+int n,m,k;
+ll v[22];
+ll res = -iinf;
+
+auto solve = [](){
+    ri(n, m, k);
+    for(int i = 0; i < n; i++) ri(v[i]);
+    vector<array<ll, 3>> w;
+    for(int i = 0; i < m; i++){
+        ll a,b,c; ri(a, b, c); --a,--b;
+        w.pb({a, b, c});
+    }
+    vi c;
+    for(int i = 0; i < n; i++) c.pb(i < k ? 0 : 1);
+    do{
+        ll s = 0;
+        vi vist(n + 1);
+        for(int i = 0; i < n; i++) if(!c[i]) s += v[i], vist[i] = 1;
+        for(const auto& [a, b, c] : w){
+            if(vist[a] and vist[b]) s -= c;
+        }
+        res = max<ll>(res, s);
+    }while(next_permutation(all(c)));
+    po(res);
+};
+```
+
+<Complexity time="O((KN)(N+M))" />
+
+<ProblemMeta platform="AtCoder" link="https://atcoder.jp/contests/awc0017/tasks/awc0017_e"
+    title="E - Optimization of Delivery Routes" tags="bitfield_dp" />
+
+2차원 tsp...
+
+그냥 템플릿 짜 놔야겠다
+
+```cpp showLineNumbers
+int n, x[22],y[22];
+vector D(22, vector(1 << 20, INF));
+int v[22][22];
+
+auto f = [](int cur, int state, auto&& f){
+	if(state == (1 << n) - 1) return v[cur][0];
+	int& ret = D[cur][state];
+	if(ret != INF) return ret;
+	ret = INF;
+	for(int i = 0; i < n; i++){
+		if(cur == i or state & (1 << i)) continue;
+		ret = min<int>(ret, f(i, state | (1 << i), f) + v[cur][i]);
+	}
+	return ret;
+};
+
+void solve(){
+	ri(n);
+	for(int i = 0; i < n; i++) ri(x[i], y[i]);
+	if(n == 2){
+		auto x1 = x[0],y1 = y[0];
+		auto x2 = x[1],y2 = y[1];
+		po(((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) * 2);
+		return;
+	}
+	for(int i = 0; i < n; i++){
+		auto x1 = x[i], y1 = y[i];
+		for(int j = 0; j < n; j++){
+			auto x2 = x[j], y2 = y[j];
+			v[i][j] = ((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+		}
+	}
+	po(f(0, 1 << 0, f));
+}
+```
+
+<Complexity time="O(n2n)" />
+
+### 총평
+
+TSP도 그렇고 세그도 그렇고 그냥 구현하기 귀찮아서 템플릿을 짜놔야겠다
+=_=

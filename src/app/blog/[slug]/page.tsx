@@ -11,6 +11,7 @@ import {
   getPostBySlug,
   getPublishedSlugs,
   getRelatedPosts,
+  getSeriesNavigation,
 } from "@/lib/posts";
 import PreWithCopy from "../../components/mdx/pre-with-copy";
 import { Callout } from "@/app/components/mdx/Callout/index";
@@ -20,6 +21,7 @@ import PostTags from "@/app/components/mdx/PostTags";
 import TocbotSidebar from "@/app/components/mdx/toc";
 import Comments from "../../components/Comments";
 import PostNavigation from "@/app/components/PostNavigation";
+import SeriesNavigation from "@/app/components/SeriesNavigation";
 import RelatedPosts from "@/app/components/RelatedPosts";
 import { Rank } from "@/app/components/mdx/Rank";
 import { ProblemMeta } from "@/app/components/mdx/ProblemMeta";
@@ -93,6 +95,7 @@ export default async function PostPage({ params }: PageProps) {
   const { meta, content } = post;
   const { prev, next } = getAdjacentPosts(slug);
   const related = getRelatedPosts(slug, 3);
+  const seriesNav = getSeriesNavigation(slug);
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 md:px-6 lg:px-8">
@@ -158,6 +161,7 @@ export default async function PostPage({ params }: PageProps) {
         <TocbotSidebar />
       </div>
       <PostTags tags={meta.tags} />
+      {seriesNav ? <SeriesNavigation nav={seriesNav} /> : null}
       <PostNavigation prev={prev} next={next} />
       <RelatedPosts posts={related} />
       <Comments />

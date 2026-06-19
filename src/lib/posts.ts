@@ -10,8 +10,9 @@ export type PostMeta = {
   summary?: string
   tags?: string[]
   draft?: boolean
-  cover?: string       
-  readingTime?: number 
+  cover?: string
+  readingTime?: number
+  series?: string
 }
 
 export type PostItem = {
@@ -112,6 +113,46 @@ export type AdjacentPosts = {
   prev: PostItem | null;
   next: PostItem | null;
 };
+
+export type SeriesNav = {
+  series: string;
+  prev: PostItem | null;
+  next: PostItem | null;
+  position: number;
+  total: number;
+  currentSlug: string;
+  episodes: { slug: string; title: string }[];
+};
+
+/** 특정 시리즈의 글을 회차(slug) 오름차순으로 반환 */
+export function getPostsBySeries(series: string): PostItem[] {
+  return getAllPosts()
+    .filter((p) => p.meta.series === series)
+    .sort((a, b) => a.slug.localeCompare(b.slug));
+}
+
+/**
+ * 같은 series 글을 모아 이전/다음 회차 + 전체 회차 목록을 반환.
+ * - 정렬은 slug 오름차순 (회차 번호가 zero-padding 돼 있어 번호순과 일치)
+ * - series 필드가 없으면 null
+ */
+export function getSeriesNavigation(slug: string): SeriesNav | null {
+  const series = getAllPosts().find((p) => p.slug === slug)?.meta.series;
+  if (!series) return null;
+
+  const list = getPostsBySeries(series);
+  const idx = list.findIndex((p) => p.slug === slug);
+
+  return {
+    series,
+    prev: idx > 0 ? list[idx - 1] : null,
+    next: idx < list.length - 1 ? list[idx + 1] : null,
+    position: idx + 1,
+    total: list.length,
+    currentSlug: slug,
+    episodes: list.map((p) => ({ slug: p.slug, title: p.meta.title })),
+  };
+}
 
 /**
 * 현재 글의 이전/다음 글을 반환합니다.

@@ -3,12 +3,15 @@ import { ArrowRight } from "lucide-react";
 import { getAllPosts } from "@/lib/posts";
 import LandingHero from "./components/LandingHero";
 import PostCard from "./components/PostCard";
+import JsonLd from "./components/JsonLd";
+import { buildWebSiteJsonLd, buildPersonJsonLd } from "@/lib/jsonLd";
 
 export default function Home() {
   const latest = getAllPosts().slice(0, 3);
 
   return (
     <>
+      <JsonLd data={[buildWebSiteJsonLd(), buildPersonJsonLd()]} />
       <LandingHero />
 
       <section className="mx-auto w-full max-w-6xl px-4 pb-20 md:px-6 lg:px-8">

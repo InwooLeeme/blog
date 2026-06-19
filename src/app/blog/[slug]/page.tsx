@@ -28,6 +28,8 @@ import { Steps, Step } from "@/app/components/mdx/Steps";
 import { Definition } from "@/app/components/mdx/Definition";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import JsonLd from "@/app/components/JsonLd";
+import { buildBlogPostingJsonLd, buildBreadcrumbJsonLd } from "@/lib/jsonLd";
 
 
 interface PageProps {
@@ -93,6 +95,12 @@ export default async function PostPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 md:px-6 lg:px-8">
+      <JsonLd
+        data={[
+          buildBlogPostingJsonLd(slug, meta),
+          buildBreadcrumbJsonLd(slug, meta.title),
+        ]}
+      />
       {meta.cover ? (
         <div className="relative aspect-[1200/630] mb-8">
           <MdxImage

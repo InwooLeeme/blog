@@ -2,7 +2,11 @@ import { getAllPosts, getTagCounts } from "@/lib/posts"
 import PostGrid from "../components/PostGrid";
 import TagSidebar from "../components/TagSidebar";
 import LatestHero from "../components/LatestHero";
+import type { Metadata } from "next";
 
+export const metadata: Metadata = {
+  alternates: { canonical: "/blog" },
+};
 
 export default function BlogIndexPage() {
   const posts = getAllPosts();

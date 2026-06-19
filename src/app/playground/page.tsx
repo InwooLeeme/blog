@@ -1,4 +1,9 @@
 import { PlaygroundPreviewCard, type PreviewCardParams } from "./_components/PlaygroundPreviewCard";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/playground" },
+};
 
 // @params (PreviewCardParams)
 // - id: string

@@ -5,6 +5,11 @@ import LandingHero from "./components/LandingHero";
 import PostCard from "./components/PostCard";
 import JsonLd from "./components/JsonLd";
 import { buildWebSiteJsonLd, buildPersonJsonLd } from "@/lib/jsonLd";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default function Home() {
   const latest = getAllPosts().slice(0, 3);

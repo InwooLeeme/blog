@@ -16,6 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ tag: stri
   return {
     title: `InwooLeeme의 개발 블로그 | #${tag}`,
     description: `태그 "${tag}"로 분류된 게시글 목록입니다.`,
+    alternates: { canonical: `/blog/tags/${rawTag}` },
   };
 }
 

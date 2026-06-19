@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Notes",
   description: "자주 쓰는 알고리즘 구현 코드 모음",
+  alternates: { canonical: "/notes" },
 };
 
 export default function NotesIndexPage() {

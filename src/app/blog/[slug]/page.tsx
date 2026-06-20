@@ -19,6 +19,7 @@ import MdxImage from "@/app/components/mdx/MdxImage";
 import PostHeader from "@/app/components/mdx/PostHeader";
 import PostTags from "@/app/components/mdx/PostTags";
 import TocbotSidebar from "@/app/components/mdx/toc";
+import MobileToc from "@/app/components/mdx/MobileToc";
 import Comments from "../../components/Comments";
 import PostNavigation from "@/app/components/PostNavigation";
 import SeriesNavigation from "@/app/components/SeriesNavigation";
@@ -165,6 +166,7 @@ export default async function PostPage({ params }: PageProps) {
       <PostNavigation prev={prev} next={next} />
       <RelatedPosts posts={related} />
       <Comments />
+      <MobileToc />
     </div>
   );
 }

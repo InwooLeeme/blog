@@ -204,7 +204,7 @@ body{ margin: 0; }
   z-index: 1;
 }
 
-article :is(h2,h3){ scroll-margin-top: 6rem; }
+article :is(h2,h3,h4){ scroll-margin-top: 6rem; }
 
 /* pretty-code용 스타일 */
 .prose pre {

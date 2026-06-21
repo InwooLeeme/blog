@@ -20,6 +20,7 @@ import PostHeader from "@/app/components/mdx/PostHeader";
 import PostTags from "@/app/components/mdx/PostTags";
 import TocbotSidebar from "@/app/components/mdx/toc";
 import MobileToc from "@/app/components/mdx/MobileToc";
+import CopyLinkButton from "@/app/components/CopyLinkButton";
 import Comments from "../../components/Comments";
 import PostNavigation from "@/app/components/PostNavigation";
 import SeriesNavigation from "@/app/components/SeriesNavigation";
@@ -162,6 +163,9 @@ export default async function PostPage({ params }: PageProps) {
         <TocbotSidebar />
       </div>
       <PostTags tags={meta.tags} />
+      <div className="mb-6 flex justify-end">
+        <CopyLinkButton />
+      </div>
       {seriesNav ? <SeriesNavigation nav={seriesNav} /> : null}
       <PostNavigation prev={prev} next={next} />
       <RelatedPosts posts={related} />

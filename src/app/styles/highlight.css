@@ -69,9 +69,21 @@ code[data-line-numbers]>[data-line]::before {
         @apply mt-8 text-lg font-semibold;
     }
 
-    /* 링크: 밑줄 오프셋 + 색상 악센트 */
+    /* 링크: accent 색 + 또렷한 밑줄 */
     .prose-main a {
-        @apply underline underline-offset-4 decoration-2 decoration-primary/30 hover:decoration-primary transition;
+        @apply font-medium text-accent-brand underline underline-offset-4 decoration-2 decoration-accent-brand/40 hover:decoration-accent-brand transition;
+    }
+
+    /* 강조 */
+    .prose-main strong {
+        @apply font-bold text-foreground;
+    }
+    .prose-main mark {
+        @apply rounded bg-accent-brand/20 px-1 py-0.5 text-foreground;
+    }
+    /* 헤딩 # 앵커는 본문 링크 스타일 제외 (은은하게 유지) */
+    .prose-main a.anchor {
+        @apply font-normal text-muted-foreground no-underline;
     }
 
     /* 인라인 코드 / 프리 */

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import IconGithub from "./icon/IconGithub";
 import { siteConfig } from "@/lib/site";
-import ShootingStars from "./ShootingStars";
+import HeroParallax from "./HeroParallax";
 
 /**
  * 랜딩 히어로 — 브랜드 첫인상.
@@ -11,14 +11,8 @@ import ShootingStars from "./ShootingStars";
 export default function LandingHero() {
   return (
     <section className="relative isolate overflow-hidden">
-      {/* 배경 — 브랜드 글로우(앰비언트) 위에 별빛 필드 */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div
-          className="absolute left-1/2 top-1/2 h-[34rem] w-[48rem] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-25 blur-[100px]"
-          style={{ background: "var(--accent-gradient)" }}
-        />
-        <ShootingStars />
-      </div>
+      {/* 배경 — 브랜드 글로우(앰비언트) 위에 별빛 필드, 스크롤 패럴랙스 */}
+      <HeroParallax />
 
       <div className="mx-auto max-w-4xl px-4 py-24 text-center sm:py-32">
         <p className="mb-5 inline-flex items-center rounded-full border bg-card/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">

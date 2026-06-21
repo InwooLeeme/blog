@@ -337,14 +337,17 @@ figure[data-rehype-pretty-code-figure] figcaption[data-rehype-pretty-code-title]
 
 /* Profile 내비 항목 — 대각선으로 주기적으로 흔들림 */
 @keyframes diagonal-shake {
-  0%, 18%, 100% { transform: translate(0, 0) rotate(0deg); }
-  4%  { transform: translate(1.2px, -1.2px) rotate(-4deg); }
-  8%  { transform: translate(-1.2px, 1.2px) rotate(4deg); }
-  12% { transform: translate(1px, -1px) rotate(-3deg); }
+  0%, 22%, 100% { transform: translate(0, 0) rotate(0deg); }
+  3%  { transform: translate(2.5px, -2.5px) rotate(-9deg); }
+  6%  { transform: translate(-2.5px, 2.5px) rotate(9deg); }
+  9%  { transform: translate(2.5px, -2px) rotate(-8deg); }
+  12% { transform: translate(-2.5px, 2px) rotate(8deg); }
+  15% { transform: translate(2px, -1.5px) rotate(-6deg); }
+  18% { transform: translate(-1.5px, 1.5px) rotate(5deg); }
 }
 .animate-diagonal-shake {
   display: inline-block;
-  animation: diagonal-shake 2.6s ease-in-out infinite;
+  animation: diagonal-shake 2.2s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
   .animate-diagonal-shake { animation: none; }

@@ -22,14 +22,20 @@ interface IHeader {
   title: string | undefined;
 }
 
-function useScrolled(threshold = 8) {
+function useScrolled(onPx = 40, offPx = 16) {
   const [scrolled, setScrolled] = React.useState(false);
   React.useEffect(() => {
-    const read = () => setScrolled(window.scrollY > threshold);
+    const read = () =>
+      setScrolled((prev) => {
+        const y = window.scrollY;
+        if (!prev && y > onPx) return true;
+        if (prev && y < offPx) return false;
+        return prev;
+      });
     window.addEventListener("scroll", read, { passive: true });
     read();
     return () => window.removeEventListener("scroll", read);
-  }, [threshold]);
+  }, [onPx, offPx]);
   return scrolled;
 }
 
@@ -94,8 +100,12 @@ function DesktopNav({ pathname }: { pathname: string }) {
     >
       <span
         aria-hidden
-        className="absolute top-1/2 h-8 -translate-y-1/2 rounded-full bg-accent-brand/10 transition-all duration-300 ease-out"
-        style={{ left: pill.left, width: pill.width, opacity: pill.opacity }}
+        className="absolute left-0 top-1/2 h-8 rounded-full bg-accent-brand/10 transition-all duration-300 ease-out"
+        style={{
+          width: pill.width,
+          opacity: pill.opacity,
+          transform: `translateX(${pill.left}px) translateY(-50%)`,
+        }}
       />
       {navLinks.map((link, i) => (
         <Link
@@ -172,28 +182,22 @@ export default function Header({ title }: IHeader) {
   return (
     <div className="sticky top-0 z-50">
       <ReadingProgressBar />
-
       <div
         className={cn(
-          "transition-all duration-300",
-          scrolled ? "px-4 pt-3" : "px-0 pt-0",
+          "mx-auto flex h-14 max-w-[120rem] items-center px-4 backdrop-blur transition-[transform,border-radius,background-color,box-shadow,border-color] duration-300 ease-out [will-change:transform] sm:px-6 lg:px-20",
+          scrolled
+            ? "rounded-full border bg-background/85 shadow-lg"
+            : "rounded-none border-b bg-background/70",
         )}
+        style={{
+          transform: scrolled ? "translateY(6px) scale(0.97)" : "translateY(0) scale(1)",
+        }}
       >
-        {/* 평상시: full-width 바(border-b) → 스크롤: 떠있는 pill */}
-        <div
-          className={cn(
-            "mx-auto flex items-center backdrop-blur transition-all duration-300",
-            scrolled
-              ? "h-12 max-w-3xl rounded-full border bg-background/85 px-5 shadow-lg"
-              : "h-14 max-w-[120rem] rounded-none border-b bg-background/70 px-4 sm:px-6 lg:px-20",
-          )}
-        >
-          <div className="flex flex-1 items-center gap-4">
-            <Wordmark title={title} />
-          </div>
-          <DesktopNav pathname={pathname} />
-          <MobileNav pathname={pathname} />
+        <div className="flex flex-1 items-center gap-4">
+          <Wordmark title={title} />
         </div>
+        <DesktopNav pathname={pathname} />
+        <MobileNav pathname={pathname} />
       </div>
     </div>
   );

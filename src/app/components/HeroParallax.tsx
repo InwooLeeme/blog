@@ -24,14 +24,12 @@ export default function HeroParallax() {
   return (
     <LazyMotion features={domAnimation}>
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        {/* 브랜드 글로우 */}
         <div className="absolute left-1/2 top-1/2 h-[34rem] w-[48rem] -translate-x-1/2 -translate-y-1/2">
           <m.div
             className="h-full w-full rounded-full opacity-25 blur-[100px]"
             style={{ y: glowY, background: "var(--accent-gradient)" }}
           />
         </div>
-        {/* 별빛 — 더 느리게 */}
         <m.div className="absolute inset-0" style={{ y: starsY }}>
           <ShootingStars />
         </m.div>

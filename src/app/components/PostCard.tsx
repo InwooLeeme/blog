@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Calendar, ArrowRight } from "lucide-react";
+import TiltCard from "./TiltCard";
 
 export default function PostCard({ slug, meta }: { slug: string; meta: PostMeta }) {
     const formatted = formatPostDate(meta.date);
@@ -13,6 +14,7 @@ export default function PostCard({ slug, meta }: { slug: string; meta: PostMeta 
 
     return (
         <Link href={`/blog/${slug}`} className="group block" aria-label={meta.title}>
+            <TiltCard>
             <Card className="overflow-hidden h-full rounded-md py-0 gap-0 transition duration-300 hover:-translate-y-1 hover:border-accent-brand hover:shadow-xl hover:shadow-accent-brand/15">
                 <div className="relative overflow-hidden">
                     <AspectRatio ratio={16 / 9}>
@@ -72,6 +74,7 @@ export default function PostCard({ slug, meta }: { slug: string; meta: PostMeta 
                     </div>
                 </CardContent>
             </Card>
+            </TiltCard>
         </Link>
     );
 }

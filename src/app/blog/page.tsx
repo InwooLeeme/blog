@@ -1,5 +1,5 @@
 import { getAllPosts, getTagCounts } from "@/lib/posts"
-import PostGrid from "../components/PostGrid";
+import PostGridLoadMore from "../components/PostGridLoadMore";
 import TagSidebar from "../components/TagSidebar";
 import LatestHero from "../components/LatestHero";
 import type { Metadata } from "next";
@@ -32,7 +32,7 @@ export default function BlogIndexPage() {
                 All Posts ({posts.length})
               </h1>
 
-              <PostGrid posts={posts} />
+              <PostGridLoadMore posts={posts} />
             </div>
           </div>
         </main>

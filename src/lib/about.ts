@@ -8,6 +8,7 @@ export type TechCategory = { category: string; items: string[] };
 export const techStack: TechCategory[] = [
   { category: "Languages", items: ["C++", "TypeScript", "Python"] },
   { category: "Frontend", items: ["React", "Next.js", "Tailwind CSS"] },
+  { category: "Backend · AI", items: ["FastAPI", "SQLite", "LangChain.js", "Google Gemini"] },
   { category: "Tooling", items: ["Git", "Vercel"] },
 ];
 
@@ -79,7 +80,7 @@ export const projects: Project[] = [
       "물어볼 게 마땅치 않을 때를 위해 추천 질문도 띄워 둔다",
       "다른 사이트에 iframe으로 붙일 수 있게 만들었고, 부모 페이지의 다크/라이트 테마에 맞춰지고 지금 이 About 페이지에도 그렇게 들어가 있다",
     ],
-    tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "LangChain.js", "Google Gemini", "Upstash Redis"],
+    tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "LangChain.js", "Google Gemini"],
     links: [
       {
         label: "GitHub",
@@ -121,7 +122,7 @@ export const projects: Project[] = [
       "2026: 개인 작업으로 백엔드를 API 전용으로 분리하고 프론트엔드를 Vercel에 배포",
       "2026: 코사인·피어슨 유사도로 기준 구간과 닮은 과거 구간을 찾는 유사 패턴 분석 추가",
     ],
-    tech: ["React", "JavaScript", "lightweight-charts", "FastAPI", "Sqlite", "Vercel"],
+    tech: ["React", "JavaScript", "lightweight-charts", "FastAPI", "SQLite", "Vercel"],
     links: [
       {
         label: "GitHub",

@@ -12,6 +12,11 @@ import {
   siNodedotjs,
   siGit,
   siVercel,
+  siFastapi,
+  siSqlite,
+  siGooglegemini,
+  siUpstash,
+  siLangchain,
 } from "simple-icons";
 
 /**
@@ -37,6 +42,12 @@ export const TECH: Record<string, TechMeta> = {
   "Node.js": { icon: siNodedotjs, color: "#16a34a" },
   Git: { icon: siGit, color: "#f05032" },
   Vercel: { icon: siVercel, color: "var(--foreground)" },
+  "LangChain.js": { icon: siLangchain, color: "#1aa37a" },
+  "Google Gemini": { icon: siGooglegemini },
+  "Upstash Redis": { icon: siUpstash, color: "#10b981" },
+  FastAPI: { icon: siFastapi },
+  SQLite: { icon: siSqlite, color: "#0ea5e9" },
+  "lightweight-charts": { color: "#2962FF" },
 };
 
 /** 매핑에 없을 때 */

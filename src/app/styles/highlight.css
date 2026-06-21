@@ -78,9 +78,6 @@ code[data-line-numbers]>[data-line]::before {
     .prose-main strong {
         @apply font-bold text-foreground;
     }
-    .prose-main mark {
-        @apply rounded bg-accent-brand/20 px-1 py-0.5 text-foreground;
-    }
     /* 헤딩 # 앵커는 본문 링크 스타일 제외 (은은하게 유지) */
     .prose-main a.anchor {
         @apply font-normal text-muted-foreground no-underline;

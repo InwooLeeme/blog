@@ -17,7 +17,7 @@ export default function PageTransition({
   return (
     <div
       key={pathname}
-      className="animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out motion-reduce:animate-none"
+      className="animate-in fade-in slide-in-from-bottom-3 duration-500 ease-out motion-reduce:animate-none"
     >
       {children}
     </div>

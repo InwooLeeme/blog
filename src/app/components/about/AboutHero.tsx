@@ -1,10 +1,14 @@
 import Image from "next/image";
 import { siteConfig } from "@/lib/site";
 import IconGithub from "../icon/IconGithub";
+import ShootingStars from "../ShootingStars";
 
 export default function AboutHero() {
   return (
-    <header className="mb-10 flex flex-col items-center text-center">
+    <header className="relative isolate mb-10 flex flex-col items-center overflow-hidden py-12 text-center">
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <ShootingStars />
+      </div>
       <div className="relative">
         <div
           aria-hidden

@@ -8,7 +8,6 @@ export type PreviewCardParams = {
     imageSrc?: string;   // 상단 썸네일 
     imageAlt?:string;
     title: string;       // 하단 제목
-    description?: string; // 하단 설명
 };
 
 type Props = PreviewCardParams;
@@ -18,7 +17,6 @@ export function PlaygroundPreviewCard({
   imageSrc,
   imageAlt = "",
   title,
-  description,
 }: Props) {
   return (
     <Card
@@ -55,11 +53,6 @@ export function PlaygroundPreviewCard({
           <div className="text-base font-semibold leading-snug text-zinc-100">
             {title}
           </div>
-          {description ? (
-            <p className="text-sm leading-snug text-zinc-400 line-clamp-2">
-              {description}
-            </p>
-          ) : null}
         </CardContent>
       </a>
     </Card>

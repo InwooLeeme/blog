@@ -73,6 +73,7 @@ type Scene = {
   width: number;
   height: number;
   dark: boolean; // 어두운 테마 — 가산 합성·글로우 사용 여부
+  meteorsEnabled: boolean;
   stars: Star[];
   starSprites: Map<string, HTMLCanvasElement>; // 색별 글로우 스프라이트(1회 생성)
   meteors: Meteor[];
@@ -105,13 +106,15 @@ function project(s: Scene, x: number, y: number, z: number) {
   };
 }
 
-/** 현재 테마(.dark 클래스)에 맞는 별 색을 읽는다 */
-function resolveColors() {
+/** 현재 테마(.dark 클래스)에 맞는 별 색을 읽는다. forceDark면 테마와 무관하게 다크 */
+function resolveColors(forceDark: boolean) {
   const root = document.documentElement;
   const accent = getComputedStyle(root).getPropertyValue("--accent-brand").trim();
+  const dark = forceDark || root.classList.contains("dark");
   return {
-    base: root.classList.contains("dark") ? CONFIG.darkStar : CONFIG.lightStar,
+    base: dark ? CONFIG.darkStar : CONFIG.lightStar,
     accent: accent || "#31CED2",
+    dark,
   };
 }
 
@@ -339,6 +342,8 @@ function updateScene(s: Scene, dt: number) {
   }
   s.meteors = survivors;
 
+  if (!s.meteorsEnabled) return;
+
   s.spawnTimer -= dt;
   if (s.spawnTimer <= 0) {
     if (s.meteors.length < CONFIG.maxMeteors) s.meteors.push(createMeteor(s.width, s.height));
@@ -490,7 +495,9 @@ function drawScene(s: Scene) {
   ctx.globalAlpha = 1;
 }
 
-export default function ShootingStars() {
+export default function ShootingStars(
+  { meteors = true, forceDark = false }: { meteors?: boolean; forceDark?: boolean } = {},
+) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -503,12 +510,13 @@ export default function ShootingStars() {
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    const colors = resolveColors();
+    const colors = resolveColors(forceDark);
     const scene: Scene = {
       ctx,
       width: 0,
       height: 0,
-      dark: colors.base === CONFIG.darkStar,
+      dark: colors.dark,
+      meteorsEnabled: meteors,
       stars: [],
       starSprites: buildStarSprites(),
       meteors: [],
@@ -588,10 +596,10 @@ export default function ShootingStars() {
 
     // 테마 변경 시 별 색 갱신
     const themeObserver = new MutationObserver(() => {
-      const next = resolveColors();
+      const next = resolveColors(forceDark);
       scene.baseColor = next.base;
       scene.accentColor = next.accent;
-      scene.dark = next.base === CONFIG.darkStar;
+      scene.dark = next.dark;
       if (prefersReducedMotion) drawScene(scene);
     });
     themeObserver.observe(document.documentElement, {
@@ -612,7 +620,7 @@ export default function ShootingStars() {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [meteors, forceDark]);
 
   return <canvas ref={canvasRef} aria-hidden className="absolute inset-0" />;
 }

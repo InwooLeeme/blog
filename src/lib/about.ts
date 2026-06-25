@@ -78,7 +78,8 @@ export const projects: Project[] = [
       "포트폴리오 내용을 미리 벡터로 저장해 두고, 질문이 들어오면 관련 부분을 찾아 Google Gemini가 답하도록 RAG로 구성했다 (LangChain.js 사용)",
       "이전 대화를 기억해서 후속 질문도 맥락을 이어 답하고, 답변은 한 글자씩 타이핑되듯 나오며 근거가 된 출처도 함께 보여준다",
       "물어볼 게 마땅치 않을 때를 위해 추천 질문도 띄워 둔다",
-      "다른 사이트에 iframe으로 붙일 수 있게 만들었고, 부모 페이지의 다크/라이트 테마에 맞춰지고 지금 이 About 페이지에도 그렇게 들어가 있다",
+      "다른 사이트에 붙일 수 있는 first-party 로더로 만들었고, 사이트 전역에 떠 있는 플로팅 버튼을 누르면 모달로 열린다 — 지금 이 블로그에도 그렇게 들어가 있다",
+      "부모 페이지의 다크/라이트 테마를 postMessage로 받아 새로고침 없이 실시간으로 맞춘다",
     ],
     tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "LangChain.js", "Google Gemini"],
     links: [

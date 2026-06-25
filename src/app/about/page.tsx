@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Code2, Trophy, Medal, PenTool, BadgeCheck } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 import Reveal from "../components/Reveal";
-import ChatbotEmbed from "../components/ChatbotEmbed";
 import BrandIcon from "../components/icon/BrandIcon";
 import { techChipStyle } from "@/lib/tech";
 import { techStack, awards, competitions, contestWorks, certifications } from "@/lib/about";
@@ -24,8 +23,6 @@ const sections = [
   { id: "projects", label: "프로젝트" },
   { id: "certifications", label: "자격증" },
 ];
-
-const CHATBOT_URL = "https://portfolio-chatbot-six-theta.vercel.app";
 
 export default function AboutPage() {
   return (
@@ -52,9 +49,6 @@ export default function AboutPage() {
           </a>
         </div>
       </Reveal>
-
-      {/* AI 챗봇 */}
-      <ChatbotEmbed src={CHATBOT_URL} />
 
       {/* 목차 */}
       <nav className="mb-12 rounded-lg border bg-muted/30 p-4">

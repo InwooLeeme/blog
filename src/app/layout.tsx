@@ -7,6 +7,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import PageTransition from "./components/PageTransition";
 import { ThemeProvider } from "./components/ThemeProvider";
 import BackgroundDecor from "./components/BackgroundDecor";
+import { ChatbotLauncher } from "./components/ChatbotLauncher";
 import type { Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next"
 
@@ -93,6 +94,7 @@ export default function RootLayout({
             <Footer />
           </div>
           <ScrollToTop />
+          <ChatbotLauncher host="https://portfolio-chatbot-six-theta.vercel.app" />
         </ThemeProvider>
       </body>
     </html>

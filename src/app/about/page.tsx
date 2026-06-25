@@ -8,6 +8,7 @@ import { techStack, awards, competitions, contestWorks, certifications } from "@
 import AboutHero from "../components/about/AboutHero";
 import ProjectsSection from "../components/about/ProjectsSection";
 import { SectionHeading, Timeline } from "../components/about/Timeline";
+import { ChatbotLauncher } from "../components/ChatbotLauncher";
 
 export const metadata: Metadata = {
   title: "About",
@@ -147,6 +148,8 @@ export default function AboutPage() {
           </section>
         </Reveal>
       </div>
+
+      <ChatbotLauncher host="https://portfolio-chatbot-six-theta.vercel.app" />
     </div>
   );
 }

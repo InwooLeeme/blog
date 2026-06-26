@@ -12,6 +12,8 @@ export const metadata: Metadata = {
 export default function BlogIndexPage() {
   const posts = getAllPosts();
   const tagCounts = getTagCounts(posts);
+  const seriesCount = new Set(posts.map((p) => p.meta.series).filter(Boolean)).size;
+
   return (
     <div className="w-full max-w-6xl mx-auto mt-6 px-4 md:px-6 lg:px-8">
       <header className="mb-8 md:mb-12">
@@ -23,6 +25,12 @@ export default function BlogIndexPage() {
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {siteConfig.description}
+        </p>
+        <p className="mt-4 text-sm text-muted-foreground">
+          <strong className="font-display font-bold tabular-nums text-foreground">
+            {seriesCount}
+          </strong>{" "}
+          개 시리즈로 정리되어 있습니다
         </p>
       </header>
 

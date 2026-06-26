@@ -7,7 +7,8 @@
     "build": "next build && next-sitemap",
     "start": "next start",
     "lint": "next lint",
-    "new:atcoder": "node scripts/new-atcoder-post.mjs"
+    "new:atcoder": "node scripts/new-atcoder-post.mjs",
+    "publish": "node scripts/publish-post.mjs"
   },
   "dependencies": {
     "@giscus/react": "^3.1.0",

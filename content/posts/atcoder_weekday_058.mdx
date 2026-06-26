@@ -1,0 +1,133 @@
+---
+title: "Atcoder Weekday Contest 058"
+date: "2026-06-26"
+summary: "Atcoder Weekday Contest 058 풀이"
+tags: [Atcoder]
+series: "AtCoder Weekday Contest"
+draft: true
+cover: "/Atcoder_Thumbnail.png"
+---
+
+<ProblemMeta platform="AtCoder" link="https://atcoder.jp/contests/awc0058/tasks/awc0058_a" 
+    title="A - Mountain Climbing Training" tags="A - Mountain Climbing Training" />
+
+정렬... 정렬을 하자 내림차순으로 정렬한 다음에 시뮬레이션으로 처리해주면 된다.
+
+```cpp showLineNumbers
+ll n,p,t,c,res;
+
+auto solve = [](){
+    ri(n, p, t, c);
+    vl v(n); ri(v);
+    sort(rall(v));
+    for(int i = 0; i < n; i++){
+        if(p >= t) break;
+        p = v[i];
+        res += c;
+    }
+    po(p >= t ? res : -1);
+};
+```
+
+<Complexity time="O(NlogN)" />
+
+<ProblemMeta platform="AtCoder" link="https://atcoder.jp/contests/awc0058/tasks/awc0058_b" 
+    title="B - Apple Harvest" tags="implementation" />
+
+$K$보다 크거나 같은 것들만 남긴 다음에 처리해준 다음에 IMOS법을 이용하면 쉽다.
+
+IMOS법을 이용해서 처리한 다음에 $[i, i + m]$구간에서 최대값을 찾아주면 된다.
+
+```cpp showLineNumbers
+ll n,m,k,res;
+ll v[1 << 20];
+
+auto solve = [](){
+    ri(n, m, k);
+    for(int i = 1; i <= n; i++){
+        ri(v[i]);
+        v[i] = (v[i] >= k ? v[i] : 0);
+    }
+    for(int i = 1; i <= n; i++) v[i] += v[i - 1];
+    ll mx = 0;
+    for(int i = 1; i + m - 1 <= n; i++){
+        int l = i, r = i + m - 1;
+        mx = max(mx, v[r] - v[l - 1]);
+        //debug(l, r);
+    }
+    po(mx);
+};
+```
+
+<Complexity time="O(N)" />
+
+<ProblemMeta platform="AtCoder" link="https://atcoder.jp/contests/awc0058/tasks/awc0058_c" 
+    title="C - Snow Depth Survey" tags="prefix_sum, imos" />
+
+B번과 비슷하게 IMOS법을 이용한 다음에 $K$이상인 것만 카운팅해주면 된다.
+
+```cpp showLineNumbers
+ll n,m,k,res;
+ll v[1 << 20];
+
+auto solve = [](){
+    ri(n, m, k);
+    while (m--){
+        ll a,b; ri(a, b);
+        v[a]++, v[b + 1]--;
+    }
+    for(int i = 1; i <= n + 1; i++) v[i] += v[i - 1];
+    for(int i = 1; i <= n; i++) res += (v[i] >= k);
+    po(res); 
+};
+```
+
+<Complexity time="O(N)" />
+
+<ProblemMeta platform="AtCoder" link="https://atcoder.jp/contests/awc0058/tasks/awc0058_d" title="D - Shortest Time for Delivery Route" tags="dijkstra" />
+
+다익스트라를 2번 돌리면 된다.
+
+```cpp showLineNumbers
+ll n,m,k;
+vector<pll> g[1 << 18];
+
+vector<ll> dijkstra(ll st){
+    vector<ll> dist(n + 1, iinf);
+    minpq<pll> pq;
+    pq.push({dist[st] = 0, st});
+    while(si(pq)){
+        auto [cdist, cur] = pq.top(); pq.pop();
+        if(dist[cur] < cdist) continue;
+        for(const auto& [cost, nxt] : g[cur]){
+            if(dist[nxt] > cdist + cost){
+                pq.push({dist[nxt] = cdist + cost, nxt});
+            }
+        }
+    }
+    return dist;
+}
+
+auto solve = [](){
+    ri(n, m, k);
+    while(m--){
+        ll a,b,c; ri(a, b, c);
+        g[a].pb({c, b}); g[b].pb({c, a});
+    }
+    auto dist1 = dijkstra(1);
+    auto dist2 = dijkstra(k);
+    if(dist1[k] == iinf or dist2[n] == iinf) po(-1);
+    else po(dist1[k] + dist2[n]);
+};
+```
+
+
+<Complexity time="O((N+M)logN)" />
+
+<ProblemMeta platform="AtCoder" link="https://atcoder.jp/contests/awc0058/tasks/awc0058_e" title="E - Period of Stable Temperature" tags="" />
+
+-업솔빙 예정-
+
+### 총평
+
+TODO

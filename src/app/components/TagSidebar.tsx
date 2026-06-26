@@ -102,11 +102,11 @@ export default function TagSidebar({
         {/* 카테고리 헤더 */}
         <div className="mt-5 mb-3 flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <span className="text-[0.7rem] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Categories
             </span>
           </div>
-          <span className="rounded-full bg-accent-brand/10 px-2 py-0.5 text-[0.7rem] font-medium text-accent-brand tabular-nums">
+          <span className="rounded-full bg-accent-brand/10 px-2 py-0.5 text-xs font-medium text-accent-brand tabular-nums">
             {sorted.length}
           </span>
         </div>
@@ -139,7 +139,7 @@ export default function TagSidebar({
                 <span className="truncate">All Posts</span>
                 <span
                   className={cn(
-                    "ml-auto rounded px-1.5 py-0.5 text-[0.65rem] tabular-nums",
+                    "ml-auto rounded px-1.5 py-0.5 text-xs tabular-nums",
                     !activeTag
                       ? "bg-accent-brand/15 text-accent-brand"
                       : "bg-muted text-muted-foreground group-hover:bg-background"
@@ -179,7 +179,7 @@ export default function TagSidebar({
                     <span className="truncate">{tag}</span>
                     <span
                       className={cn(
-                        "ml-auto rounded px-1.5 py-0.5 text-[0.65rem] tabular-nums",
+                        "ml-auto rounded px-1.5 py-0.5 text-xs tabular-nums",
                         selected
                           ? "bg-accent-brand/15 text-accent-brand"
                           : "bg-muted text-muted-foreground group-hover:bg-background"

@@ -39,7 +39,7 @@ export default function PostCard({ slug, meta }: { slug: string; meta: PostMeta 
                             {tags.map((tag) => (
                                 <span
                                     key={tag}
-                                    className="rounded-full bg-accent-brand/10 px-2 py-0.5 text-[0.65rem] font-medium text-accent-brand"
+                                    className="rounded-full bg-accent-brand/10 px-2 py-0.5 text-xs font-medium text-accent-brand"
                                 >
                                     {tag}
                                 </span>

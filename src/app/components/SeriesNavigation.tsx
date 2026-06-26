@@ -70,7 +70,7 @@ function EpisodeRow({
         <span className="tabular-nums opacity-60">{index + 1}.</span>
         <span className="line-clamp-1">{episode.title}</span>
         {isCurrent && (
-          <span className="ml-auto shrink-0 rounded-full bg-accent-brand/15 px-1.5 py-0.5 text-[10px] font-medium">
+          <span className="ml-auto shrink-0 rounded-full bg-accent-brand/15 px-1.5 py-0.5 text-xs font-medium">
             지금 읽는 중
           </span>
         )}

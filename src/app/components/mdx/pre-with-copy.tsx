@@ -29,7 +29,7 @@ export default function PreWithCopy({ className = "", children, ...props }: PreP
     <div className="relative group">
       {language ? (
         <span
-          className="absolute right-20 top-2 z-10 select-none rounded-md border bg-background/80 dark:bg-zinc-900/70 px-2 py-0.5 text-[0.65rem] font-mono font-semibold uppercase tracking-wider text-muted-foreground backdrop-blur supports-[backdrop-filter]:backdrop-blur"
+          className="absolute right-20 top-2 z-10 select-none rounded-md border bg-background/80 dark:bg-zinc-900/70 px-2 py-0.5 text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground backdrop-blur supports-[backdrop-filter]:backdrop-blur"
           aria-hidden
         >
           {language}

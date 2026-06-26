@@ -53,7 +53,7 @@ export default function NotesTreeSidebar({ tree }: Props) {
         <ListTree className="h-4 w-4 text-accent-brand" />
         <span>Notes</span>
       </div>
-      <span className="rounded-full bg-accent-brand/10 px-2 py-0.5 text-[0.7rem] font-medium text-accent-brand dark:text-accent-brand tabular-nums">
+      <span className="rounded-full bg-accent-brand/10 px-2 py-0.5 text-xs font-medium text-accent-brand dark:text-accent-brand tabular-nums">
         {totalCount}
       </span>
     </div>
@@ -65,7 +65,7 @@ export default function NotesTreeSidebar({ tree }: Props) {
         <FileCode2 className="h-7 w-7 opacity-30" />
         <p>아직 노트가 없습니다.</p>
         <p>
-          <code className="rounded bg-muted px-1.5 py-0.5 text-[0.7rem]">
+          <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
             content/notes/
           </code>
           에 .mdx 추가
@@ -87,7 +87,7 @@ export default function NotesTreeSidebar({ tree }: Props) {
           <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
           <ListTree className="h-4 w-4 text-accent-brand" />
           <span>목차</span>
-          <span className="ml-auto rounded-full bg-accent-brand/10 px-2 py-0.5 text-[0.7rem] font-medium text-accent-brand dark:text-accent-brand tabular-nums">
+          <span className="ml-auto rounded-full bg-accent-brand/10 px-2 py-0.5 text-xs font-medium text-accent-brand dark:text-accent-brand tabular-nums">
             {totalCount}
           </span>
         </summary>
@@ -170,8 +170,8 @@ function FolderRow({
         ) : (
           <Folder className="h-4 w-4 shrink-0 text-accent-brand" />
         )}
-        <span className="truncate text-[0.875rem] font-medium">{node.name}</span>
-        <span className="ml-auto rounded bg-muted px-1.5 py-0.5 text-[0.65rem] text-muted-foreground tabular-nums group-hover:bg-background">
+        <span className="truncate text-sm font-medium">{node.name}</span>
+        <span className="ml-auto rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground tabular-nums group-hover:bg-background">
           {childCount}
         </span>
       </button>
@@ -213,7 +213,7 @@ function FileRow({
       <Link
         href={href}
         className={cn(
-          "relative flex items-center gap-1.5 rounded-md py-1.5 pl-7 pr-2 text-[0.875rem] transition",
+          "relative flex items-center gap-1.5 rounded-md py-1.5 pl-7 pr-2 text-sm transition",
           isActive
             ? "bg-accent-brand/10 text-accent-brand dark:text-accent-brand font-medium"
             : "text-foreground/80 hover:bg-muted/70 hover:text-foreground",

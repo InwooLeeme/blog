@@ -47,7 +47,7 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
               {/* content overlay */}
               <div className="absolute inset-x-0 bottom-0 p-4 text-white">
                 {primaryTag ? (
-                  <span className="inline-block rounded bg-accent-brand px-2 py-0.5 text-[0.7rem] font-semibold text-accent-brand-fg">
+                  <span className="inline-block rounded bg-accent-brand px-2 py-0.5 text-xs font-semibold text-accent-brand-fg">
                     {primaryTag}
                   </span>
                 ) : null}

@@ -20,7 +20,7 @@ export function Definition({ term, type = "definition", children }: DefinitionPr
   return (
     <div className="not-prose my-6 rounded-lg border border-l-4 border-l-accent-brand bg-muted/30 p-4">
       <div className="mb-2 flex flex-wrap items-baseline gap-2">
-        <span className="rounded bg-accent-brand/15 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-accent-brand">
+        <span className="rounded bg-accent-brand/15 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-accent-brand">
           {label}
         </span>
         <span className="text-base font-semibold tracking-tight">{term}</span>

@@ -28,7 +28,7 @@ export default function BlogIndexPage() {
             <LatestHero posts={posts} />
 
             <div className="space-y-8">
-              <h1 className="text-2xl md:text-[30px] font-bold mt-2 mb-2">
+              <h1 className="text-2xl md:text-3xl font-bold mt-2 mb-2">
                 All Posts ({posts.length})
               </h1>
 

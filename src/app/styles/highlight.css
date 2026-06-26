@@ -165,7 +165,7 @@ code[data-line-numbers]>[data-line]::before {
 
     /* 키보드 키 표기 */
     .prose-main kbd {
-        @apply text-[0.7rem] border rounded px-1 py-0.5 bg-muted;
+        @apply text-xs border rounded px-1 py-0.5 bg-muted;
     }
 
     /* 각주 */

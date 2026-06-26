@@ -4,10 +4,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Calendar, ArrowRight } from "lucide-react";
+import { Calendar } from "lucide-react";
 import TiltCard from "./TiltCard";
 
-export default function PostCard({ slug, meta }: { slug: string; meta: PostMeta }) {
+export default function PostCard({
+    slug,
+    meta,
+    featured = false,
+}: {
+    slug: string;
+    meta: PostMeta;
+    featured?: boolean;
+}) {
     const formatted = formatPostDate(meta.date);
     const coverSrc = getCoverSrc(slug, meta);
     const tags = meta.tags?.slice(0, 3) ?? [];
@@ -23,7 +31,11 @@ export default function PostCard({ slug, meta }: { slug: string; meta: PostMeta 
                             alt={meta.title}
                             fill
                             className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                            sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
+                            sizes={
+                                featured
+                                    ? "(min-width:768px) 66vw, 100vw"
+                                    : "(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
+                            }
                             priority={false}
                             // cover 없는 글은 이미 완성된 OG PNG로 폴백 → 재최적화 생략(400 방지)
                             unoptimized={!meta.cover}
@@ -47,7 +59,11 @@ export default function PostCard({ slug, meta }: { slug: string; meta: PostMeta 
                         </div>
                     ) : null}
 
-                    <h3 className="text-base font-bold leading-snug line-clamp-2 transition-colors group-hover:text-accent-brand">
+                    <h3
+                        className={`font-bold leading-snug line-clamp-2 transition-colors group-hover:text-accent-brand ${
+                            featured ? "text-xl md:text-2xl" : "text-base"
+                        }`}
+                    >
                         {meta.title}
                     </h3>
 
@@ -60,17 +76,6 @@ export default function PostCard({ slug, meta }: { slug: string; meta: PostMeta 
                                 <span>{meta.readingTime} min read</span>
                             </>
                         ) : null}
-                    </div>
-
-                    {meta.summary ? (
-                        <p className="mt-2 text-xs text-muted-foreground line-clamp-2">
-                            {meta.summary}
-                        </p>
-                    ) : null}
-
-                    <div className="mt-3 flex items-center gap-1 text-xs font-medium text-accent-brand opacity-0 -translate-x-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
-                        읽기
-                        <ArrowRight className="h-3.5 w-3.5" />
                     </div>
                 </CardContent>
             </Card>

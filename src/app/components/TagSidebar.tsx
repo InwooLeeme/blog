@@ -36,7 +36,9 @@ export default function TagSidebar({
   profileDescription? : string
 }) {
   const sorted = React.useMemo(() => {
-    return [...tagCounts].sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+    return [...tagCounts].sort(
+      (a, b) => b.count - a.count || (a.tag < b.tag ? -1 : a.tag > b.tag ? 1 : 0)
+    );
   }, [tagCounts]);
   const fallback = React.useMemo(() => {
     const t = (profileName ?? "").trim();

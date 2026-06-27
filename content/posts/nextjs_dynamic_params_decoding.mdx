@@ -1,0 +1,154 @@
+---
+title: "시리즈 상세 페이지가 404를 내던 이유: dynamicParams와 URL 인코딩"
+date: "2026-06-27"
+summary: "generateStaticParams로 정적 경로를 다 만들어 줬는데도 공백이 들어간 동적 라우트가 404를 냈다. 캐시인 줄 알았던 문제의 진짜 범인은 인코딩과 디코딩의 미묘한 불일치였다."
+tags: [개발, Next.js]
+draft: false
+cover: "/nextjs_dynamic_params_cover.png"
+---
+
+블로그에 시리즈 기능을 붙이던 날이었다. 
+
+`/blog/series`에서 시리즈 목록을 보여주고, 거기서 하나를 누르면 `/blog/series/AtCoder Weekday Contest` 같은 경로로 들어가 그 시리즈의 글을 회차순으로 펼쳐 주는, 어디서나 볼 법한 평범한 기능.
+
+목록 페이지는 한 번에 떴다. 문제는 상세 페이지였다. 정적 경로를 분명히 다 만들어 줬는데도 들어가기만 하면 **404**가 떨어졌다. 별것 아니라고 생각하고 시작했다가 반나절?을 갈아 넣었고, 그래서 기록으로 남긴다.
+
+## 일단 상황
+
+라우트는 이렇게 생겼다.
+
+```
+src/app/blog/series/
+├─ page.tsx            # 목록 — 잘 됨
+└─ [name]/page.tsx     # 상세 — 404
+```
+
+상세 페이지는 교과서대로 짰다. `generateStaticParams`로 모든 시리즈 이름을 미리 뽑아 두고, `dynamicParams = false`로 그 목록에 없는 경로는 404 처리한다.
+
+```tsx
+export function generateStaticParams() {
+  // 처음엔 이렇게 인코딩해서 넘겼다
+  return getAllSeries().map(({ series }) => ({ name: encodeURIComponent(series) }));
+}
+
+export const dynamicParams = false;
+
+export default async function SeriesDetailPage({ params }) {
+  const { name } = await params;
+  const posts = getPostsBySeries(name);
+  if (posts.length === 0) return notFound();
+  // ...
+}
+```
+
+`/blog/series` 목록은 멀쩡히 200. 그런데 그 안의 링크를 누르면 가게 되는 `/blog/series/AtCoder%20Weekday%20Contest`는 404. 다른 라우트들과 비교했을 때 유일하게 다른 점이라면 시리즈 이름에 **공백**이 끼어 있다는 것뿐이었다. 그땐 이게 핵심인 줄 몰랐다.
+
+## 캐시를 의심했다
+
+응답 헤더를 열어 보니 404인데도 이런 게 붙어 있었다.
+
+```
+x-nextjs-cache: HIT
+x-nextjs-prerender: 1
+```
+
+`HIT`이라는 글자를 보는 순간 "아, 빌드 캐시가 옛날 404를 쥐고 안 놓는구나" 싶었다. 개발 서버를 내리고 `.next`를 통째로 날린 뒤 다시 띄웠다.
+
+여전히 404. 캐시는 범인이 아니었다.(아 ㅋㅋ) 
+
+한참 뒤에야 알았지만 저 헤더는 정적 라우트라면 결과가 404든 200이든 어차피 붙는 거였다. 처음부터 엉뚱한 데를 보고 있었던 셈이다.
+
+## 문서를 봤지만, 반만 맞았다
+
+다음으로는 `dynamicParams`와 파라미터 매칭이 내부적으로 어떻게 도는지 Next.js 문서와 소스를 뒤졌다. 라우트를 매칭하는 단계에서 경로를 `decodeURIComponent`로 한 번 풀어서 비교한다는 사실을 확인했다.
+
+여기서 그럴듯한 가설이 하나 섰다. 매칭은 디코딩된 값으로 하는데 내가 `generateStaticParams`에서 굳이 한 번 더 인코딩해서 넘겼으니, 이중 인코딩 때문에 값이 안 맞는 것 아닐까? 말이 됐다. 
+
+그래서 인코딩을 걷어내고 원래 이름을 그대로 넘기도록 바꿨다.
+
+```tsx
+export function generateStaticParams() {
+  return getAllSeries().map(({ series }) => ({ name: series }));
+}
+```
+
+이 추측은 절반만 맞았다. 바꾸고 나서도 여전히 404였으니까. 
+
+돌이켜 보면 문서는 "매칭 단계"에서 벌어지는 일만 알려줬을 뿐, 정작 내 페이지 함수가 손에 쥐는 값이 무엇인지는 한마디도 해주지 않았다. 나는 그 둘이 당연히 같을 거라고 믿고 있었다.
+
+## 로그 한 줄이 끝냈다
+
+추측은 여기까지. 더 머리로 굴리는 대신 양쪽에 `console.log`를 박았다.(역시 디버깅은 한땀한땀하는게 최고여)
+
+```tsx
+export function generateStaticParams() {
+  const params = getAllSeries().map(({ series }) => ({ name: series }));
+  console.log("DEBUG generateStaticParams:", JSON.stringify(params));
+  return params;
+}
+
+export default async function SeriesDetailPage({ params }) {
+  const { name } = await params;
+  console.log("DEBUG page received name:", JSON.stringify(name));
+  // ...
+}
+```
+
+`curl`로 한 번 때리고 로그를 봤다.
+
+```
+DEBUG generateStaticParams: [{"name":"AtCoder Weekday Contest"}]
+DEBUG page received name: "AtCoder%20Weekday%20Contest"
+```
+
+`generateStaticParams`는 공백이 살아 있는 `"AtCoder Weekday Contest"`를 넘긴다. 매칭 게이트는 이 값을 디코딩해서 비교하니 통과한다. 즉 프레임워크는 이 경로를 정상으로 받아들였다는 뜻이다.
+
+그런데 정작 페이지 함수에 도착한 `params.name`은 아직 풀리지 않은 `"AtCoder%20Weekday%20Contest"`였다. 이 인코딩된 문자열을 그대로 들고 `getPostsBySeries()`를 뒤지니 일치하는 시리즈가 있을 리 없고, `posts.length === 0`이 되어 내가 직접 써 둔 `notFound()`가 호출된 거였다.
+
+404의 출처가 프레임워크가 아니라 내 코드 안이었다. 반나절 동안 삽질을 심각하게 했다. 
+
+매칭에 쓰이는 값과 페이지에 전달되는 값의 디코딩 상태가 서로 달랐다는, 딱 그 한 끗 차이였다.
+
+<Callout type="warn">
+`generateStaticParams`가 반환하는 값과 페이지·`generateMetadata`가 받는 `params`는 인코딩 상태가 다를 수 있다. 전자는 디코딩된 값으로 매칭에 쓰이지만, 후자에는 **URL 원문(인코딩된) 세그먼트**가 그대로 들어온다.
+</Callout>
+
+## 고치고 나니 단순했다
+
+원인을 알고 나면 늘 그렇듯 해법은 허무할 만큼 간단했다.
+
+`generateStaticParams`에서는 원래 값을 그대로 넘기고, 받는 쪽(페이지와 `generateMetadata`)에서 `decodeURIComponent`로 직접 풀어 쓰면 된다.
+
+```tsx
+export function generateStaticParams() {
+  return getAllSeries().map(({ series }) => ({ name: series }));
+}
+
+export const dynamicParams = false;
+
+export default async function SeriesDetailPage({ params }) {
+  const { name: rawName } = await params;
+  const name = decodeURIComponent(rawName); // 여기가 전부였다
+  const posts = getPostsBySeries(name);
+  if (posts.length === 0) return notFound();
+  // ...
+}
+```
+
+디버그 로그를 걷어내고 다시 들어가 보니 200, 15개 회차가 가지런히 떴다. 그 흔한 초록색 200이 이렇게 반가운 적이 없었다.
+
+## 옆에 있던 떡밥 하나
+
+다 고친 김에 예전에 짜둔 태그 페이지 `blog/tags/[tag]/page.tsx`를 열어 봤다. 거기선 `generateStaticParams`에서 `encodeURIComponent(tag)`를 **여전히 하고 있는데도** 멀쩡히 돌아가고 있었다. 방금 나를 반나절 괴롭힌 바로 그 코드인데.
+
+이유는 싱겁다. 지금 태그가 죄다 `Atcoder`, `PS`, `BOJ`처럼 공백도 한글도 없는 ASCII라서다. 이런 값에는 `encodeURIComponent`가 사실상 아무 일도 하지 않는 항등 변환이라, 인코딩을 하든 말든 결과가 똑같다. 
+
+그래서 이 잠재된 버그가 여태 한 번도 고개를 들지 않았던 것이다.
+
+<Callout type="info">
+언젠가 태그에 공백이나 한글이 들어오는 날, 이 페이지도 똑같이 404를 낼 것이다. 지금 당장 터지는 문제는 아니라 이번엔 손대지 않았지만, 잊지 않으려고 여기 적어 둔다.
+</Callout>
+
+## 총평
+
+고쳤다...

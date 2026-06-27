@@ -20,7 +20,7 @@ export default function BlogIndexPage() {
         <p className="text-xs font-semibold uppercase tracking-wider text-accent-brand">
           Blog
         </p>
-        <h1 className="mt-2 font-display text-3xl font-bold tracking-tight md:text-4xl">
+        <h1 className="mt-2 font-display text-3xl font-bold tracking-tight md:text-4xl text-gradient-brand">
           All Posts
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">

@@ -3,7 +3,9 @@
 @plugin "@tailwindcss/typography";
 @import "tw-animate-css";
 @import "./styles/toc.css";
-@import "./styles/highlight.css";
+@import "./styles/code.css";
+@import "./styles/prose.css";
+@import "./styles/components.css";
 
 
 @custom-variant dark (&:is(.dark *));
@@ -145,46 +147,6 @@
   }
 }
 
-@layer components {
-  /* 브랜드 그라데이션 텍스트 — 워드마크/포인트 제목용 */
-  .text-gradient-brand {
-    background: var(--accent-gradient);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  /* 베이스 */
-  .callout {
-    @apply my-6 flex gap-3 rounded-xl border p-4 bg-muted/30 text-foreground;
-  }
-  .callout__icon {
-    @apply mt-1 h-5 w-5;
-  }
-
-  /* variant 색상 (라이트/다크 모두 커버) */
-  .callout[data-variant="info"] {
-    @apply bg-sky-50 text-sky-900 border-sky-200
-           dark:bg-sky-900/20 dark:text-sky-100 dark:border-sky-700;
-  }
-  .callout[data-variant="warn"] {
-    @apply bg-amber-50 text-amber-900 border-amber-200
-           dark:bg-amber-900/20 dark:text-amber-100 dark:border-amber-700;
-  }
-  .callout[data-variant="danger"] {
-    @apply bg-rose-50 text-rose-900 border-rose-200
-           dark:bg-rose-900/20 dark:text-rose-100 dark:border-rose-700;
-  }
-  .callout[data-variant="normal"] {
-    @apply bg-muted/30 text-foreground border-border;
-  }
-
-  /* 아이콘 색상 */
-  .callout[data-variant="info"]   .callout__icon { @apply text-sky-600 dark:text-sky-400; }
-  .callout[data-variant="warn"]   .callout__icon { @apply text-amber-600 dark:text-amber-400; }
-  .callout[data-variant="danger"] .callout__icon { @apply text-rose-600 dark:text-rose-400; }
-}
-
 html { scrollbar-gutter: stable; scroll-behavior: smooth; }
 
 body{ margin: 0; }
@@ -205,135 +167,6 @@ body{ margin: 0; }
 }
 
 article :is(h2,h3,h4){ scroll-margin-top: 6rem; }
-
-/* pretty-code용 스타일 */
-.prose pre {
-  overflow-x: auto;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  /* shiki 듀얼 테마(vitesse-light/dark) 배경 — 모드별 자동 적용 */
-  background-color: var(--shiki-light-bg);
-}
-.dark .prose pre {
-  background-color: var(--shiki-dark-bg);
-}
-
-.prose pre code {
-  display: grid;
-  grid-template-columns: minmax(0, max-content);
-  padding: 0;
-  white-space: pre;
-}
-
-/* 모든 라인은 좌우 padding을 직접 가짐 → 배경이 가로 스크롤 시에도 끝까지 이어짐 */
-[data-line] {
-  padding: 0;
-}
-
-/* 라이트/다크 테마 변수 적용 (prefers-color-scheme 대신 class 기반) */
-code[data-theme],
-code[data-theme] span {
-  color: var(--shiki-light);
-  background-color: var(--shiki-light-bg);
-}
-
-.dark code[data-theme],
-.dark code[data-theme] span {
-  color: var(--shiki-dark);
-  background-color: var(--shiki-dark-bg);
-}
-
-
-
-/* ===== line numbers ===== */
-code[data-line-numbers] {
-  counter-reset: line;
-}
-code[data-line-numbers] > [data-line]::before {
-  counter-increment: line;
-  content: counter(line);
-  display: inline-block;
-  width: 2.5rem;
-  margin-right: 1rem;
-  text-align: right;
-  opacity: 0.45;
-  user-select: none;
-}
-
-/* 줄 하이라이트 — 라이트/다크 양쪽 동작 */
-[data-highlighted-line] {
-  background: rgba(127, 127, 127, 0.12);
-  border-left: 2px solid var(--accent-brand);
-  padding-left: calc(1rem - 2px);
-}
-
-/* 단어/구간 하이라이트 */
-[data-highlighted-chars] {
-  background: color-mix(in oklab, var(--accent-brand) 22%, transparent);
-  border-radius: 4px;
-  padding: 1px 4px;
-}
-
-/* diff 라인 — GitHub 스타일 (@shikijs/transformers의 notationDiff) */
-.diff {
-  position: relative;
-}
-[data-line].diff.add {
-  background: rgba(63, 185, 80, 0.15);
-}
-.diff.add::before {
-  content: "+";
-  position: absolute;
-  left: 0.3rem;
-  color: rgba(63, 185, 80, 0.9);
-  font-weight: 700;
-}
-[data-line].diff.remove {
-  background: rgba(248, 81, 73, 0.15);
-}
-.diff.remove::before {
-  content: "-";
-  position: absolute;
-  left: 0.3rem;
-  color: rgba(248, 81, 73, 0.9);
-  font-weight: 700;
-}
-
-/* 파일명/타이틀 헤더 (figure > figcaption) */
-figure[data-rehype-pretty-code-figure] {
-  margin: 1.5rem 0;
-}
-figure[data-rehype-pretty-code-figure] figcaption[data-rehype-pretty-code-title] {
-  background: color-mix(in oklab, var(--background) 92%, var(--foreground));
-  border: 1px solid var(--border);
-  border-bottom: none;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  padding: 0.5rem 1rem;
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.8rem;
-  color: var(--muted-foreground);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-figure[data-rehype-pretty-code-figure] figcaption[data-rehype-pretty-code-title]::before {
-  content: "";
-  display: inline-block;
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background: var(--accent-brand);
-}
-/* PreWithCopy가 pre를 div로 감싸므로 figcaption의 직접 형제는 div */
-figure[data-rehype-pretty-code-figure] figcaption[data-rehype-pretty-code-title] + div {
-  margin-top: 0;
-}
-.prose figure[data-rehype-pretty-code-figure] figcaption[data-rehype-pretty-code-title] + div > pre {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-  margin-top: 0;
-}
 
 /* Profile 내비 항목 — 대각선으로 주기적으로 흔들림 */
 @keyframes diagonal-shake {

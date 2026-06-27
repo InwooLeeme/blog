@@ -44,6 +44,35 @@ code[data-line-numbers]>[data-line]::before {
     @apply outline outline-1 -outline-offset-2;
 }
 
+/* 본문 리스트/리드 문단 — prose 플러그인(utilities 레이어)을 이기려면
+   레이어 밖에 둬야 한다. 상단 .prose pre 등과 같은 패턴. */
+.prose-main ul {
+    list-style: none;
+    padding-left: 0;
+    padding-inline-start: 0;
+}
+
+.prose-main ul > li {
+    position: relative;
+    padding-left: 1.5rem;
+    padding-inline-start: 1.5rem;
+}
+
+.prose-main ul > li::before {
+    content: "";
+    @apply absolute left-1.5 h-1.5 w-1.5 rounded-full bg-accent-brand;
+    top: 0.7em;
+}
+
+.prose-main ol > li::marker {
+    @apply font-semibold text-accent-brand;
+    font-variant-numeric: tabular-nums;
+}
+
+.prose-main > p:first-of-type {
+    font-size: 1.05em;
+}
+
 /* mdx */
 @layer components {
 
@@ -106,12 +135,6 @@ code[data-line-numbers]>[data-line]::before {
     /* 구분선 */
     .prose-main hr {
         @apply my-10 border-t border-dashed;
-    }
-
-    /* 리스트 불릿 제거 */
-    .prose-main ul {
-        list-style: none;
-        padding-left: 0;
     }
 
     /* 테이블 — 둥근 외곽 + 헤더 강조 + 줄무늬 + hover */

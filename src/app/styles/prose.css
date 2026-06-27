@@ -1,0 +1,167 @@
+/* 본문(.prose-main) 타이포그래피 — MDX 글 본문 스타일 */
+
+/* 리스트/리드 문단은 @tailwindcss/typography(utilities 레이어)를 이겨야 하므로
+   레이어 밖(unlayered)에 둔다. unlayered는 항상 모든 @layer보다 우선한다. */
+.prose-main ul {
+    list-style: none;
+    padding-left: 0;
+    padding-inline-start: 0;
+}
+
+.prose-main ul > li {
+    position: relative;
+    padding-left: 1.5rem;
+    padding-inline-start: 1.5rem;
+}
+
+.prose-main ul > li::before {
+    content: "";
+    @apply absolute left-1.5 h-1.5 w-1.5 rounded-full bg-accent-brand;
+    top: 0.7em;
+}
+
+.prose-main ol > li::marker {
+    @apply font-semibold text-accent-brand;
+    font-variant-numeric: tabular-nums;
+}
+
+.prose-main > p:first-of-type {
+    font-size: 1.05em;
+}
+
+@layer components {
+
+    /* 아티클 기본 컨테이너 */
+    .prose-main {
+        @apply mx-auto max-w-prose lg:max-w-6xl;
+      }
+
+    /* 헤딩 간격 & 앵커 위치 */
+    .prose-main :where(h1, h2, h3, h4) {
+        @apply scroll-mt-28;
+    }
+
+    .prose-main :where(h1) {
+        @apply text-3xl lg:text-4xl font-bold tracking-tight;
+    }
+
+    .prose-main :where(h2) {
+        @apply mt-12 border-b pb-2 text-xl lg:text-2xl font-semibold;
+    }
+
+    .prose-main :where(h3) {
+        @apply mt-8 text-lg font-semibold;
+    }
+
+    /* 링크: accent 색 + 또렷한 밑줄 */
+    .prose-main a {
+        @apply font-medium text-accent-brand underline underline-offset-4 decoration-2 decoration-accent-brand/40 hover:decoration-accent-brand transition;
+    }
+
+    /* 강조 */
+    .prose-main strong {
+        @apply font-bold text-foreground;
+    }
+    /* 헤딩 # 앵커는 본문 링크 스타일 제외 (은은하게 유지) */
+    .prose-main a.anchor {
+        @apply font-normal text-muted-foreground no-underline;
+    }
+
+    /* 인라인 코드 / 프리 */
+    .prose-main :where(code):not(:where(pre code)) {
+        @apply rounded px-1.5 py-0.5 bg-muted text-foreground;
+    }
+
+    .prose-main pre {
+        @apply rounded-xl border bg-muted/30 overflow-x-auto;
+    }
+
+    /* 블록 인용문 — 카드형 (좌측 accent 바 + 연한 배경 + 둥근 모서리) */
+    .prose-main blockquote {
+        @apply my-6 rounded-lg border-l-4 border-accent-brand bg-muted/40 px-5 py-3 text-foreground/80 not-italic;
+    }
+
+    /* prose 기본 자동 따옴표 제거 (카드 스타일에 불필요) */
+    .prose-main blockquote p:first-of-type::before,
+    .prose-main blockquote p:last-of-type::after {
+        content: none;
+    }
+
+    /* 구분선 */
+    .prose-main hr {
+        @apply my-10 border-t border-dashed;
+    }
+
+    /* 테이블 — 둥근 외곽 + 헤더 강조 + 줄무늬 + hover */
+    .prose-main table {
+        @apply w-full my-6 text-sm border-separate;
+        border-spacing: 0;
+        border: 1px solid var(--border);
+        border-radius: 0.625rem;
+        overflow: hidden;
+    }
+
+    .prose-main :where(th, td) {
+        @apply px-4 py-2.5 text-left align-top;
+        border-bottom: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+    }
+
+    /* 마지막 행은 아래 테두리 제거 (테이블 외곽선과 중복 방지) */
+    .prose-main tbody tr:last-child :where(th, td) {
+        border-bottom: none;
+    }
+
+    .prose-main thead th {
+        @apply bg-muted/60 font-semibold text-foreground;
+    }
+
+    .prose-main tbody tr:nth-child(even) {
+        @apply bg-muted/20;
+    }
+
+    .prose-main tbody tr:hover {
+        @apply bg-muted/40;
+    }
+
+    /* 첫 열(보통 항목명) 살짝 강조 */
+    .prose-main tbody td:first-child {
+        @apply font-medium;
+    }
+
+    /* 이미지/캡션 */
+    .prose-main img {
+        @apply rounded-xl border;
+    }
+
+    .prose-main figure {
+        @apply my-8;
+    }
+
+    .prose-main figcaption {
+        @apply mt-2 text-center text-xs text-muted-foreground;
+    }
+
+    /* 키보드 키 표기 */
+    .prose-main kbd {
+        @apply text-xs border rounded px-1 py-0.5 bg-muted;
+    }
+
+    /* 각주 */
+    .prose-main .footnotes {
+        @apply text-sm text-muted-foreground;
+    }
+
+    .prose-main .footnotes hr {
+        @apply my-6;
+    }
+
+    /* 헤딩 앵커(#) 표시 (rehype-autolink-headings 사용 시) */
+    .prose-main :where(h2, h3, h4) a[href^="#"]::before {
+        content: "#";
+        @apply mr-2 opacity-0 text-muted-foreground no-underline;
+    }
+
+    .prose-main :where(h2, h3, h4):hover a[href^="#"]::before {
+        @apply opacity-100;
+    }
+}

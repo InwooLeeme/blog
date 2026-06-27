@@ -1,0 +1,144 @@
+/* 코드 블록 — rehype-pretty-code + shiki 듀얼 테마(light/dark) */
+
+/* 코드 타이틀 (figcaption) */
+[data-rehype-pretty-code-title] {
+    @apply block text-xs font-medium px-3 py-2 border rounded-t-lg bg-muted text-foreground;
+}
+
+/* 타이틀 바로 뒤 pre 접합 */
+[data-rehype-pretty-code-title] + pre {
+    @apply rounded-t-none mt-0;
+}
+
+/* pre 박스 — shiki 듀얼 테마 배경은 모드별 자동 적용 */
+.prose pre {
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background-color: var(--shiki-light-bg);
+    overflow-x: auto;
+}
+.dark .prose pre {
+    background-color: var(--shiki-dark-bg);
+}
+
+.prose pre code {
+    display: grid;
+    grid-template-columns: minmax(0, max-content);
+    padding: 0;
+    white-space: pre;
+}
+
+/* 코드 글자 크기 — 본문 lg:text-xl보다 작게 */
+.prose pre code,
+.prose-main pre code {
+    font-size: 0.85em;
+    line-height: 1.5;
+}
+
+/* 모든 라인은 좌우 padding을 직접 가짐 → 배경이 가로 스크롤 시에도 끝까지 이어짐 */
+[data-line] {
+    padding: 0;
+}
+
+/* 라이트/다크 테마 변수 적용 (prefers-color-scheme 대신 class 기반) */
+code[data-theme],
+code[data-theme] span {
+    color: var(--shiki-light);
+    background-color: var(--shiki-light-bg);
+}
+.dark code[data-theme],
+.dark code[data-theme] span {
+    color: var(--shiki-dark);
+    background-color: var(--shiki-dark-bg);
+}
+
+/* 라인 넘버 */
+code[data-line-numbers] {
+    counter-reset: line;
+}
+code[data-line-numbers] > [data-line]::before {
+    counter-increment: line;
+    content: counter(line);
+    display: inline-block;
+    width: 2.5rem;
+    margin-right: 1rem;
+    text-align: right;
+    opacity: 0.45;
+    user-select: none;
+}
+
+/* 줄 하이라이트 */
+[data-highlighted-line] {
+    background: rgba(127, 127, 127, 0.12);
+    border-left: 2px solid var(--accent-brand);
+    padding-left: calc(1rem - 2px);
+}
+
+/* 단어/구간 하이라이트 — outline + 배경색 */
+[data-highlighted-chars] {
+    @apply outline outline-1 -outline-offset-2;
+    background: color-mix(in oklab, var(--accent-brand) 22%, transparent);
+    border-radius: 4px;
+    padding: 1px 4px;
+}
+
+/* diff 라인 — GitHub 스타일 (@shikijs/transformers의 notationDiff) */
+.diff {
+    position: relative;
+}
+[data-line].diff.add {
+    background: rgba(63, 185, 80, 0.15);
+}
+.diff.add::before {
+    content: "+";
+    position: absolute;
+    left: 0.3rem;
+    color: rgba(63, 185, 80, 0.9);
+    font-weight: 700;
+}
+[data-line].diff.remove {
+    background: rgba(248, 81, 73, 0.15);
+}
+.diff.remove::before {
+    content: "-";
+    position: absolute;
+    left: 0.3rem;
+    color: rgba(248, 81, 73, 0.9);
+    font-weight: 700;
+}
+
+/* 파일명/타이틀 헤더 (figure > figcaption) */
+figure[data-rehype-pretty-code-figure] {
+    margin: 1.5rem 0;
+}
+figure[data-rehype-pretty-code-figure] figcaption[data-rehype-pretty-code-title] {
+    background: color-mix(in oklab, var(--background) 92%, var(--foreground));
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    padding: 0.5rem 1rem;
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 0.8rem;
+    color: var(--muted-foreground);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+figure[data-rehype-pretty-code-figure] figcaption[data-rehype-pretty-code-title]::before {
+    content: "";
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--accent-brand);
+}
+/* PreWithCopy가 pre를 div로 감싸므로 figcaption의 직접 형제는 div */
+figure[data-rehype-pretty-code-figure] figcaption[data-rehype-pretty-code-title] + div {
+    margin-top: 0;
+}
+.prose figure[data-rehype-pretty-code-figure] figcaption[data-rehype-pretty-code-title] + div > pre {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    margin-top: 0;
+}

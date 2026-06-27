@@ -108,7 +108,10 @@ export default async function PostPage({ params }: PageProps) {
         ]}
       />
       {meta.cover ? (
-        <div className="relative aspect-[1200/630] mb-8">
+        <div
+          className="relative aspect-[1200/630] mb-8"
+          style={{ viewTransitionName: `post-cover-${slug}` }}
+        >
           <MdxImage
             src={meta.cover}
             alt={meta.title}

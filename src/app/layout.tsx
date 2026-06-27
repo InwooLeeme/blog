@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
+import { ViewTransitions } from "next-view-transitions";
 import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -73,28 +74,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased w-full`}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+    <ViewTransitions>
+      <html lang="ko" suppressHydrationWarning>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased w-full`}
         >
-          <BackgroundDecor />
-          <div className="flex flex-col min-h-screen">
-            <Header title={BlogInfo.title} />
-            <main className="flex-1">
-              <PageTransition>{children}</PageTransition>
-            </main>
-            <Analytics />
-            <Footer />
-          </div>
-          <ScrollToTop />
-        </ThemeProvider>
-      </body>
-    </html>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <BackgroundDecor />
+            <div className="flex flex-col min-h-screen">
+              <Header title={BlogInfo.title} />
+              <main className="flex-1">
+                <PageTransition>{children}</PageTransition>
+              </main>
+              <Analytics />
+              <Footer />
+            </div>
+            <ScrollToTop />
+          </ThemeProvider>
+        </body>
+      </html>
+    </ViewTransitions>
   );
 }

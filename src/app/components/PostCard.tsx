@@ -1,6 +1,6 @@
 import { PostMeta } from "@/lib/posts";
 import { formatPostDate, getCoverSrc } from "@/lib/post-display";
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -22,7 +22,10 @@ export default function PostCard({
     return (
         <Link href={`/blog/${slug}`} className="group block" aria-label={meta.title}>
             <Card className="overflow-hidden h-full rounded-md py-0 gap-0 transition duration-300 hover:-translate-y-1 hover:border-accent-brand hover:shadow-xl hover:shadow-accent-brand/15">
-                <div className="relative overflow-hidden">
+                <div
+                    className="relative overflow-hidden"
+                    style={{ viewTransitionName: `post-cover-${slug}` }}
+                >
                     <AspectRatio ratio={16 / 9}>
                         <Image
                             src={coverSrc}

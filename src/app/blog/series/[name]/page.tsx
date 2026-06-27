@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Calendar } from "lucide-react";
 import { getAllSeries, getPostsBySeries } from "@/lib/posts";
 import { formatPostDate } from "@/lib/post-display";
+import { cn } from "@/lib/utils";
 
 export function generateStaticParams() {
   return getAllSeries().map(({ series }) => ({ name: series }));
@@ -49,20 +50,36 @@ export default async function SeriesDetailPage({
         </p>
       </header>
 
-      <ol className="flex flex-col gap-3">
-        {posts.map((p, i) => (
-          <li key={p.slug}>
-            <Link
-              href={`/blog/${p.slug}`}
-              className="group flex items-baseline gap-3 rounded-md border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent-brand hover:shadow-md"
-            >
-              <span className="shrink-0 text-sm tabular-nums text-muted-foreground">
-                {i + 1}.
-              </span>
-              <div className="min-w-0 flex-1">
-                <h2 className="font-bold leading-snug line-clamp-2 group-hover:text-accent-brand">
-                  {p.meta.title}
-                </h2>
+      <ol className="mt-4">
+        {posts.map((p, i) => {
+          const isLast = i === posts.length - 1;
+          return (
+            <li key={p.slug} className={cn("relative flex gap-4", !isLast && "pb-5")}>
+              <div className="relative w-5 shrink-0">
+                {!isLast && (
+                  <span
+                    aria-hidden
+                    className="absolute left-1/2 top-3 bottom-0 w-px -translate-x-1/2 bg-accent-brand/40"
+                  />
+                )}
+                <span
+                  aria-hidden
+                  className="absolute left-1/2 top-5 -translate-x-1/2 h-2 w-2 rounded-full bg-accent-brand"
+                />
+              </div>
+
+              <Link
+                href={`/blog/${p.slug}`}
+                className="group min-w-0 flex-1 rounded-md border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent-brand hover:shadow-md"
+              >
+                <div className="flex items-baseline gap-2">
+                  <span className="shrink-0 text-sm tabular-nums text-muted-foreground">
+                    {i + 1}.
+                  </span>
+                  <h2 className="font-bold leading-snug line-clamp-2 group-hover:text-accent-brand">
+                    {p.meta.title}
+                  </h2>
+                </div>
                 <div className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Calendar className="h-3.5 w-3.5" aria-hidden />
                   <time dateTime={p.meta.date}>{formatPostDate(p.meta.date)}</time>
@@ -73,10 +90,10 @@ export default async function SeriesDetailPage({
                     </>
                   ) : null}
                 </div>
-              </div>
-            </Link>
-          </li>
-        ))}
+              </Link>
+            </li>
+          );
+        })}
       </ol>
     </div>
   );

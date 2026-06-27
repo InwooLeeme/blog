@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Hash, LayoutGrid } from "lucide-react";
+import { siteConfig } from "@/lib/site";
+import IconGithub from "./icon/IconGithub";
 
 export type TagCount = { tag: string; count: number };
 
@@ -18,8 +20,8 @@ export default function TagSidebar({
   tagBasePath = "/blog/tags",
   avatarSrc = "/avatar.png",
   avatarAlt = "Blog Avatar",
-  profileName = "InwooLeeme",
-  profileDescription = "Learner"
+  profileName = siteConfig.author,
+  profileDescription = "Problem Solving과 웹 개발 그리고 AI에 관심이 있는 뉴비"
 }: {
   tagCounts: TagCount[];
   totalCount: number;
@@ -78,22 +80,43 @@ export default function TagSidebar({
       <aside className="sticky top-24 hidden lg:block w-60 shrink-0 self-start">
         {/* 프로필 */}
         <div className="flex flex-col items-center text-center pb-6">
-          <div className="relative">
-            <div
-              aria-hidden
-              className="absolute -inset-1 rounded-full bg-gradient-to-br from-accent-brand/40 to-accent-brand/0 blur-md"
-            />
-            <Avatar className="relative h-32 w-32 ring-2 ring-accent-brand/30 ring-offset-2 ring-offset-background">
-              <AvatarImage src={avatarSrc} alt={avatarAlt} />
-              <AvatarFallback>{fallback}</AvatarFallback>
-            </Avatar>
-          </div>
-          <h3 className="mt-4 text-base font-bold tracking-tight">
-            {profileName}
-          </h3>
+          <Link href="/about" className="group flex flex-col items-center">
+            <div className="relative">
+              <div
+                aria-hidden
+                className="absolute -inset-1 rounded-full bg-gradient-to-br from-accent-brand/40 to-accent-brand/0 blur-md transition-opacity group-hover:opacity-80"
+              />
+              <Avatar className="relative h-24 w-24 ring-2 ring-accent-brand/30 ring-offset-2 ring-offset-background transition group-hover:ring-accent-brand/60">
+                <AvatarImage src={avatarSrc} alt={avatarAlt} />
+                <AvatarFallback>{fallback}</AvatarFallback>
+              </Avatar>
+            </div>
+            <h3 className="mt-3 text-base font-bold tracking-tight transition-colors group-hover:text-accent-brand">
+              {profileName}
+            </h3>
+          </Link>
           <p className="mt-1 text-xs text-muted-foreground">
             {profileDescription}
           </p>
+          <div className="mt-3 flex items-center gap-2">
+            <a
+              href={siteConfig.githubUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="GitHub"
+              className="grid h-8 w-8 place-items-center rounded-md border text-muted-foreground transition hover:border-accent-brand hover:text-accent-brand"
+            >
+              <IconGithub width={15} height={15} />
+            </a>
+            <a
+              href={siteConfig.solvedacUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex h-8 items-center rounded-md border px-2.5 text-xs text-muted-foreground transition hover:border-accent-brand hover:text-accent-brand"
+            >
+              solved.ac
+            </a>
+          </div>
         </div>
 
         {/* 구분선 */}

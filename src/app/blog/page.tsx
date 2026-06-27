@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getAllPosts, getTagCounts } from "@/lib/posts"
 import PostGridLoadMore from "../components/PostGridLoadMore";
 import TagSidebar from "../components/TagSidebar";
@@ -27,10 +28,12 @@ export default function BlogIndexPage() {
           {siteConfig.description}
         </p>
         <p className="mt-4 text-sm text-muted-foreground">
-          <strong className="font-display font-bold tabular-nums text-foreground">
-            {seriesCount}
-          </strong>{" "}
-          개 시리즈로 정리되어 있습니다
+          <Link href="/blog/series" className="group transition-colors hover:text-accent-brand">
+            <strong className="font-display font-bold tabular-nums text-foreground group-hover:text-accent-brand">
+              {seriesCount}
+            </strong>{" "}
+            개 시리즈로 정리되어 있습니다
+          </Link>
         </p>
       </header>
 

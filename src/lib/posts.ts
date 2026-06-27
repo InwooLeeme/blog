@@ -131,6 +131,26 @@ export function getPostsBySeries(series: string): PostItem[] {
     .sort((a, b) => a.slug.localeCompare(b.slug));
 }
 
+export type SeriesSummary = { series: string; count: number; latestDate: string };
+
+/** 모든 시리즈를 글 수 + 최신 날짜와 함께, 최신 날짜순으로 반환 */
+export function getAllSeries(): SeriesSummary[] {
+  const map = new Map<string, { count: number; latestDate: string }>();
+
+  // getAllPosts()는 이미 날짜 내림차순 → 시리즈가 처음 등장할 때의 date가 최신 날짜
+  for (const p of getAllPosts()) {
+    if (!p.meta.series) continue;
+    const prev = map.get(p.meta.series);
+    if (!prev) {
+      map.set(p.meta.series, { count: 1, latestDate: p.meta.date });
+    } else {
+      prev.count += 1;
+    }
+  }
+
+  return Array.from(map.entries()).map(([series, v]) => ({ series, ...v }));
+}
+
 /**
  * 같은 series 글을 모아 이전/다음 회차 + 전체 회차 목록을 반환.
  * - 정렬은 slug 오름차순 (회차 번호가 zero-padding 돼 있어 번호순과 일치)

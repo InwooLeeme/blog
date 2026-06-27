@@ -7,8 +7,10 @@ import PostGrid from "../../../components/PostGrid";
 export function generateStaticParams() {
   const tags = getAllTags(getAllPosts());
 
-  return tags.map((tag) => ({ tag: encodeURIComponent(tag) }));
+  return tags.map((tag) => ({ tag }));
 }
+
+export const dynamicParams = false;
 
 export async function generateMetadata({ params }: { params: Promise<{ tag: string }>; }): Promise<Metadata> {
     const {tag: rawTag } = await params;

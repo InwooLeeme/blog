@@ -1,16 +1,37 @@
-.js-toc a.is-active-link {
-    color: var(--accent-brand);
-    border-left: 1px solid var(--accent-brand);
-    opacity: 1;
+.js-toc ol,
+.js-toc ul,
+.js-toc .toc-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.js-toc .toc-list {
+    border-left: 1.5px solid var(--border);
+}
+
+.js-toc .toc-list .toc-list {
+    margin-left: 0.85rem;
 }
 
 .js-toc a {
     display: block;
-    padding: 0.25rem 0.5rem;
+    margin-left: -1.5px;
+    padding: 0.3rem 0.5rem 0.3rem 0.85rem;
+    border-left: 1.5px solid transparent;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--muted-foreground);
     text-decoration: none;
-    opacity: 0.5;
+    transition: color 0.15s ease, border-color 0.15s ease;
 }
 
 .js-toc a:hover {
-    text-decoration: underline;
+    color: var(--foreground);
+}
+
+.js-toc a.is-active-link {
+    color: var(--accent-brand);
+    border-left-color: var(--accent-brand);
+    font-weight: 600;
 }

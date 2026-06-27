@@ -127,6 +127,8 @@ export default async function PostPage({ params }: PageProps) {
             title={meta.title}
             date={meta.date}
             readingTime={meta.readingTime}
+            summary={meta.summary}
+            series={meta.series}
           />
           {/* MDX 본문 */}
           <div className="prose prose-zinc dark:prose-invert prose-main lg:text-xl">

@@ -12,6 +12,7 @@ const MeteorSky: ComponentType = () => <ShootingStars forceDark />;
 const HyperspaceWarp = dynamic(() => import("@/app/playground/_components/effects/HyperspaceWarp"), { ssr: false });
 const AuroraWaves = dynamic(() => import("@/app/playground/_components/effects/AuroraWaves"), { ssr: false });
 const FlowField = dynamic(() => import("@/app/playground/_components/effects/FlowField"), { ssr: false });
+const Metaballs = dynamic(() => import("@/app/playground/_components/effects/Metaballs"), { ssr: false });
 const VerletCloth = dynamic(() => import("@/app/playground/_components/effects/VerletCloth"), { ssr: false });
 const GravityBurst = dynamic(() => import("@/app/playground/_components/effects/GravityBurst"), { ssr: false });
 const RainOnGlass = dynamic(() => import("@/app/playground/_components/effects/RainOnGlass"), { ssr: false });
@@ -28,6 +29,7 @@ export const EFFECTS: Effect[] = [
   { id: "warp", title: "하이퍼스페이스", Component: HyperspaceWarp },
   { id: "aurora", title: "오로라 웨이브", Component: AuroraWaves },
   { id: "flow", title: "플로우 필드", Component: FlowField },
+  { id: "metaballs", title: "메타볼", Component: Metaballs },
   { id: "cloth", title: "버를레 천", Component: VerletCloth },
   { id: "gravity", title: "중력 폭발", Component: GravityBurst },
   { id: "water", title: "빗방울 유리", Component: RainOnGlass },

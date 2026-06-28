@@ -1,39 +1,39 @@
 @layer components {
-  /* 브랜드 그라데이션 텍스트 — 워드마크/포인트 제목용 */
-  .text-gradient-brand {
-    background: var(--accent-gradient);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
+    /* 브랜드 그라데이션 텍스트 — 워드마크/포인트 제목용 */
+    .text-gradient-brand {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
 
-  /* 베이스 */
-  .callout {
-    @apply my-6 flex gap-3 rounded-xl border p-4 bg-muted/30 text-foreground;
-  }
-  .callout__icon {
-    @apply mt-1 h-5 w-5;
-  }
+    /* 베이스 */
+    .callout {
+        @apply my-6 flex gap-3 rounded-xl border p-4 bg-muted/30 text-foreground;
+    }
+    .callout__icon {
+        @apply mt-1 h-5 w-5;
+    }
 
-  /* variant 색상 (라이트/다크 모두 커버) */
-  .callout[data-variant="info"] {
-    @apply bg-sky-50 text-sky-900 border-sky-200
-           dark:bg-sky-900/20 dark:text-sky-100 dark:border-sky-700;
-  }
-  .callout[data-variant="warn"] {
-    @apply bg-amber-50 text-amber-900 border-amber-200
-           dark:bg-amber-900/20 dark:text-amber-100 dark:border-amber-700;
-  }
-  .callout[data-variant="danger"] {
-    @apply bg-rose-50 text-rose-900 border-rose-200
-           dark:bg-rose-900/20 dark:text-rose-100 dark:border-rose-700;
-  }
-  .callout[data-variant="normal"] {
-    @apply bg-muted/30 text-foreground border-border;
-  }
+    /* variant 색상 (라이트/다크 모두 커버) */
+    .callout[data-variant="info"] {
+        @apply bg-sky-50 text-sky-900 border-sky-200
+               dark:bg-sky-900/20 dark:text-sky-100 dark:border-sky-700;
+    }
+    .callout[data-variant="warn"] {
+        @apply bg-amber-50 text-amber-900 border-amber-200
+               dark:bg-amber-900/20 dark:text-amber-100 dark:border-amber-700;
+    }
+    .callout[data-variant="danger"] {
+        @apply bg-rose-50 text-rose-900 border-rose-200
+               dark:bg-rose-900/20 dark:text-rose-100 dark:border-rose-700;
+    }
+    .callout[data-variant="normal"] {
+        @apply bg-muted/30 text-foreground border-border;
+    }
 
-  /* 아이콘 색상 */
-  .callout[data-variant="info"]   .callout__icon { @apply text-sky-600 dark:text-sky-400; }
-  .callout[data-variant="warn"]   .callout__icon { @apply text-amber-600 dark:text-amber-400; }
-  .callout[data-variant="danger"] .callout__icon { @apply text-rose-600 dark:text-rose-400; }
+    /* 아이콘 색상 */
+    .callout[data-variant="info"]   .callout__icon { @apply text-sky-600 dark:text-sky-400; }
+    .callout[data-variant="warn"]   .callout__icon { @apply text-amber-600 dark:text-amber-400; }
+    .callout[data-variant="danger"] .callout__icon { @apply text-rose-600 dark:text-rose-400; }
 }

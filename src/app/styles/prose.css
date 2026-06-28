@@ -29,6 +29,8 @@
     font-size: 1.05em;
 }
 
+/* 이 아래는 typography 플러그인과 겹치지 않는 규칙만 둔다.
+   typography가 생성하는 속성을 덮어써야 하면 위 unlayered 섹션에 추가할 것. */
 @layer components {
 
     /* 아티클 기본 컨테이너 */

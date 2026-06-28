@@ -55,6 +55,8 @@
 
 :root {
   --radius: 0.625rem;
+  /* 코드 블록 전용 — pre/figcaption 모서리를 한 값으로 묶어 관리 */
+  --code-radius: 12px;
   /* 브랜드 악센트 색상 — 라이트 모드 기본값. 다크 모드는 아래 .dark 블록 참조 */
   --accent-brand: #0070f3;
   --accent-brand-fg: #ffffff;

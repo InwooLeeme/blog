@@ -1,4 +1,8 @@
 /* 코드 블록 — rehype-pretty-code + shiki 듀얼 테마(light/dark) */
+/* 이 파일은 전부 레이어 밖(unlayered)에 둔다. 대부분의 선택자(rehype-pretty-code,
+   shiki data 속성)는 typography 플러그인과 겹치지 않지만, .prose pre처럼 겹치는
+   것도 있어 파일 전체를 같은 규칙으로 둬서 추후 추가될 규칙도 따로 신경 쓸 필요가
+   없게 한다. */
 
 /* 코드 타이틀 (figcaption) */
 [data-rehype-pretty-code-title] {
@@ -12,7 +16,7 @@
 
 /* pre 박스 — shiki 듀얼 테마 배경은 모드별 자동 적용 */
 .prose pre {
-    border-radius: 12px;
+    border-radius: var(--code-radius);
     border: 1px solid var(--border);
     background-color: var(--shiki-light-bg);
     overflow-x: auto;
@@ -115,8 +119,8 @@ figure[data-rehype-pretty-code-figure] figcaption[data-rehype-pretty-code-title]
     background: color-mix(in oklab, var(--background) 92%, var(--foreground));
     border: 1px solid var(--border);
     border-bottom: none;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
+    border-top-left-radius: var(--code-radius);
+    border-top-right-radius: var(--code-radius);
     padding: 0.5rem 1rem;
     font-family: var(--font-mono), ui-monospace, monospace;
     font-size: 0.8rem;

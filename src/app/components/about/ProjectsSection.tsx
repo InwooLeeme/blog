@@ -1,6 +1,7 @@
 import { FolderGit2, ExternalLink } from "lucide-react";
 import { projects } from "@/lib/about";
 import { techChipStyle } from "@/lib/tech";
+import BrandIcon from "../icon/BrandIcon";
 import IconGithub from "../icon/IconGithub";
 import { StaggerItem } from "../Stagger";
 import { SectionHeading } from "./Timeline";
@@ -17,9 +18,9 @@ export default function ProjectsSection() {
             className="rounded-lg border bg-card p-5 transition hover:border-accent-brand"
           >
             <h3 className="text-lg font-bold tracking-tight">{p.name}</h3>
-            {p.subtitle ? (
-              <p className="mt-0.5 text-sm font-medium text-accent-brand">
-                {p.subtitle}
+            {p.meta ? (
+              <p className="mt-0.5 text-xs font-medium tabular-nums text-muted-foreground">
+                {p.meta}
               </p>
             ) : null}
 
@@ -43,8 +44,9 @@ export default function ProjectsSection() {
                   <span
                     key={t}
                     style={techChipStyle(t)}
-                    className="rounded-full border px-2.5 py-0.5 text-xs font-medium"
+                    className="inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium"
                   >
+                    <BrandIcon tech={t} className="shrink-0" />
                     {t}
                   </span>
                 ))}

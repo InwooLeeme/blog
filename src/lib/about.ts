@@ -49,7 +49,7 @@ export type ProjectLink = {
 
 export type Project = {
   name: string;
-  subtitle?: string; // 도메인/한 줄 부제
+  meta?: string; // 연도·구분 등 작은 메타 텍스트 (링크와 중복되는 URL은 넣지 않음)
   highlights: string[]; // 불릿 설명
   tech?: string[];
   links?: ProjectLink[];
@@ -58,7 +58,6 @@ export type Project = {
 export const projects: Project[] = [
   {
     name: "개인 알고리즘·기술 블로그",
-    subtitle: "inwooleeme.vercel.app",
     highlights: [
       "Next.js + MDX를 활용한 알고리즘·개발 블로그 구축",
       "다크모드·스크롤 등장·페이지 전환 등 인터랙션 적용",
@@ -72,7 +71,6 @@ export const projects: Project[] = [
   },
   {
     name: "AI 포트폴리오 챗봇",
-    subtitle: "portfolio-chatbot-six-theta.vercel.app",
     highlights: [
       "내 포트폴리오를 대화형으로 소개해 주는 챗봇을 만들어 보고 싶어서 시작한 프로젝트",
       "포트폴리오 내용을 미리 벡터로 저장해 두고, 질문이 들어오면 관련 부분을 찾아 Google Gemini가 답하도록 RAG로 구성했다 (LangChain.js 사용)",
@@ -97,7 +95,7 @@ export const projects: Project[] = [
   },
   {
     name: "Daum 뉴스 크롤러",
-    subtitle: "2024",
+    meta: "2024",
     highlights: [
       "Daum 뉴스 포털에서 기사 데이터를 수집하는 웹 스크래퍼",
       "기사 제목·본문·작성 시각·언론사·기자명 등 추출",
@@ -114,7 +112,7 @@ export const projects: Project[] = [
   },
   {
     name: "NASDAQ 주가 데이터 시각화",
-    subtitle: "2024–2026 · 팀 프로젝트",
+    meta: "2024–2026 · 팀 프로젝트",
     highlights: [
       "데이터 베이스 수업 실습 프로젝트",
       "프론트엔드 개발을 주도적으로 담당 (React 기반 UI 구현)",

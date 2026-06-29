@@ -20,8 +20,18 @@ const TILT_AMP = 2; // 중앙 카드 미세 기울임(deg)
 const HOVER_LIFT = 1.06; // 호버 시 확대 비율
 const MOUNT_RANGE = 2; // 중앙 기준 이 범위 밖 카드는 캔버스 이펙트를 마운트하지 않음(성능)
 const ICON_BTN = "grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20";
-// 메이슨리 타일마다 결정적으로 배정하는 세로 비율(핀터레스트 리듬) — 인덱스 기반이라 리렌더에도 흔들리지 않음
-const MASONRY_ASPECTS = ["aspect-[3/4]", "aspect-square", "aspect-[3/5]", "aspect-[4/5]"];
+// 메이슨리 타일마다 결정적으로 배정하는 세로 비율(핀터레스트 리듬) — id 기반이라 리렌더에도 흔들리지 않음
+const MASONRY_ASPECTS = ["aspect-[3/4]", "aspect-square", "aspect-[3/5]", "aspect-[4/5]", "aspect-[2/3]"];
+
+/** id 문자열을 결정적 정수로 해시(FNV-1a) — 인덱스 순서와 무관하게 비율을 흩어서 배정 */
+function hashString(id: string) {
+  let h = 2166136261;
+  for (let i = 0; i < id.length; i++) {
+    h ^= id.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
 
 /** i번 카드를 중심 위치 pos 기준으로 커버플로우 배치 (가운데 정면, 양옆 3D) */
 function place(i: number, pos: number) {
@@ -192,7 +202,7 @@ export default function EffectCarousel() {
               onMouseEnter={() => setHoveredGridIndex(i)}
               onMouseLeave={() => setHoveredGridIndex((cur) => (cur === i ? null : cur))}
               onClick={() => setActive(eff)}
-              className={`group relative mb-3 block w-full overflow-hidden break-inside-avoid rounded-xl border border-zinc-800/70 text-left shadow-lg transition-all duration-200 hover:-translate-y-1 hover:scale-[1.02] hover:border-sky-400/60 hover:shadow-sky-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${MASONRY_ASPECTS[i % MASONRY_ASPECTS.length]}`}
+              className={`group relative mb-3 block w-full overflow-hidden break-inside-avoid rounded-xl border border-zinc-800/70 text-left shadow-lg transition-all duration-200 hover:-translate-y-1 hover:scale-[1.02] hover:border-sky-400/60 hover:shadow-sky-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${MASONRY_ASPECTS[hashString(eff.id) % MASONRY_ASPECTS.length]}`}
             >
               <EffectThumb effect={eff} mounted={hoveredGridIndex === i} />
               <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-2">

@@ -4,6 +4,8 @@ import { useRef } from "react";
 import { rand, useCanvasScene } from "./canvas";
 
 /** 일식 — 달이 태양을 가리며 지나가고, 가릴수록 하늘이 어두워지며 별과 코로나가 드러난다. */
+const TAU = Math.PI * 2;
+
 const CONFIG = {
   sunRFrac: 0.15, // 태양 반경(화면 짧은 변 비율)
   moonRFactor: 1.05, // 달이 태양보다 살짝 큰 비율(개기일식처럼)
@@ -12,6 +14,15 @@ const CONFIG = {
   autoSpeed: 0.05, // 커서가 없을 때 자동 이동 각속도
   starDensity: 9000, // px²당 별 1개
   maxStars: 260,
+  coronaStart: 0.85, // 코로나가 나타나기 시작하는 가림 비율
+  coronaStreamers: 18, // 코로나 스트리머 개수
+  coronaSegments: 14, // 스트리머 하나를 그리는 폴리라인 세그먼트 수
+  coronaCurl: 0.6, // 스트리머가 휘는 정도(자기장 곡률)
+  coronaEquatorBias: 1.2, // 적도 방향 스트리머가 더 길어지는 가중치
+  veilRFactor: 2.8, // 디퓨즈 베일 반경(태양 반경 비율)
+  veilInnerFactor: 0.9, // 베일이 시작되는 안쪽 경계(태양 반경 비율)
+  veilSquash: 0.82, // 베일의 적도 방향 타원 압축 비율
+  veilAlpha: 0.35, // 베일 최대 불투명도
 } as const;
 
 const SKY_DAY = "#163a66";
@@ -19,6 +30,32 @@ const SKY_NIGHT = "#020207";
 
 type Point = { x: number; y: number };
 type Star = { x: number; y: number; r: number; phase: number; speed: number };
+type Streamer = {
+  angle: number; // 기준 각도(라디안)
+  length: number; // 길이(태양 반경 비율)
+  curl: number; // 끝으로 갈수록 휘는 정도(자기장 아치)
+  width: number; // 기준 굵기
+  brightness: number; // 기준 밝기
+  phase: number; // 명멸 위상
+  flickerSpeed: number; // 명멸 속도
+};
+
+/** 적도 방향(좌우)일수록 길게 뻗는 헬멧 스트리머들을 생성한다 */
+function spawnStreamers(count: number): Streamer[] {
+  return Array.from({ length: count }, () => {
+    const angle = rand(0, TAU);
+    const equatorWeight = Math.abs(Math.cos(angle));
+    return {
+      angle,
+      length: rand(1.2, 1.6) + equatorWeight * CONFIG.coronaEquatorBias * rand(0.6, 1.4),
+      curl: rand(-CONFIG.coronaCurl, CONFIG.coronaCurl),
+      width: rand(0.6, 1.8),
+      brightness: rand(0.35, 0.85),
+      phase: rand(0, TAU),
+      flickerSpeed: rand(0.3, 0.9),
+    };
+  });
+}
 
 function lerpHex(a: string, b: string, t: number) {
   const pa = parseInt(a.slice(1), 16);
@@ -51,6 +88,8 @@ export default function SolarEclipse() {
     let autoT = 0;
     let displayCoverage = 0;
     let stars: Star[] = [];
+    let streamers: Streamer[] = [];
+    let veilGradient: CanvasGradient | null = null;
 
     const render = (time: number) => {
       ctx.fillStyle = lerpHex(SKY_DAY, SKY_NIGHT, displayCoverage);
@@ -78,19 +117,46 @@ export default function SolarEclipse() {
       ctx.arc(sunX, sunY, haloR, 0, Math.PI * 2);
       ctx.fill();
 
-      if (displayCoverage > 0.85) {
-        // 개기일식 코로나 스트리머
-        const a = (displayCoverage - 0.85) / 0.15;
-        ctx.strokeStyle = `rgba(255, 244, 214, ${a * 0.5})`;
-        ctx.lineWidth = 1;
-        const rays = 28;
-        for (let i = 0; i < rays; i++) {
-          const ang = (i / rays) * Math.PI * 2 + time * 0.02;
-          const len = sunR * (1.3 + ((i * 7) % 5) * 0.25 + a * 0.6);
-          ctx.beginPath();
-          ctx.moveTo(sunX + Math.cos(ang) * sunR, sunY + Math.sin(ang) * sunR);
-          ctx.lineTo(sunX + Math.cos(ang) * len, sunY + Math.sin(ang) * len);
-          ctx.stroke();
+      if (displayCoverage > CONFIG.coronaStart) {
+        // 개기일식 코로나 — 디퓨즈 진주빛 베일 + 곡선 스트리머(자기장 아치)
+        const a = (displayCoverage - CONFIG.coronaStart) / (1 - CONFIG.coronaStart);
+
+        ctx.save();
+        ctx.translate(sunX, sunY);
+        ctx.scale(1, CONFIG.veilSquash);
+        ctx.globalAlpha = a * CONFIG.veilAlpha;
+        ctx.fillStyle = veilGradient!;
+        ctx.beginPath();
+        ctx.arc(0, 0, sunR * CONFIG.veilRFactor, 0, TAU);
+        ctx.fill();
+        ctx.restore();
+
+        const rotation = time * 0.015;
+        for (const s of streamers) {
+          const len = s.length * sunR;
+          const flicker = 0.7 + 0.3 * Math.sin(time * s.flickerSpeed + s.phase);
+          const baseAngle = s.angle + rotation;
+          let prevX = sunX + Math.cos(baseAngle) * sunR;
+          let prevY = sunY + Math.sin(baseAngle) * sunR;
+          for (let i = 1; i <= CONFIG.coronaSegments; i++) {
+            const t = i / CONFIG.coronaSegments;
+            const r = sunR + len * t;
+            const ang = baseAngle + s.curl * t * t;
+            const x = sunX + Math.cos(ang) * r;
+            const y = sunY + Math.sin(ang) * r;
+            const fade = (1 - t) ** 2;
+            const alpha = s.brightness * a * flicker * fade;
+            if (alpha > 0.01) {
+              ctx.strokeStyle = `rgba(255, 244, 214, ${alpha})`;
+              ctx.lineWidth = s.width * fade + 0.3;
+              ctx.beginPath();
+              ctx.moveTo(prevX, prevY);
+              ctx.lineTo(x, y);
+              ctx.stroke();
+            }
+            prevX = x;
+            prevY = y;
+          }
         }
       }
       ctx.globalCompositeOperation = "source-over";
@@ -139,6 +205,10 @@ export default function SolarEclipse() {
         moonY = sunY;
         autoT = 0;
         displayCoverage = 0;
+        streamers = spawnStreamers(CONFIG.coronaStreamers);
+        veilGradient = ctx.createRadialGradient(0, 0, sunR * CONFIG.veilInnerFactor, 0, 0, sunR * CONFIG.veilRFactor);
+        veilGradient.addColorStop(0, "rgba(255, 244, 214, 1)");
+        veilGradient.addColorStop(1, "rgba(255, 244, 214, 0)");
         const n = Math.min(CONFIG.maxStars, Math.floor((w * h) / CONFIG.starDensity));
         stars = Array.from({ length: n }, () => ({
           x: rand(0, w),

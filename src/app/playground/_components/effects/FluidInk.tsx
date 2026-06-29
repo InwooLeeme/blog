@@ -21,7 +21,15 @@ const CONFIG = {
   dragForce: 9000, // 드래그 속도 → 속도장 주입 힘 스케일
   idleInterval: 1.6, // 유휴 시 자동 스플랫 간격(초)
   idleForce: 2600,
+  idleHueJump: [20, 60] as readonly [number, number], // 자동 스플랫마다 색상이 점프하는 범위(도)
   hueSpeed: 26, // 색상 순환 속도(도/초, 드래그 거리에 비례해 추가 가산)
+  hueSpeedRefFps: 60, // hueSpeed가 가정하는 기준 프레임레이트(드래그 거리 → 색상 가산 변환용)
+  minDragDist: 0.5, // 드래그로 인정할 최소 픽셀 이동량
+  intensityDistDivisor: 40, // 드래그 거리를 스플랫 강도(0~1)로 변환하는 나눗값
+  reducedSplatCount: 5, // reduced-motion 정적 프레임을 위해 미리 찍는 시드 스플랫 수
+  reducedSettleSteps: 30, // reduced-motion 정적 프레임 전 미리 진행하는 시뮬레이션 스텝 수
+  fixedDt: 1 / 60, // reduced-motion 시드 스텝에 쓰는 고정 dt(초)
+  resizeDebounceMs: 150, // 리사이즈 후 FBO 재생성까지 대기 시간(ms) — 드래그 중 과도한 재할당 방지
   maxDpr: 1.5,
 } as const;
 
@@ -311,6 +319,16 @@ function createDoubleFBO(gl: WebGL2RenderingContext, w: number, h: number, filte
   };
 }
 
+function deleteFBO(gl: WebGL2RenderingContext, fbo: FBO) {
+  gl.deleteTexture(fbo.texture);
+  gl.deleteFramebuffer(fbo.fbo);
+}
+
+function deleteDoubleFBO(gl: WebGL2RenderingContext, fbo: DoubleFBO) {
+  deleteFBO(gl, fbo.read);
+  deleteFBO(gl, fbo.write);
+}
+
 function paintWhite(gl: WebGL2RenderingContext, fbo: FBO) {
   gl.bindFramebuffer(gl.FRAMEBUFFER, fbo.fbo);
   gl.viewport(0, 0, fbo.width, fbo.height);
@@ -407,8 +425,18 @@ function setupFluidSim(
   let pressure: DoubleFBO;
   let curlFBO: FBO;
   let divergenceFBO: FBO;
+  let hasFramebuffers = false;
 
   const initFramebuffers = () => {
+    if (hasFramebuffers) {
+      deleteDoubleFBO(gl, velocity);
+      deleteDoubleFBO(gl, dye);
+      deleteDoubleFBO(gl, pressure);
+      deleteFBO(gl, curlFBO);
+      deleteFBO(gl, divergenceFBO);
+    }
+    hasFramebuffers = true;
+
     const simRes = getResolution(gl, CONFIG.simRes);
     const dyeRes = getResolution(gl, CONFIG.dyeRes);
     velocity = createDoubleFBO(gl, simRes.width, simRes.height, gl.LINEAR);
@@ -445,6 +473,22 @@ function setupFluidSim(
     gl.uniform1f(splatDyeProgram.uniforms.intensity, intensity);
     blit(dye.write);
     dye.swap();
+  };
+
+  /** 속도장을 따라 target(자기 자신)을 이류시키고 decayTarget으로 서서히 되돌린다 */
+  const advect = (target: DoubleFBO, sourceUnit: number, decayTarget: readonly [number, number, number], decayRate: number, dt: number) => {
+    advectionProgram.bind();
+    gl.uniform2f(advectionProgram.uniforms.texelSize, velocity.texelSizeX, velocity.texelSizeY);
+    bindTexture(gl, velocity.read.texture, 0);
+    gl.uniform1i(advectionProgram.uniforms.uVelocity, 0);
+    bindTexture(gl, target.read.texture, sourceUnit);
+    gl.uniform1i(advectionProgram.uniforms.uSource, sourceUnit);
+    gl.uniform2f(advectionProgram.uniforms.dyeTexelSize, target.texelSizeX, target.texelSizeY);
+    gl.uniform1f(advectionProgram.uniforms.dt, dt);
+    gl.uniform3f(advectionProgram.uniforms.decayTarget, decayTarget[0], decayTarget[1], decayTarget[2]);
+    gl.uniform1f(advectionProgram.uniforms.decayRate, decayRate);
+    blit(target.write);
+    target.swap();
   };
 
   const step = (dt: number) => {
@@ -501,28 +545,8 @@ function setupFluidSim(
     blit(velocity.write);
     velocity.swap();
 
-    advectionProgram.bind();
-    gl.uniform2f(advectionProgram.uniforms.texelSize, velocity.texelSizeX, velocity.texelSizeY);
-    bindTexture(gl, velocity.read.texture, 0);
-    gl.uniform1i(advectionProgram.uniforms.uVelocity, 0);
-    gl.uniform1i(advectionProgram.uniforms.uSource, 0);
-    gl.uniform2f(advectionProgram.uniforms.dyeTexelSize, velocity.texelSizeX, velocity.texelSizeY);
-    gl.uniform1f(advectionProgram.uniforms.dt, dt);
-    gl.uniform3f(advectionProgram.uniforms.decayTarget, 0, 0, 0);
-    gl.uniform1f(advectionProgram.uniforms.decayRate, CONFIG.velocityDecay);
-    blit(velocity.write);
-    velocity.swap();
-
-    gl.uniform2f(advectionProgram.uniforms.texelSize, velocity.texelSizeX, velocity.texelSizeY);
-    bindTexture(gl, velocity.read.texture, 0);
-    gl.uniform1i(advectionProgram.uniforms.uVelocity, 0);
-    bindTexture(gl, dye.read.texture, 1);
-    gl.uniform1i(advectionProgram.uniforms.uSource, 1);
-    gl.uniform2f(advectionProgram.uniforms.dyeTexelSize, dye.texelSizeX, dye.texelSizeY);
-    gl.uniform3f(advectionProgram.uniforms.decayTarget, 1, 1, 1);
-    gl.uniform1f(advectionProgram.uniforms.decayRate, CONFIG.densityDecay);
-    blit(dye.write);
-    dye.swap();
+    advect(velocity, 0, [0, 0, 0], CONFIG.velocityDecay, dt);
+    advect(dye, 1, [1, 1, 1], CONFIG.densityDecay, dt);
   };
 
   const render = () => {
@@ -563,9 +587,9 @@ function setupFluidSim(
       const dx = px - lastX;
       const dy = -(py - lastY);
       const dist = Math.hypot(dx, dy);
-      if (dist > 0.5) {
-        hue = (hue + dist * (CONFIG.hueSpeed / 60)) % 360;
-        const intensity = Math.min(1, dist / 40);
+      if (dist > CONFIG.minDragDist) {
+        hue = (hue + dist * (CONFIG.hueSpeed / CONFIG.hueSpeedRefFps)) % 360;
+        const intensity = Math.min(1, dist / CONFIG.intensityDistDivisor);
         splat(u, v, dx * CONFIG.dragForce, dy * CONFIG.dragForce, colorForHue(hue), intensity);
         idleTimer = 0;
       }
@@ -577,19 +601,18 @@ function setupFluidSim(
 
   let idleTimer = 0;
   const autoSplat = () => {
-    hue = (hue + rand(20, 60)) % 360;
+    hue = (hue + rand(CONFIG.idleHueJump[0], CONFIG.idleHueJump[1])) % 360;
     const u = rand(0.2, 0.8);
     const v = rand(0.2, 0.8);
     const angle = rand(0, Math.PI * 2);
     splat(u, v, Math.cos(angle) * CONFIG.idleForce, Math.sin(angle) * CONFIG.idleForce, colorForHue(hue), 1);
   };
 
-  initFramebuffers();
   resize();
 
   if (reduced) {
-    for (let i = 0; i < 5; i++) autoSplat();
-    for (let i = 0; i < 30; i++) step(1 / 60);
+    for (let i = 0; i < CONFIG.reducedSplatCount; i++) autoSplat();
+    for (let i = 0; i < CONFIG.reducedSettleSteps; i++) step(CONFIG.fixedDt);
     render();
     return () => {};
   }
@@ -620,18 +643,25 @@ function setupFluidSim(
     cancelAnimationFrame(rafId);
   };
 
+  let resizeTimer = 0;
+  const scheduleResize = () => {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(resize, CONFIG.resizeDebounceMs);
+  };
+
   start();
   window.addEventListener("pointermove", onPointerMove);
-  window.addEventListener("resize", resize);
+  window.addEventListener("resize", scheduleResize);
 
   const io = new IntersectionObserver(([entry]) => (entry.isIntersecting ? start() : stop()), { threshold: 0 });
   io.observe(canvas);
 
   return () => {
     stop();
+    window.clearTimeout(resizeTimer);
     io.disconnect();
     window.removeEventListener("pointermove", onPointerMove);
-    window.removeEventListener("resize", resize);
+    window.removeEventListener("resize", scheduleResize);
   };
 }
 
@@ -647,13 +677,17 @@ export default function FluidInk() {
     const gl = canvas.getContext("webgl2", { alpha: false, antialias: false, depth: false, stencil: false }) as WebGL2RenderingContext | null;
 
     if (!gl || !gl.getExtension("EXT_color_buffer_half_float")) {
-      const ctx2d = !gl ? canvas.getContext("2d") : null;
-      if (ctx2d) {
-        canvas.width = parent.clientWidth;
-        canvas.height = parent.clientHeight;
-        ctx2d.fillStyle = "#f6f5f3";
-        ctx2d.fillRect(0, 0, canvas.width, canvas.height);
-      } else if (gl) {
+      if (!gl) {
+        // WebGL2 자체를 못 만든 경우에만 2D 컨텍스트로 정적 배경을 대신 그릴 수 있다
+        const ctx2d = canvas.getContext("2d");
+        if (ctx2d) {
+          canvas.width = parent.clientWidth;
+          canvas.height = parent.clientHeight;
+          ctx2d.fillStyle = "#f6f5f3";
+          ctx2d.fillRect(0, 0, canvas.width, canvas.height);
+        }
+      } else {
+        // gl은 있지만 half-float 렌더 타겟 확장이 없는 경우 — 같은 캔버스라 2D 컨텍스트를 새로 못 얻으므로 WebGL로 정적 배경만 채운다
         gl.clearColor(0.965, 0.96, 0.955, 1);
         gl.clear(gl.COLOR_BUFFER_BIT);
       }

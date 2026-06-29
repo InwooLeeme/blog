@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type WheelEvent } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { ChevronLeftIcon, ChevronRightIcon, LayoutGridIcon, XIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, GalleryHorizontalIcon, LayoutGridIcon, XIcon } from "lucide-react";
 import { EFFECTS, type Effect } from "@/app/components/effects/registry";
 
 const CARD_W = 220;
@@ -20,6 +20,8 @@ const TILT_AMP = 2; // 중앙 카드 미세 기울임(deg)
 const HOVER_LIFT = 1.06; // 호버 시 확대 비율
 const MOUNT_RANGE = 2; // 중앙 기준 이 범위 밖 카드는 캔버스 이펙트를 마운트하지 않음(성능)
 const ICON_BTN = "grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20";
+// 메이슨리 타일마다 결정적으로 배정하는 세로 비율(핀터레스트 리듬) — 인덱스 기반이라 리렌더에도 흔들리지 않음
+const MASONRY_ASPECTS = ["aspect-[3/4]", "aspect-square", "aspect-[3/5]", "aspect-[4/5]"];
 
 /** i번 카드를 중심 위치 pos 기준으로 커버플로우 배치 (가운데 정면, 양옆 3D) */
 function place(i: number, pos: number) {
@@ -78,7 +80,7 @@ export default function EffectCarousel() {
   const lastTime = useRef(0);
   const [index, setIndex] = useState(0);
   const [active, setActive] = useState<Effect | null>(null);
-  const [showAll, setShowAll] = useState(false);
+  const [showCoverflow, setShowCoverflow] = useState(false);
   const [hoveredGridIndex, setHoveredGridIndex] = useState<number | null>(null);
 
   const goTo = (i: number) => {
@@ -173,27 +175,24 @@ export default function EffectCarousel() {
       <div className="mb-2 flex justify-end">
         <button
           type="button"
-          aria-label={showAll ? "코버플로우로 보기" : "전체 보기"}
-          onClick={() => setShowAll((v) => !v)}
+          aria-label={showCoverflow ? "메이슨리로 보기" : "커버플로우로 보기"}
+          onClick={() => setShowCoverflow((v) => !v)}
           className="grid h-8 w-8 place-items-center rounded-full text-zinc-400 transition hover:bg-white/10 hover:text-zinc-100"
         >
-          {showAll ? <XIcon className="h-4 w-4" /> : <LayoutGridIcon className="h-4 w-4" />}
+          {showCoverflow ? <LayoutGridIcon className="h-4 w-4" /> : <GalleryHorizontalIcon className="h-4 w-4" />}
         </button>
       </div>
 
-      {showAll ? (
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
+      {!showCoverflow ? (
+        <div className="columns-2 gap-3 sm:columns-3 lg:columns-4">
           {EFFECTS.map((eff, i) => (
             <button
               key={eff.id}
               type="button"
               onMouseEnter={() => setHoveredGridIndex(i)}
               onMouseLeave={() => setHoveredGridIndex((cur) => (cur === i ? null : cur))}
-              onClick={() => {
-                goTo(i);
-                setShowAll(false);
-              }}
-              className="group relative aspect-[11/15] overflow-hidden rounded-xl border border-zinc-800/70 text-left shadow-lg transition-all duration-200 hover:-translate-y-1 hover:scale-105 hover:border-sky-400/60 hover:shadow-sky-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+              onClick={() => setActive(eff)}
+              className={`group relative mb-3 block w-full overflow-hidden break-inside-avoid rounded-xl border border-zinc-800/70 text-left shadow-lg transition-all duration-200 hover:-translate-y-1 hover:scale-[1.02] hover:border-sky-400/60 hover:shadow-sky-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${MASONRY_ASPECTS[i % MASONRY_ASPECTS.length]}`}
             >
               <EffectThumb effect={eff} mounted={hoveredGridIndex === i} />
               <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-2">

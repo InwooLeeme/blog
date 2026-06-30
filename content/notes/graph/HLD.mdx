@@ -1,0 +1,70 @@
+---
+title: "HLD"
+description: "Heavy-Light Decomposition, 트리 경로 쿼리 (1-indexed)"
+---
+
+```cpp
+// 1 based, 루트는 1
+// LazySegTree<T>는 Segment Tree 노트 참고 (정점에 값이 있는 경우, 경로 합/경로 업데이트)
+template<typename T>
+struct HLD{
+    int n, cur = 0;
+    vector<vector<int>> G;
+    vector<int> par, dep, sz, heavy, head_, pos_;
+    LazySegTree<T> seg;
+
+    HLD(int n):n(n), G(n+1), par(n+1), dep(n+1), sz(n+1), heavy(n+1,-1), head_(n+1), pos_(n+1), seg(n) {}
+
+    void add_edge(int u, int v){ G[u].push_back(v); G[v].push_back(u); }
+
+    void dfs1(int v, int b){
+        par[v] = b; sz[v] = 1; heavy[v] = -1;
+        int maxSz = 0;
+        for(int u : G[v]) if(u != b){
+            dep[u] = dep[v] + 1;
+            dfs1(u, v);
+            sz[v] += sz[u];
+            if(sz[u] > maxSz) maxSz = sz[u], heavy[v] = u;
+        }
+    }
+    void dfs2(int v, int h){
+        head_[v] = h; pos_[v] = ++cur;
+        if(heavy[v] != -1) dfs2(heavy[v], h);
+        for(int u : G[v]) if(u != par[v] && u != heavy[v]) dfs2(u, u);
+    }
+    void Build(int root=1){ // add_edge 다 끝낸 뒤 1번만 호출
+        dfs1(root, 0);
+        dfs2(root, root);
+    }
+    void UpdateVertex(int v, T val){ seg.RangeAdd(pos_[v], pos_[v], val); } // 정점 v에 val을 더함
+
+    void UpdatePath(int u, int v, T val){ // u-v 경로의 모든 정점에 val을 더함
+        while(head_[u] != head_[v]){
+            if(dep[head_[u]] < dep[head_[v]]) swap(u, v);
+            seg.RangeAdd(pos_[head_[u]], pos_[u], val);
+            u = par[head_[u]];
+        }
+        if(dep[u] > dep[v]) swap(u, v);
+        seg.RangeAdd(pos_[u], pos_[v], val);
+    }
+
+    T QueryPath(int u, int v){ // u-v 경로 합 쿼리
+        T res = 0;
+        while(head_[u] != head_[v]){
+            if(dep[head_[u]] < dep[head_[v]]) swap(u, v);
+            res += seg.Query(pos_[head_[u]], pos_[u]);
+            u = par[head_[u]];
+        }
+        if(dep[u] > dep[v]) swap(u, v);
+        res += seg.Query(pos_[u], pos_[v]);
+        return res;
+    }
+};
+////
+// HLD<ll> hld(N);
+// hld.add_edge(u, v);  // 간선 추가
+// hld.Build();         // 루트 기본값 1
+// hld.UpdateVertex(v, val);   // 정점 초기값 세팅(0에서 시작해 더하는 방식)
+// hld.UpdatePath(u, v, val);  // u-v 경로에 val을 더함
+// hld.QueryPath(u, v);
+```

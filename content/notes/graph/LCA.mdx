@@ -5,12 +5,16 @@ description: "트리의 최소 공통 조상"
 
 ```cpp
 int N, Q, D[101010], P[22][101010];
-vector<int> G[101010];
-void Connect(int u, int v){
-    G[u].push_back(v); G[v].push_back(u);
+ll Dist[101010];
+vector<pair<int,int>> G[101010]; // {정점, 가중치}
+void Connect(int u, int v, int w=1){
+    G[u].push_back({v, w}); G[v].push_back({u, w});
 }
 void DFS(int v, int b=-1){
-    for(auto i : G[v]) if(i != b) D[i] = D[v] + 1, P[0][i] = v, DFS(i, v);
+    for(auto [i, w] : G[v]) if(i != b){
+        D[i] = D[v] + 1; Dist[i] = Dist[v] + w; P[0][i] = v;
+        DFS(i, v);
+    }
 }
 int LCA(int u, int v){
     if(D[u] < D[v]) swap(u, v);
@@ -20,10 +24,27 @@ int LCA(int u, int v){
     for(int i=21; i>=0; i--) if(P[i][u] != P[i][v]) u = P[i][u], v = P[i][v];
     return P[0][u];
 }
+int Kth(int v, int k){ // v에서 k번 부모로 올라간 정점
+    for(int i=0; k; i++, k>>=1) if(k & 1) v = P[i][v];
+    return v;
+}
+ll Distance(int u, int v){ // u-v 경로의 가중치 합 (가중치 안 주면 간선 수)
+    int l = LCA(u, v);
+    return Dist[u] + Dist[v] - 2 * Dist[l];
+}
+int KthOnPath(int u, int v, int k){ // u-v 경로에서 u로부터 k번째 정점 (0-indexed, u가 0번째)
+    int l = LCA(u, v);
+    int du = D[u] - D[l];
+    if(k <= du) return Kth(u, k);
+    int dv = D[v] - D[l];
+    return Kth(v, du + dv - k);
+}
 ////
-// 1. Connect로 간선 추가
+// 1. Connect(u, v[, w])로 간선 추가 (가중치 없으면 w 생략, 기본값 1)
 // 2. DFS(1) 호출
 // 3. 아래 코드 실행
 for(int i=1; i<22; i++) for(int j=1; j<=N; j++) P[i][j] = P[i-1][P[i-1][j]];
-// 4. LCA(u, v)로 최소 공통 조상 구할 수 있음
+// 4. LCA(u, v)로 최소 공통 조상
+// 5. Distance(u, v)로 두 정점 사이 거리
+// 6. KthOnPath(u, v, k)로 u-v 경로에서 u로부터 k번째 정점
 ```

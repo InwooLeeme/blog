@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { getAllPosts } from "@/lib/posts";
 import LandingHero from "./components/LandingHero";
 import PostCard from "./components/PostCard";
@@ -20,21 +19,21 @@ export default function Home() {
       <LandingHero />
 
       <section className="mx-auto w-full mt-10 max-w-6xl px-4 pb-20 md:px-6 lg:px-8">
-        <div className="mb-6 flex items-end justify-between">
-          <h2 className="text-2xl font-bold">최근 글</h2>
-          <Link
-            href="/blog"
-            className="group inline-flex items-center gap-1 text-sm font-medium text-accent-brand"
-          >
-            전체 보기
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-        </div>
+        <h2 className="mb-6 text-2xl font-bold">최근 글</h2>
 
         <div className="grid gap-5 lg:grid-cols-3">
           {latest.map((p) => (
             <PostCard key={p.slug} slug={p.slug} meta={p.meta} />
           ))}
+        </div>
+
+        <div className="mt-10 flex justify-center">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 rounded-full bg-accent-brand px-6 py-2.5 text-sm font-semibold text-accent-brand-fg shadow-sm transition hover:-translate-y-0.5 hover:opacity-90 hover:shadow-md"
+          >
+            블로그 글 더보기
+          </Link>
         </div>
       </section>
     </>

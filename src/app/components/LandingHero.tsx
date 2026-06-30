@@ -12,7 +12,7 @@ export default function LandingHero() {
 
       <div className="mx-auto max-w-4xl px-4 py-24 text-center sm:py-32">
 
-        <h1 className="font-display text-5xl font-bold tracking-tight sm:text-7xl">
+        <h1 className="font-display text-[clamp(2rem,11vw,4.5rem)] font-bold tracking-tight">
           <span className="text-gradient-brand">{siteConfig.name}</span>
         </h1>
 

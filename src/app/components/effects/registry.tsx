@@ -22,6 +22,7 @@ const BlackHole = dynamic(() => import("@/app/playground/_components/effects/Bla
 const StarTrails = dynamic(() => import("@/app/playground/_components/effects/StarTrails"), { ssr: false });
 const FireflyForest = dynamic(() => import("@/app/playground/_components/effects/FireflyForest"), { ssr: false });
 const FluidInk = dynamic(() => import("@/app/playground/_components/effects/FluidInk"), { ssr: false });
+const GrowingForest = dynamic(() => import("@/app/playground/_components/effects/GrowingForest"), { ssr: false });
 
 /** 플레이그라운드 캐러셀과 랜딩 게이트가 함께 쓰는 이펙트 목록 */
 export const EFFECTS: Effect[] = [
@@ -40,4 +41,5 @@ export const EFFECTS: Effect[] = [
   { id: "star-trails", title: "별의 궤적", Component: StarTrails },
   { id: "fireflies", title: "반딧불 숲", Component: FireflyForest },
   { id: "fluid-ink", title: "잉크 유체", Component: FluidInk },
+  { id: "tree-growth", title: "나무의 성장", Component: GrowingForest },
 ];

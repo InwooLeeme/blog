@@ -27,10 +27,11 @@ export default function Home() {
             className="group inline-flex items-center gap-1 text-sm font-medium text-accent-brand"
           >
             전체 보기
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 lg:grid-cols-3">
           {latest.map((p) => (
             <PostCard key={p.slug} slug={p.slug} meta={p.meta} />
           ))}

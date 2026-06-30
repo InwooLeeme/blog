@@ -10,7 +10,7 @@ export default function LandingHero() {
       {/* 배경 — 구상성단 별빛 필드, 스크롤 패럴랙스 */}
       <HeroParallax />
 
-      <div className="mx-auto max-w-4xl px-4 py-24 text-center sm:py-32">
+      <div className="mx-auto max-w-6xl px-4 py-24 text-center sm:px-6 sm:py-32 lg:px-8">
 
         <h1 className="font-display text-[clamp(2rem,11vw,4.5rem)] font-bold tracking-tight">
           <span className="text-gradient-brand">{siteConfig.name}</span>

@@ -184,7 +184,7 @@ export default function Header({ title }: IHeader) {
       <ReadingProgressBar />
       <div
         className={cn(
-          "mx-auto flex h-14 max-w-[120rem] items-center px-4 backdrop-blur transition-[transform,border-radius,background-color,box-shadow,border-color] duration-300 ease-out [will-change:transform] sm:px-6 lg:px-20",
+          "backdrop-blur transition-[transform,border-radius,background-color,box-shadow,border-color] duration-300 ease-out [will-change:transform]",
           scrolled
             ? "rounded-full border bg-background/85 shadow-lg"
             : "rounded-none border-b bg-background/70",
@@ -193,11 +193,13 @@ export default function Header({ title }: IHeader) {
           transform: scrolled ? "translateY(6px) scale(0.97)" : "translateY(0) scale(1)",
         }}
       >
-        <div className="flex flex-1 items-center gap-4">
-          <Wordmark title={title} />
+        <div className="mx-auto flex h-14 max-w-6xl items-center px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-1 items-center gap-4">
+            <Wordmark title={title} />
+          </div>
+          <DesktopNav pathname={pathname} />
+          <MobileNav pathname={pathname} />
         </div>
-        <DesktopNav pathname={pathname} />
-        <MobileNav pathname={pathname} />
       </div>
     </div>
   );

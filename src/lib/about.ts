@@ -8,7 +8,7 @@ export type TechCategory = { category: string; items: string[] };
 export const techStack: TechCategory[] = [
   { category: "Languages", items: ["C++", "TypeScript", "Python"] },
   { category: "Frontend", items: ["React", "Next.js", "Tailwind CSS"] },
-  { category: "Backend · AI", items: ["FastAPI", "SQLite", "LangChain.js", "Google Gemini"] },
+  { category: "Backend · AI", items: ["FastAPI", "SQLite", "LangChain.js", "AutoGen", "Google Gemini"] },
   { category: "Tooling", items: ["Git", "Vercel"] },
 ];
 
@@ -133,6 +133,24 @@ export const projects: Project[] = [
         href: "https://database-nasdaq-dyb7.vercel.app/",
         type: "external"
       }
+    ],
+  },
+  {
+    name: "MCP Assistant",
+    meta: "2025 캡스톤 → 2026 개인 업그레이드",
+    highlights: [
+      "2025년 전북대 캡스톤 프로젝트로 시작한 MCP 기반 PC 비서를 2026년에 내 방식대로 다시 뜯어고쳤다 — \"카카오톡 실행해 줘\", \"카페 음악 재생해 줘\" 같은 말을 하면 LLM이 알아듣고 실제로 PC를 조작해 준다",
+      "LLM이 판단하는 부분(Agent)과 OS를 직접 건드리는 부분(MCP 서버)을 분리했다 — Agent는 뭘 할지 계획만 세우고 실행은 MCP 서버가 맡아서, MCP 서버는 다른 클라이언트에서도 그대로 재사용할 수 있다",
+      "프로그램 실행·URL/유튜브 재생·미디어 제어·폴더 열기 같은 도구를 만들어 뒀고, mcp_servers.json에 새 서버만 등록하면 비서가 그 도구를 바로 쓸 수 있도록 확장 구조를 잡았다",
+      "명령을 처리하는 동안 진행 상황과 결과를 SSE로 흘려보내서 화면에서 실시간으로 확인할 수 있게 했다",
+    ],
+    tech: ["Next.js", "TypeScript", "FastAPI", "Python", "AutoGen", "Google Gemini"],
+    links: [
+      {
+        label: "GitHub",
+        href: "https://github.com/InwooLeeme/mcp-assistant",
+        type: "github",
+      },
     ],
   },
   // TODO: 다른 프로젝트 추가

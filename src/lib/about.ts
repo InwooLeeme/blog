@@ -60,6 +60,7 @@ export type Project = {
 export const projects: Project[] = [
   {
     name: "개인 알고리즘·기술 블로그",
+    meta: "2025 ~ present",
     highlights: [
       "Next.js + MDX를 활용한 알고리즘·개발 블로그 구축",
       "다크모드·스크롤 등장·페이지 전환 등 인터랙션 적용",
@@ -75,6 +76,7 @@ export const projects: Project[] = [
   },
   {
     name: "AI 포트폴리오 챗봇",
+    meta: "2026",
     highlights: [
       "내 포트폴리오를 대화형으로 소개해 주는 챗봇을 만들어 보고 싶어서 시작한 프로젝트",
       "포트폴리오 내용을 미리 벡터로 저장해 두고, 질문이 들어오면 관련 부분을 찾아 Google Gemini가 답하도록 RAG로 구성했다 (LangChain.js 사용)",

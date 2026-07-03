@@ -19,6 +19,7 @@ export const navLinks: NavLink[] = [
   { href: "/about", label: "Profile" },
   { href: "/notes", label: "Notes" },
   { href: "/playground", label: "Playground" },
+  { href: "/graph", label: "Graph" },
 ];
 
 /** 푸터 */

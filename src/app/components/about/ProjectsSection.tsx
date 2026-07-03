@@ -19,7 +19,7 @@ export default function ProjectsSection() {
             <StaggerItem
               key={p.name}
               index={i}
-              className="overflow-hidden rounded-lg border bg-card transition hover:[border-color:var(--proj-accent)]"
+              className="overflow-hidden rounded-lg border bg-card transition hover:-translate-y-0.5 hover:shadow-md hover:[border-color:var(--proj-accent)]"
               style={{ "--proj-accent": accent } as CSSProperties}
             >
               {p.image ? (
@@ -30,6 +30,11 @@ export default function ProjectsSection() {
                     fill
                     sizes="(max-width: 768px) 100vw, 672px"
                     className="object-cover"
+                  />
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-10"
+                    style={{ background: "linear-gradient(to top, var(--card), transparent)" }}
                   />
                 </div>
               ) : null}
@@ -51,7 +56,7 @@ export default function ProjectsSection() {
                           className="mt-[0.45rem] h-1 w-1 shrink-0 rounded-full"
                           style={{ backgroundColor: accent }}
                         />
-                        <span>{h}</span>
+                        <span className={j === 0 ? "font-medium text-foreground" : undefined}>{h}</span>
                       </li>
                     ))}
                   </ul>
@@ -80,7 +85,7 @@ export default function ProjectsSection() {
                         href={l.href}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 text-muted-foreground transition hover:text-accent-brand"
+                        className="inline-flex items-center gap-1.5 text-muted-foreground transition hover:[color:var(--proj-accent)]"
                       >
                         {l.type === "github" ? (
                           <IconGithub width={16} height={16} />

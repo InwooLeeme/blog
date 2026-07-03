@@ -21,7 +21,7 @@ export default function TagSidebar({
   avatarSrc = "/avatar.png",
   avatarAlt = "Blog Avatar",
   profileName = siteConfig.author,
-  profileDescription = "Problem Solving과 웹 개발 그리고 AI에 관심이 있는 뉴비"
+  profileDescription = "C++로 문제를 풀고, Next.js와 AI로 만듭니다."
 }: {
   tagCounts: TagCount[];
   totalCount: number;
@@ -86,9 +86,9 @@ export default function TagSidebar({
             <div className="relative">
               <div
                 aria-hidden
-                className="absolute -inset-1 rounded-full bg-gradient-to-br from-accent-brand/40 to-accent-brand/0 blur-md transition-opacity group-hover:opacity-80"
+                className="absolute -inset-3 rounded-full opacity-60 blur-xl transition-opacity bg-[radial-gradient(circle,var(--accent-brand),transparent_70%)] group-hover:opacity-90"
               />
-              <Avatar className="relative h-24 w-24 ring-2 ring-accent-brand/30 ring-offset-2 ring-offset-background transition group-hover:ring-accent-brand/60">
+              <Avatar className="relative h-24 w-24 ring-1 ring-accent-brand/70 shadow-lg shadow-accent-brand/20">
                 <AvatarImage src={avatarSrc} alt={avatarAlt} />
                 <AvatarFallback>{fallback}</AvatarFallback>
               </Avatar>

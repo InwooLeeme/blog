@@ -10,9 +10,11 @@ import {
   type SimulationNodeDatum,
 } from "d3-force";
 import { useTransitionRouter } from "next-view-transitions";
+import { readAccent } from "@/app/playground/_components/effects/canvas";
 import type { GraphData, GraphNode, GraphEdge } from "@/lib/graph";
 
-type SimNode = GraphNode & SimulationNodeDatum & { degree: number; phase: number };
+type SimNode = GraphNode &
+  SimulationNodeDatum & { degree: number; phase: number; color: string; rgb: { r: number; g: number; b: number } };
 type SimLink = { source: SimNode; target: SimNode; kind: GraphEdge["kind"]; weight: number };
 
 const BASE_RADIUS = 5;
@@ -24,9 +26,7 @@ const MAX_SCALE = 3;
 // Obsidian식 항상-다크 패널 — 사이트 라이트/다크 테마와 무관 (playground 이펙트들과 동일한 관례)
 const COLORS = {
   bg: "#05060a",
-  nodeSeries: "#31CED2",
   nodeDefault: "#7b8196",
-  edgeSeries: "#31CED2",
   edgeTag: "#aab2d5",
   text: "#e6e8ef",
 };
@@ -44,8 +44,8 @@ function hashStr(s: string) {
   return Math.abs(h);
 }
 
-function colorForNode(n: SimNode): string {
-  if (n.series) return COLORS.nodeSeries;
+function colorForNode(n: GraphNode, accent: string): string {
+  if (n.series) return accent;
   const tag = n.tags[0];
   return tag ? TAG_PALETTE[hashStr(tag) % TAG_PALETTE.length] : COLORS.nodeDefault;
 }
@@ -68,17 +68,24 @@ export default function PostGraph({ data }: { data: GraphData }) {
     const parent = canvas?.parentElement;
     if (!canvas || !ctx || !parent) return;
 
+    const accent = readAccent();
+
     const degree = new Map<string, number>();
     for (const e of data.edges) {
       degree.set(e.source, (degree.get(e.source) ?? 0) + 1);
       degree.set(e.target, (degree.get(e.target) ?? 0) + 1);
     }
 
-    const nodes: SimNode[] = data.nodes.map((n) => ({
-      ...n,
-      degree: degree.get(n.id) ?? 0,
-      phase: (hashStr(n.id) % 1000) / 1000 * Math.PI * 2,
-    }));
+    const nodes: SimNode[] = data.nodes.map((n) => {
+      const color = colorForNode(n, accent);
+      return {
+        ...n,
+        degree: degree.get(n.id) ?? 0,
+        phase: (hashStr(n.id) % 1000) / 1000 * Math.PI * 2,
+        color,
+        rgb: hexToRgb(color),
+      };
+    });
     const nodeById = new Map(nodes.map((n) => [n.id, n]));
     const links: SimLink[] = data.edges
       .map((e) => ({
@@ -88,6 +95,12 @@ export default function PostGraph({ data }: { data: GraphData }) {
         weight: e.weight,
       }))
       .filter((l): l is SimLink => !!l.source && !!l.target);
+
+    const neighborsOf = new Map<string, Set<string>>(nodes.map((n) => [n.id, new Set()]));
+    for (const l of links) {
+      neighborsOf.get(l.source.id)!.add(l.target.id);
+      neighborsOf.get(l.target.id)!.add(l.source.id);
+    }
 
     const glow = new Map<string, number>(nodes.map((n) => [n.id, 0.45]));
 
@@ -108,22 +121,16 @@ export default function PostGraph({ data }: { data: GraphData }) {
 
     const updateGlow = (dt: number) => {
       const ease = Math.min(1, dt * 6);
+      const hoveredNeighbors = hovered ? neighborsOf.get(hovered.id) : undefined;
       for (const n of nodes) {
         const isHovered = hovered?.id === n.id;
-        const isNeighbor = !isHovered && hovered && links.some(
-          (l) =>
-            (l.source.id === hovered!.id && l.target.id === n.id) ||
-            (l.target.id === hovered!.id && l.source.id === n.id),
-        );
+        const isNeighbor = !isHovered && !!hoveredNeighbors?.has(n.id);
         const target = isHovered ? 1 : hovered ? (isNeighbor ? 0.7 : 0.12) : 0.45;
         glow.set(n.id, lerp(glow.get(n.id) ?? target, target, ease));
       }
     };
 
     const draw = (time = 0) => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
       ctx.fillStyle = COLORS.bg;
       ctx.fillRect(0, 0, width, height);
 
@@ -140,17 +147,11 @@ export default function PostGraph({ data }: { data: GraphData }) {
       ctx.translate(view.x, view.y);
       ctx.scale(view.scale, view.scale);
 
-      const neighbors = new Set<string>();
-      if (hovered) {
-        for (const l of links) {
-          if (l.source.id === hovered.id) neighbors.add(l.target.id);
-          if (l.target.id === hovered.id) neighbors.add(l.source.id);
-        }
-      }
+      const neighbors = hovered ? neighborsOf.get(hovered.id) : undefined;
 
       for (const l of links) {
         const dim = hovered && hovered.id !== l.source.id && hovered.id !== l.target.id;
-        const color = l.kind === "series" ? COLORS.edgeSeries : COLORS.edgeTag;
+        const color = l.kind === "series" ? accent : COLORS.edgeTag;
         ctx.strokeStyle = color;
         ctx.globalAlpha = dim ? 0.05 : l.kind === "series" ? 0.85 : 0.6;
         ctx.lineWidth = l.kind === "series" ? 1.8 : 1.2;
@@ -165,14 +166,14 @@ export default function PostGraph({ data }: { data: GraphData }) {
 
       for (const n of nodes) {
         const isHovered = hovered?.id === n.id;
-        const isNeighbor = neighbors.has(n.id);
+        const isNeighbor = !!neighbors?.has(n.id);
         const g = glow.get(n.id) ?? 0.45;
         const pulse = 1 + Math.sin(time * 0.0018 + n.phase) * 0.06;
         const r = nodeRadius(n) * pulse;
         const x = n.x ?? 0;
         const y = n.y ?? 0;
-        const color = colorForNode(n);
-        const { r: cr, g: cg, b: cb } = hexToRgb(color);
+        const { color } = n;
+        const { r: cr, g: cg, b: cb } = n.rgb;
 
         ctx.globalAlpha = 1;
         ctx.shadowColor = color;
@@ -253,6 +254,7 @@ export default function PostGraph({ data }: { data: GraphData }) {
       canvas.height = height * dpr;
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       simulation.force("center", forceCenter(width / 2, height / 2));
       simulation.alpha(0.3).restart();
       genStars();

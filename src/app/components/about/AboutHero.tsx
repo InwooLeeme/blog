@@ -12,24 +12,24 @@ export default function AboutHero() {
       <div className="relative">
         <div
           aria-hidden
-          className="absolute -inset-1 rounded-full bg-gradient-to-br from-accent-brand/40 to-accent-brand/0 blur-md"
+          className="absolute -inset-4 rounded-full opacity-70 blur-2xl bg-[radial-gradient(circle,var(--accent-brand),transparent_70%)]"
         />
         <Image
           src="/avatar.png"
           alt={`${siteConfig.author} 아바타`}
           width={112}
           height={112}
-          className="relative h-28 w-28 rounded-full border ring-2 ring-accent-brand/30 ring-offset-2 ring-offset-background"
+          className="relative h-28 w-28 rounded-full ring-1 ring-accent-brand/70 shadow-lg shadow-accent-brand/20"
         />
       </div>
       <h1 className="mt-5 text-3xl font-bold tracking-tight">{siteConfig.author}</h1>
       <p className="mt-2 text-lg font-medium text-accent-brand">
-        Problem Solving과 웹 개발 그리고 AI에 관심이 있는 뉴비입니다.
+        문제를 풀고, 만들고, 기록합니다.
       </p>
       <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-        Problem Solving을 즐기고, 웹과 AI를 배우고 있는 뉴비입니다.
+        C++로 알고리즘 문제를 풀고, Next.js와 AI로 무언가를 만듭니다.
         <br/>
-        그날 풀었던 대회 문제나 새로 배운 것들을 기록합니다.
+        여기엔 그 과정에서 푼 문제와 새로 배운 것들을 남깁니다.
       </p>
       <div className="mt-5 flex items-center gap-2">
         <a

@@ -27,7 +27,7 @@ const COLORS = {
   nodeSeries: "#31CED2",
   nodeDefault: "#7b8196",
   edgeSeries: "#31CED2",
-  edgeTag: "#3f4557",
+  edgeTag: "#aab2d5",
   text: "#e6e8ef",
 };
 
@@ -150,14 +150,18 @@ export default function PostGraph({ data }: { data: GraphData }) {
 
       for (const l of links) {
         const dim = hovered && hovered.id !== l.source.id && hovered.id !== l.target.id;
-        ctx.strokeStyle = l.kind === "series" ? COLORS.edgeSeries : COLORS.edgeTag;
-        ctx.globalAlpha = dim ? 0.06 : l.kind === "series" ? 0.6 : 0.3;
-        ctx.lineWidth = l.kind === "series" ? 1.6 : 1;
+        const color = l.kind === "series" ? COLORS.edgeSeries : COLORS.edgeTag;
+        ctx.strokeStyle = color;
+        ctx.globalAlpha = dim ? 0.05 : l.kind === "series" ? 0.85 : 0.6;
+        ctx.lineWidth = l.kind === "series" ? 1.8 : 1.2;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = dim ? 0 : l.kind === "series" ? 6 : 3;
         ctx.beginPath();
         ctx.moveTo(l.source.x ?? 0, l.source.y ?? 0);
         ctx.lineTo(l.target.x ?? 0, l.target.y ?? 0);
         ctx.stroke();
       }
+      ctx.shadowBlur = 0;
 
       for (const n of nodes) {
         const isHovered = hovered?.id === n.id;

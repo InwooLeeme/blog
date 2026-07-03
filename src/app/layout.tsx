@@ -5,6 +5,7 @@ import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
+import ViewTransitionRejectionGuard from "./components/ViewTransitionRejectionGuard";
 import PageTransition from "./components/PageTransition";
 import { ThemeProvider } from "./components/ThemeProvider";
 import BackgroundDecor from "./components/BackgroundDecor";
@@ -95,6 +96,7 @@ export default function RootLayout({
               <Footer />
             </div>
             <ScrollToTop />
+            <ViewTransitionRejectionGuard />
           </ThemeProvider>
         </body>
       </html>

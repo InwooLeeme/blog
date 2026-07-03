@@ -71,7 +71,7 @@ export const projects: Project[] = [
       { label: "GitHub", href: "https://github.com/InwooLeeme/blog", type: "github" },
       { label: "Page", href: "https://inwooleeme.vercel.app", type: "external" },
     ],
-    image: "/assets/playground/BlogThumbnail.png",
+    image: "https://inwooleeme.github.io/assets/projects/BlogThumbnail.png",
     accent: "#f43f5e",
   },
   {
@@ -142,7 +142,7 @@ export const projects: Project[] = [
         type: "external"
       }
     ],
-    image: "/Nasdaq_Thumbnail.png",
+    image: "https://inwooleeme.github.io/assets/projects/Nasdaq_Thumbnail.png",
     accent: "#059669",
   },
   {
@@ -163,7 +163,7 @@ export const projects: Project[] = [
         type: "github",
       },
     ],
-    image: "/mcp_assistant_demo.png",
+    image: "https://inwooleeme.github.io/assets/projects/mcp_assistant_demo.png",
     accent: "#0891b2",
   },
   // TODO: 다른 프로젝트 추가

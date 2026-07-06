@@ -9,11 +9,15 @@ cover: "https://inwooleeme.github.io/assets/projects/mcp_assistant_demo.png"
 
 프로젝트 레포는 [여기](https://github.com/InwooLeeme/mcp-assistant)서 볼 수 있다.
 
-"카카오톡 켜줘", "뉴스 페이지 열어줘" 같은 말 한마디로 PC를 대신 조작해주는 개인 비서. 2025년 캡스톤 4인 팀 프로젝트로 처음 만들었고, 2026년에 이 구조를 그대로 다시 짰다.
+"카카오톡 켜줘", "뉴스 페이지 열어줘" 같은 말 한마디로 PC를 대신 조작해주는 개인 비서다.
+
+2025년 캡스톤 4인 팀 프로젝트로 처음 만들었고, 2026년에 이 구조를 그대로 다시 짰다.
 
 ### 2025년 캡스톤 프로젝트로 시작
 
-원래 버전은 PC에서 동작하는 시리와 빅스비와 비슷한 음성 비서였다. 마이크로 말하면 OpenAI의 Whisper로 STT를 처리하고, 명령 결과를 전달해서 MCP를 실행하는 "말로 시키면 PC가 알아서 움직인다"는 게 이 프로젝트의 재미였다.
+원래 버전은 PC에서 동작하는 시리와 빅스비와 비슷한 음성 비서였다.
+
+마이크로 말하면 OpenAI의 Whisper로 STT를 처리하고, 명령 결과를 전달해서 MCP를 실행하는 "말로 시키면 PC가 알아서 움직인다"는 게 이 프로젝트의 재미였다.
 
 이 프로젝트를 진행했을 당시에 구현적인 부분이나 디자인 및 MCP의 다양성 등 아쉬웠던 부분들이 많았고 이번에 개선을 진행했다.
 
@@ -37,9 +41,13 @@ cover: "https://inwooleeme.github.io/assets/projects/mcp_assistant_demo.png"
 
 ![MCP assistant 아키텍처](https://inwooleeme.github.io/assets/projects/architecture.png)
 
-클라이언트가 명령 입력창에서 문장을 보내면 Agent 백엔드의 API가 이를 받는다. 
+클라이언트가 명령 입력창에서 문장을 보내면 Agent 백엔드의 API가 이를 받는다.
 
 planner가 어떤 도구를 어떤 순서로 부를지 계획을 세우면, 파이썬 코드가 그 계획을 순서대로 MCP 서버에 넘겨 실행한다. 실행 결과는 SSE를 타고 다시 클라이언트로 흘러간다.
+
+아래는 성공적으로 작업을 수행한 모습이다 (+_+)
+
+![실행 화면](https://inwooleeme.github.io/assets/projects/mcp_assistant_result.png)
 
 ### 구조: 판단과 실행을 나눈다
 
@@ -58,11 +66,11 @@ MCP 서버가 제공하는 도구는 이렇다.
 - `close_program` — 실행 중인 프로그램 종료
 - `open_folder` — 주요 폴더 열기
 
-클라이언트(Next.js)가 `POST /command`로 문장을 보내면, 백엔드는 진행 상황을 Server-Sent Events로 스트리밍해준다. 
+클라이언트(Next.js)가 `POST /command`로 문장을 보내면, 백엔드는 진행 상황을 Server-Sent Events로 스트리밍해준다.
 
 그래서 "계획 수립 중 → 도구 호출 중 → 완료"가 화면에 그대로 보인다.
 
-판단(Agent 백엔드)과 실행(MCP 서버)을 나눠 둔 덕분에, MCP 서버는 이 프로젝트가 아닌 다른 LLM 클라이언트에서도 그대로 재사용할 수 있다. 
+판단(Agent 백엔드)과 실행(MCP 서버)을 나눠 둔 덕분에, MCP 서버는 이 프로젝트가 아닌 다른 LLM 클라이언트에서도 그대로 재사용할 수 있다.
 
 2025년에 진행한 부분에선 없던 부분인 MCP를 등록하는 부분을 새로 추가해보았는데 UI를 이용해서 로컬 서버(command + args)나 원격 서버(url)를 등록하기만 하면 된다.
 
@@ -72,21 +80,117 @@ MCP 서버가 제공하는 도구는 이렇다.
 
 글을 올리고 며칠 지나서 다시 열어봤는데 손 댈 곳이 몇 군데 더 보였다.
 
-제일 먼저 만진 건 에이전트 구조였다. 원래는 명령 하나에 planner가 계획을 세우고, executor가 그 계획을 하나씩 실행하고, selector가 다음 차례를 매번 LLM에게 물어보는 3단계 구조였다. 그러다 보니 명령 한 번에 Gemini 호출이 3번씩 나갔고, 무료 티어를 쓰는 입장에서는 그게 은근히 아까웠고 그리고 수행시간이 굉장히 오래 걸렸다.
+제일 먼저 만진 건 에이전트 구조였다.
 
-이건 한국인 입장에선 좋지 않다. 그래서 기존 구조를 다시 수정했다.
+원래는 명령 하나에 planner가 계획을 세우고, executor가 그 계획을 하나씩 실행하고, selector가 다음 차례를 매번 LLM에게 물어보는 3단계 구조였다.
 
-생각해보니 planner→executor 순서는 늘 고정이라 매번 LLM에게 "다음 누구 차례야?"라고 물어볼 필요가 없었다. 그래서 selector부터 없애고, 그다음엔 executor까지 걷어냈다. 지금은 planner가 세운 계획을 파이썬 코드가 그대로 순서대로 실행한다. 명령 하나당 Gemini 호출이 3번에서 1번으로 줄었다.
+그러다 보니 명령 한 번에 Gemini 호출이 3번씩 나갔고, 무료 티어를 쓰는 입장에서는 그게 은근히 아까웠고 그리고 수행시간이 굉장히 오래 걸렸다.
 
-두 번째로 만진 건 지난 글 끝에 적어뒀던 숙제였다. "클로드나 GPT처럼 이전 대화를 기억하게 만들겠다"고 써놨던 걸 이번에 실제로 만들었다. 사이드바에서 대화를 여러 개 만들고 전환할 수 있고, 같은 대화 안에서는 "메모장 열어줘" 다음에 "그거 닫아줘"처럼 이전 명령을 이어받는 게 된다. 대화 기록은 어차피 ~~켜줘, ~~실행해줘와 같은 단발적인 명령이라서 굳이
+이건 한국인 입장에선 좋지 않다.(ㅡ.,ㅡ)
 
-DB가 필요하진 않을 것 같아서 최대한 가볍게 브라우저 localStorage에 저장하도록 했다. 그래서 브라우저 localStorage에 저장되고, Agent 백엔드는 여전히 아무 상태도 들고 있지 않는다. 맥락의 주인은 항상 클라이언트다.
+그래서 기존 구조를 다시 수정했다.
 
-그 외에 메인 화면에서 바로 MCP 서버를 추가할 수 있는 모달도 붙였다. MCP 도구가 돌려주는 메시지가 대화 기록에 쌓여 매 턴 재전송되는 구조라, 신뢰할 수 없는 서버가 이상한 문구를 섞어 보내면 그게 다음 계획 수립에 지시처럼 오인될 수 있다는 것도 뒤늦게 깨달아서 planner 프롬프트에 안전장치를 추가했다.
+생각해보니 planner→executor 순서는 늘 고정이라 매번 LLM에게 "다음 누구 차례야?"라고 물어볼 필요가 없었다.
+
+그래서 selector부터 없애고, 그다음엔 executor까지 걷어냈다.
+
+지금은 planner가 세운 계획을 파이썬 코드가 그대로 순서대로 실행한다.
+
+명령 하나당 Gemini 호출이 3번에서 1번으로 줄었다.
+
+두 번째로 만진 건 지난 글 끝에 적어뒀던 기억에 관한 문제였고, 이번에 실제로 추가했다.
+
+사이드바에서 대화를 여러 개 만들고 전환할 수 있고, 같은 대화 안에서는 "메모장 열어줘" 다음에 "그거 닫아줘"처럼 이전 명령을 이어받는 게 된다.
+
+대화 기록은 어차피 ~~켜줘, ~~실행해줘와 같은 단발적인 명령이라서 굳이
+
+DB가 필요하진 않을 것 같아서 최대한 가볍게 브라우저 localStorage에 저장하도록 했다.
+
+그래서 브라우저 localStorage에 저장되고, Agent 백엔드는 여전히 아무 상태도 들고 있지 않는다.
+
+맥락의 주인은 항상 클라이언트다.
+
+그 외에 메인 화면에서 바로 MCP 서버를 추가할 수 있는 모달도 붙였다.
+
+MCP 도구가 돌려주는 메시지가 대화 기록에 쌓여 매 턴 재전송되는 구조라, 신뢰할 수 없는 서버가 이상한 문구를 섞어 보내면 그게 다음 계획 수립에 지시처럼 오인될 수 있다는 것도 뒤늦게 깨달아서 planner 프롬프트에 안전장치를 추가했다.
+
+### 성능이랑 자잘한 버그도 마저 잡았다
+
+정리하다 보니 성능도 눈에 밟혔다.
+
+`run_command_pipeline` 코드를 보니 요청이 들어올 때마다 `AsyncExitStack`을 새로 열어서 등록된 MCP 서버 하나하나에 `McpWorkbench`로 접속하고(내부적으로 각 서버 프로세스를 fork), `list_tools()`로 도구 목록을 긁어와 라우팅 테이블을 다시 만들고 있었다.
+
+LLM 클라이언트도 요청마다 `get_model_client`로 새로 만들었다가 끝나면 `close()`로 버리는 구조였다.
+
+즉 명령 한 번 처리하는 데 필요한 이 초기화 과정을 매번 처음부터 반복하고 있었던 거다.
+
+그래서 이 연결들을 요청 단위가 아니라 앱 단위로 끌어올렸다.
+
+`McpPool`이라는 클래스를 새로 만들어서 서버 접속·도구 라우팅 결과(`_stack`, `_tools`, `_router`)를 인스턴스에 들고 있게 하고, FastAPI의 `lifespan`에서 앱이 뜰 때 `app.state.pool = McpPool()`과 `app.state.llm = get_model_client(...)`을 한 번만 만든다.
+
+`/command` 핸들러는 매 요청마다 `pool.acquire()`를 호출하는데, 이때 실제 접속은 첫 요청에서만 일어나고 이후에는 캐시된 도구·라우터를 그대로 돌려준다.
+
+여러 요청이 동시에 들어와 접속 시점이 겹치는 걸 막으려고 `acquire()` 내부는 `asyncio.Lock`으로 감쌌다.
+
+MCP 서버를 추가·삭제하는 엔드포인트에서는 `pool.invalidate()`를 호출해 캐시된 접속을 닫고 초기화해서, 다음 요청에서 새 서버 목록으로 다시 연결되게 했다.
+
+앱이 내려갈 때는 `lifespan`의 `finally`에서 `pool.aclose()`와 `llm.close()`로 정리한다.
+
+덕분에 `pipeline.py` 쪽은 서버 접속 코드를 다 걷어내고 이미 만들어진 tools·router·client를 인자로 받아 쓰기만 하면 되도록 단순해졌다.
+
+`main.py`의 `lifespan`은 이렇게 생겼다.
+
+```python
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.pool = McpPool()
+    app.state.llm = get_model_client(config.PLANNER_MODEL)
+    try:
+        yield
+    finally:
+        await app.state.pool.aclose()
+        await app.state.llm.close()
+
+
+app = FastAPI(lifespan=lifespan)
+```
+
+그리고 `McpPool`은 이렇게 지연 연결과 캐시를 관리한다.
+
+```python
+class McpPool:
+    def __init__(self) -> None:
+        self._stack: AsyncExitStack | None = None
+        self._tools: list[dict] | None = None
+        self._router: dict[str, McpWorkbench] | None = None
+        self._lock = asyncio.Lock()
+
+    async def acquire(self) -> tuple[list[dict], dict[str, McpWorkbench]]:
+        async with self._lock:
+            if self._stack is None:
+                await self._connect()  # 서버 접속 + list_tools()는 최초 1회만
+            return self._tools, self._router
+
+    async def invalidate(self) -> None:
+        async with self._lock:
+            if self._stack is not None:
+                await self._stack.aclose()
+            self._stack = None
+            self._tools = None
+            self._router = None
+```
+
+버그도 하나 잡았다.
+
+"유튜브 켜줘"처럼 검색어 없이 요청하면 planner가 `play_youtube`를 빈 검색어로 그대로 호출했고, 그러면 yt-dlp가 이해 못 하는 에러가 사용자에게 그대로 노출됐다.
+
+planner 프롬프트에 검색어가 없으면 `open_url`로 사이트만 열도록 안내를 추가하고, `play_youtube` 쪽에도 빈 검색어를 미리 걸러 명확한 한국어 에러 메시지를 돌려주도록 했다.
 
 ### 돌아보며
 
-음성을 빼고 나니 오히려 이 프로젝트가 원래 하려던 일이 더 또렷해졌다. "말을 알아듣는다"는 화려함 뒤에 가려져 있던 진짜 핵심은 언제나 "의도를 계획으로, 계획을 실행으로 옮기는 파이프라인"이었다.
+음성을 빼고 나니 오히려 이 프로젝트가 원래 하려던 일이 더 또렷해졌다.
+
+"말을 알아듣는다"는 화려함 뒤에 가려져 있던 진짜 핵심은 언제나 "의도를 계획으로, 계획을 실행으로 옮기는 파이프라인"이었다.
 
 ### 실행 방법
 
@@ -98,10 +202,14 @@ npm --prefix client install
 npm --prefix client run dev     # http://localhost:3000
 ```
 
-Windows 전용이라 프로그램 실행·미디어 제어에 Windows 네이티브 API를 쓴다. Gemini API 키가 필요하다.
+Windows 전용이라 프로그램 실행·미디어 제어에 Windows 네이티브 API를 쓴다.
+
+Gemini API 키가 필요하다.
 
 ### 개선해야할 사항
 
-지난 글에 적어뒀던 대화 기억은 이번에 만들었다. 그런데 지금은 로컬에서 동작하긴 하지만 데스크톱 앱 형태가 아니다.
+지난 글에 적어뒀던 대화 기억은 이번에 만들었다.
+
+그런데 지금은 로컬에서 동작하긴 하지만 데스크톱 앱 형태가 아니다.
 
 그래서 이 부분을 좀 개선해야할 것 같다.

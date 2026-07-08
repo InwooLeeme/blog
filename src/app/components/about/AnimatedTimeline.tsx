@@ -1,10 +1,27 @@
 "use client";
 
 import * as React from "react";
+import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TimelineItem } from "./Timeline";
 
 const ITEM_DELAY_MS = 160;
+
+function TimelineLink({ link }: { link: NonNullable<TimelineItem["link"]> }) {
+  const external = /^https?:\/\//.test(link.href);
+
+  return (
+    <a
+      href={link.href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noreferrer" : undefined}
+      className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-accent-brand transition hover:underline"
+    >
+      {link.label}
+      {external ? <ExternalLink className="h-3 w-3" /> : null}
+    </a>
+  );
+}
 
 /**
  * 뷰포트에 들어오면 세로선이 위→아래로 그려지고
@@ -73,6 +90,7 @@ export default function AnimatedTimeline({ items }: { items: TimelineItem[] }) {
             {it.detail ? (
               <p className="mt-0.5 text-sm text-muted-foreground">{it.detail}</p>
             ) : null}
+            {it.link ? <TimelineLink link={it.link} /> : null}
           </div>
         </li>
       ))}

@@ -2,42 +2,132 @@
  * About 페이지 데이터.
  */
 
+export const aboutSummary = [
+  "알고리즘 문제 해결을 좋아하고, 그 사고방식을 웹/AI 도구 개발에 적용합니다.",
+  "Next.js 기반 서비스와 MCP/LLM 에이전트 프로젝트를 만들고 있습니다.",
+  "성능 개선, 자동화, 지식 기록에 관심이 많습니다.",
+] as const;
+
 /** 기술 스택 — 카테고리별 묶음 */
-export type TechCategory = { category: string; items: string[] };
+export type TechLevel = "main" | "used" | "learning";
+export type TechItem = { name: string; level: TechLevel };
+export type TechCategory = { category: string; items: TechItem[] };
+
+export const techLevelLabels: Record<TechLevel, string> = {
+  main: "주력",
+  used: "실전 사용",
+  learning: "탐색",
+};
 
 export const techStack: TechCategory[] = [
-  { category: "Languages", items: ["C++", "TypeScript", "JavaScript", "Python", "Rust"] },
-  { category: "Frontend", items: ["React", "Next.js", "Tailwind CSS", "MDX", "lightweight-charts", "Tauri"] },
-  { category: "Backend · AI", items: ["FastAPI", "SQLite", "LangChain.js", "AutoGen", "Google Gemini"] },
-  { category: "Tooling", items: ["Git", "Vercel"] },
+  {
+    category: "Languages",
+    items: [
+      { name: "C++", level: "main" },
+      { name: "TypeScript", level: "main" },
+      { name: "JavaScript", level: "used" },
+      { name: "Python", level: "used" },
+      { name: "Rust", level: "learning" },
+    ],
+  },
+  {
+    category: "Frontend",
+    items: [
+      { name: "React", level: "main" },
+      { name: "Next.js", level: "main" },
+      { name: "Tailwind CSS", level: "used" },
+      { name: "MDX", level: "used" },
+      { name: "lightweight-charts", level: "used" },
+      { name: "Tauri", level: "learning" },
+    ],
+  },
+  {
+    category: "Backend · AI",
+    items: [
+      { name: "FastAPI", level: "used" },
+      { name: "SQLite", level: "used" },
+      { name: "LangChain.js", level: "used" },
+      { name: "AutoGen", level: "learning" },
+      { name: "Google Gemini", level: "used" },
+    ],
+  },
+  {
+    category: "Tooling",
+    items: [
+      { name: "Git", level: "used" },
+      { name: "Vercel", level: "used" },
+    ],
+  },
 ];
 
 /** 수상 이력 */
-export type Award = { date: string; title: string; detail?: string };
+export type TimelineLink = { label: string; href: string };
+export type Award = { date: string; title: string; detail?: string; link?: TimelineLink };
 
 export const awards: Award[] = [
-  { date : "2024", title: "전남대학교 소프트웨어중심대학 제7회 SW프로그래밍 경진대회(호남•제주권)", detail: "장려상"},
-  { date: "2024", title: "ICPC 전북대학교 예선 경시대회", detail: "금상" },
-  { date: "2025", title: "ICPC 전북대학교 예선 경시대회", detail: "금상"},
-  { date: "2025", title: "한국정보기술학회 하계종합학술대회 대학생 논문경진대회", detail: "우수논문상 · 「MCP 기반 PC용 개인 음성 비서 시스템 구축 방안」"}
+  {
+    date : "2024",
+    title: "전남대학교 소프트웨어중심대학 제7회 SW프로그래밍 경진대회(호남•제주권)",
+    detail: "장려상 · 알고리즘 문제 해결 역량을 평가받은 권역 대회"
+  },
+  {
+    date: "2024",
+    title: "ICPC 전북대학교 예선 경시대회",
+    detail: "금상 · 팀 기반 알고리즘 경시대회"
+  },
+  {
+    date: "2025",
+    title: "ICPC 전북대학교 예선 경시대회",
+    detail: "금상 · 전년도에 이어 참가"
+  },
+  {
+    date: "2025",
+    title: "한국정보기술학회 하계종합학술대회 대학생 논문경진대회",
+    detail: "우수논문상 · 「MCP 기반 PC용 개인 음성 비서 시스템 구축 방안」",
+    link: { label: "관련 프로젝트 글", href: "/blog/mcp_assistant" },
+  }
 ];
 
 /** 대회 참가 이력 */
-export type Competition = { date: string; name: string; result?: string };
+export type Competition = { date: string; name: string; result?: string; link?: TimelineLink };
 
 export const competitions: Competition[] = [
-  { date: "2022", name: "UCPC 예선", result: "240th" },
-  { date: "2024", name: "UCPC 예선", result: "132th" },
-  { date: "2025", name: "UCPC 예선", result: "135th" }
+  {
+    date: "2022",
+    name: "UCPC 예선",
+    result: "240th · 알고리즘 대회 참가 기록"
+  },
+  {
+    date: "2024",
+    name: "UCPC 예선",
+    result: "132th · 팀 대회 경험 확장"
+  },
+  {
+    date: "2025",
+    name: "UCPC 예선",
+    result: "135th · 꾸준히 참가한 알고리즘 대회"
+  }
 ];
 
 /** 알고리즘 대회 출제 및 운영 */
-export type ContestWork = { date: string; title: string; detail?: string };
+export type ContestWork = { date: string; title: string; detail?: string; link?: TimelineLink };
 
 export const contestWorks: ContestWork[] = [
-  { date: "2024", title: "전북대학교 알고리즘 경진대회", detail: "출제 · 운영" },
-  { date: "2025", title: "전북대학교 알고리즘 경진대회", detail: "출제 · 운영" },
-  { date: "2026", title: "전북대학교 알고리즘 경진대회", detail: "출제 · 운영" }
+  {
+    date: "2024",
+    title: "전북대학교 알고리즘 경진대회",
+    detail: "출제 · 운영 · 참가자가 풀 수 있는 난이도와 검증 가능한 풀이를 함께 고민",
+  },
+  {
+    date: "2025",
+    title: "전북대학교 알고리즘 경진대회",
+    detail: "출제 · 운영 · 문제 조건, 예외 케이스, 채점 데이터 검토",
+  },
+  {
+    date: "2026",
+    title: "전북대학교 알고리즘 경진대회",
+    detail: "출제 · 운영 · 문제 조건, 예외 케이스, 채점 데이터, 대회 난이도 검토",
+  }
 ];
 
 /** 프로젝트 */
@@ -170,12 +260,33 @@ export const projects: Project[] = [
   // TODO: 다른 프로젝트 추가
 ];
 
+export type WorkingStyle = {
+  title: string;
+  detail: string;
+};
+
+export const workingStyles: WorkingStyle[] = [
+  {
+    title: "문제를 작게 쪼개고 검증합니다",
+    detail: "느리다, 불편하다 같은 감각적인 문제를 응답 크기, 호출 횟수, 렌더링 방식처럼 확인 가능한 단위로 나눕니다.",
+  },
+  {
+    title: "알고리즘식 사고를 구현에 가져옵니다",
+    detail: "조건과 예외를 먼저 정리하고, 자료구조나 캐싱처럼 문제의 병목을 줄이는 선택지를 찾는 편입니다.",
+  },
+  {
+    title: "만든 과정을 글로 남깁니다",
+    detail: "완성된 결과만 남기기보다 왜 바꿨는지, 무엇이 실패했는지, 다음에 무엇을 고칠지까지 기록하려고 합니다.",
+  },
+];
+
 /** 자격증 — nameEn은 선택(영문명) */
 export type Certification = {
   date: string;
   name: string;
   nameEn?: string;
   issuer?: string;
+  link?: TimelineLink;
 };
 
 export const certifications: Certification[] = [

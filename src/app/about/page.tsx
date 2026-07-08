@@ -3,6 +3,7 @@ import { Trophy, Medal, PenTool, BadgeCheck } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 import Reveal from "../components/Reveal";
 import { awards, competitions, contestWorks, certifications } from "@/lib/about";
+import AboutSummary from "../components/about/AboutSummary";
 import AboutHero from "../components/about/AboutHero";
 import AnimatedTimeline from "../components/about/AnimatedTimeline";
 import ProjectsSection from "../components/about/ProjectsSection";
@@ -10,6 +11,7 @@ import TechStackSection from "../components/about/TechStackSection";
 import TocSpy from "../components/about/TocSpy";
 import { SectionHeading } from "../components/about/Timeline";
 import { ChatbotLauncher } from "../components/ChatbotLauncher";
+import WorkingStyleSection from "../components/about/WorkingStyleSection";
 
 export const metadata: Metadata = {
   title: "About",
@@ -23,6 +25,7 @@ const sections = [
   { id: "competitions", label: "대회 참가 이력" },
   { id: "contest-works", label: "알고리즘 대회 출제 및 운영" },
   { id: "projects", label: "프로젝트" },
+  { id: "working-style", label: "작업 방식" },
   { id: "certifications", label: "자격증" },
 ];
 
@@ -31,6 +34,9 @@ export default function AboutPage() {
     <div className="mx-auto max-w-3xl px-4 py-10">
       <TocSpy sections={sections} />
       <AboutHero />
+      <Reveal>
+        <AboutSummary />
+      </Reveal>
 
       {/* solved.ac 프로필 카드 — 클릭 시 프로필로 이동, 티어 변동 시 자동 갱신 */}
       <Reveal>
@@ -83,7 +89,12 @@ export default function AboutPage() {
           <section id="awards" className="scroll-mt-24">
             <SectionHeading icon={<Trophy className="h-5 w-5" />}>수상 이력</SectionHeading>
             <AnimatedTimeline
-              items={awards.map((a) => ({ date: a.date, title: a.title, detail: a.detail }))}
+              items={awards.map((a) => ({
+                date: a.date,
+                title: a.title,
+                detail: a.detail,
+                link: a.link,
+              }))}
             />
           </section>
         </Reveal>
@@ -93,7 +104,12 @@ export default function AboutPage() {
           <section id="competitions" className="scroll-mt-24">
             <SectionHeading icon={<Medal className="h-5 w-5" />}>대회 참가 이력</SectionHeading>
             <AnimatedTimeline
-              items={competitions.map((c) => ({ date: c.date, title: c.name, detail: c.result }))}
+              items={competitions.map((c) => ({
+                date: c.date,
+                title: c.name,
+                detail: c.result,
+                link: c.link,
+              }))}
             />
           </section>
         </Reveal>
@@ -105,7 +121,12 @@ export default function AboutPage() {
               알고리즘 대회 출제 및 운영
             </SectionHeading>
             <AnimatedTimeline
-              items={contestWorks.map((c) => ({ date: c.date, title: c.title, detail: c.detail }))}
+              items={contestWorks.map((c) => ({
+                date: c.date,
+                title: c.title,
+                detail: c.detail,
+                link: c.link,
+              }))}
             />
           </section>
         </Reveal>
@@ -113,7 +134,12 @@ export default function AboutPage() {
         {/* 5. 프로젝트 */}
         <ProjectsSection />
 
-        {/* 6. 자격증 */}
+        {/* 6. 작업 방식 */}
+        <Reveal>
+          <WorkingStyleSection />
+        </Reveal>
+
+        {/* 7. 자격증 */}
         <Reveal>
           <section id="certifications" className="scroll-mt-24">
             <SectionHeading icon={<BadgeCheck className="h-5 w-5" />}>자격증</SectionHeading>
@@ -122,6 +148,7 @@ export default function AboutPage() {
                 date: c.date,
                 title: c.name,
                 detail: [c.nameEn, c.issuer].filter(Boolean).join(" · "),
+                link: c.link,
               }))}
             />
           </section>

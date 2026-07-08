@@ -4,11 +4,16 @@ import * as React from "react";
 import { Code2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { techChipStyle } from "@/lib/tech";
-import { techStack } from "@/lib/about";
+import { techLevelLabels, techStack, type TechLevel } from "@/lib/about";
 import BrandIcon from "../icon/BrandIcon";
 import { SectionHeading } from "./Timeline";
 
 const CHIP_DELAY_MS = 60;
+const levelTone: Record<TechLevel, string> = {
+  main: "border-accent-brand/40 bg-accent-brand/10 text-accent-brand",
+  used: "border-border bg-muted/60 text-muted-foreground",
+  learning: "border-dashed border-border bg-background text-muted-foreground",
+};
 
 /**
  * 기술 스택 섹션 — 칩이 물결처럼 순서대로 등장하고, 호버 시 튀어오름.
@@ -46,6 +51,19 @@ export default function TechStackSection() {
   return (
     <section ref={ref} id="tech-stack" className="scroll-mt-24">
       <SectionHeading icon={<Code2 className="h-5 w-5" />}>기술 스택</SectionHeading>
+      <div className="mb-4 flex flex-wrap gap-1.5 text-xs">
+        {Object.entries(techLevelLabels).map(([level, label]) => (
+          <span
+            key={level}
+            className={cn(
+              "rounded-md border px-2 py-0.5 font-medium",
+              levelTone[level as TechLevel],
+            )}
+          >
+            {label}
+          </span>
+        ))}
+      </div>
       <div className="space-y-4">
         {techStack.map((group) => (
           <div key={group.category}>
@@ -57,7 +75,7 @@ export default function TechStackSection() {
                 const delay = chipIndex++ * CHIP_DELAY_MS;
                 return (
                   <span
-                    key={item}
+                    key={item.name}
                     style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
                     className={cn(
                       "inline-block transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none",
@@ -65,11 +83,19 @@ export default function TechStackSection() {
                     )}
                   >
                     <span
-                      style={techChipStyle(item)}
+                      style={techChipStyle(item.name)}
                       className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-sm font-medium shadow-sm transition duration-200 hover:-translate-y-1 hover:-rotate-2 hover:shadow-md"
                     >
-                      <BrandIcon tech={item} className="shrink-0 text-[1.05em]" />
-                      {item}
+                      <BrandIcon tech={item.name} className="shrink-0 text-[1.05em]" />
+                      {item.name}
+                      <span
+                        className={cn(
+                          "ml-1 rounded border px-1.5 py-0.5 text-[10px] leading-none",
+                          levelTone[item.level],
+                        )}
+                      >
+                        {techLevelLabels[item.level]}
+                      </span>
                     </span>
                   </span>
                 );

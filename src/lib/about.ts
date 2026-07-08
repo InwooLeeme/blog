@@ -6,8 +6,8 @@
 export type TechCategory = { category: string; items: string[] };
 
 export const techStack: TechCategory[] = [
-  { category: "Languages", items: ["C++", "TypeScript", "Python"] },
-  { category: "Frontend", items: ["React", "Next.js", "Tailwind CSS"] },
+  { category: "Languages", items: ["C++", "TypeScript", "JavaScript", "Python", "Rust"] },
+  { category: "Frontend", items: ["React", "Next.js", "Tailwind CSS", "MDX", "lightweight-charts", "Tauri"] },
   { category: "Backend · AI", items: ["FastAPI", "SQLite", "LangChain.js", "AutoGen", "Google Gemini"] },
   { category: "Tooling", items: ["Git", "Vercel"] },
 ];
@@ -149,13 +149,14 @@ export const projects: Project[] = [
     name: "MCP Assistant",
     meta: "2025–2026 · 캡스톤 → 개인 업그레이드",
     highlights: [
-      "2025년 캡스톤 프로젝트로 시작한 MCP 기반 PC 비서를 2026년에 재구축한 프로젝트",
+      "2025년 캡스톤 프로젝트로 시작한 MCP 기반 PC 음성 비서를 2026년에 텍스트 기반으로 재구축한 프로젝트",
       "\"카카오톡 실행해 줘\", \"카페 음악 재생해 줘\" 같은 말을 하면 LLM이 알아듣고 실제로 PC를 조작해 준다",
-      "LLM이 판단하는 부분(Agent)과 OS를 직접 건드리는 부분(MCP 서버)을 분리했다 — Agent는 뭘 할지 계획만 세우고 실행은 MCP 서버가 맡아서, MCP 서버는 다른 클라이언트에서도 그대로 재사용할 수 있다",
-      "프로그램 실행·URL/유튜브 재생·미디어 제어·폴더 열기 같은 도구를 만들어 뒀고, mcp_servers.json에 새 서버만 등록하면 비서가 그 도구를 바로 쓸 수 있도록 확장 구조를 잡았다",
-      "명령을 처리하는 동안 진행 상황과 결과를 SSE로 흘려보내서 화면에서 실시간으로 확인할 수 있다",
+      "LLM이 판단하는 부분(Agent)과 OS를 직접 건드리는 부분(MCP 서버)을 분리 — MCP 서버는 다른 클라이언트에서도 그대로 재사용할 수 있다",
+      "프로그램 실행·URL/유튜브 재생·미디어 제어·폴더 열기 같은 도구를 mcp_servers.json 등록만으로 확장할 수 있고, 처리 과정은 SSE로 실시간 스트리밍된다",
+      "2026: planner 단독 실행으로 구조를 단순화해 명령당 Gemini 호출을 3회→1회로 줄이고, `McpPool`로 서버 접속을 캐싱해 응답 지연을 줄였다 · 프롬프트 인젝션 안전장치도 추가",
+      "2026: 사이드바에서 여러 대화를 관리하며 맥락을 이어가는 대화 기억 기능 추가, Tauri + PyInstaller로 데스크톱 앱 패키징",
     ],
-    tech: ["Next.js", "TypeScript", "FastAPI", "Python", "AutoGen", "Google Gemini"],
+    tech: ["Next.js", "TypeScript", "Tauri", "Rust", "FastAPI", "Python", "AutoGen", "Google Gemini", "yt-dlp"],
     links: [
       {
         label: "GitHub",

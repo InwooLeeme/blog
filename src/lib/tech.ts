@@ -17,6 +17,8 @@ import {
   siGooglegemini,
   siUpstash,
   siLangchain,
+  siTauri,
+  siRust,
 } from "simple-icons";
 
 /**
@@ -48,6 +50,8 @@ export const TECH: Record<string, TechMeta> = {
   FastAPI: { icon: siFastapi },
   SQLite: { icon: siSqlite, color: "#0ea5e9" },
   "lightweight-charts": { color: "#2962FF" },
+  Tauri: { icon: siTauri },
+  Rust: { icon: siRust, color: "var(--foreground)" },
 };
 
 /** 매핑에 없을 때 */

@@ -61,6 +61,11 @@ export const TECH_COLOR_FALLBACK = "var(--accent-brand)";
 const CHIP_BG_TINT = 12;
 const CHIP_BORDER_TINT = 28;
 
+/** 색상을 투명 배경과 섞어 옅은 틴트를 만든다 */
+export function tintColor(color: string, percent: number): string {
+  return `color-mix(in oklab, ${color} ${percent}%, transparent)`;
+}
+
 /** 기술의 표시 색 */
 export function techColor(tech: string): string {
   const meta = TECH[tech];
@@ -79,7 +84,7 @@ export function techChipStyle(tech: string): CSSProperties {
   const color = techColor(tech);
   return {
     color,
-    backgroundColor: `color-mix(in oklab, ${color} ${CHIP_BG_TINT}%, transparent)`,
-    borderColor: `color-mix(in oklab, ${color} ${CHIP_BORDER_TINT}%, transparent)`,
+    backgroundColor: tintColor(color, CHIP_BG_TINT),
+    borderColor: tintColor(color, CHIP_BORDER_TINT),
   };
 }

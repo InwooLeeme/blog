@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type WheelEvent } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { ChevronLeftIcon, ChevronRightIcon, GalleryHorizontalIcon, LayoutGridIcon, XIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, GalleryHorizontalIcon, LandmarkIcon, LayoutGridIcon, XIcon } from "lucide-react";
 import { EFFECTS, type Effect } from "@/app/components/effects/registry";
+import MuseumWall from "./MuseumWall";
 
 const CARD_W = 220;
 const CARD_H = 300; // 포스터 비율
@@ -22,6 +23,13 @@ const MOUNT_RANGE = 2; // 중앙 기준 이 범위 밖 카드는 캔버스 이�
 const ICON_BTN = "grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20";
 // 메이슨리 타일마다 결정적으로 배정하는 세로 비율(핀터레스트 리듬) — id 기반이라 리렌더에도 흔들리지 않음
 const MASONRY_ASPECTS = ["aspect-[3/4]", "aspect-square", "aspect-[3/5]", "aspect-[4/5]", "aspect-[2/3]"];
+
+type View = "museum" | "grid" | "coverflow";
+const VIEWS = [
+  { id: "museum", label: "미술관으로 보기", Icon: LandmarkIcon },
+  { id: "grid", label: "메이슨리로 보기", Icon: LayoutGridIcon },
+  { id: "coverflow", label: "커버플로우로 보기", Icon: GalleryHorizontalIcon },
+] as const;
 
 /** id 문자열을 결정적 정수로 해시(FNV-1a) — 인덱스 순서와 무관하게 비율을 흩어서 배정 */
 function hashString(id: string) {
@@ -90,7 +98,7 @@ export default function EffectCarousel() {
   const lastTime = useRef(0);
   const [index, setIndex] = useState(0);
   const [active, setActive] = useState<Effect | null>(null);
-  const [showCoverflow, setShowCoverflow] = useState(false);
+  const [view, setView] = useState<View>("museum");
   const [hoveredGridIndex, setHoveredGridIndex] = useState<number | null>(null);
 
   const goTo = (i: number) => {
@@ -183,17 +191,27 @@ export default function EffectCarousel() {
   return (
     <>
       <div className="mb-2 flex justify-end">
-        <button
-          type="button"
-          aria-label={showCoverflow ? "메이슨리로 보기" : "커버플로우로 보기"}
-          onClick={() => setShowCoverflow((v) => !v)}
-          className="grid h-8 w-8 place-items-center rounded-full text-zinc-400 transition hover:bg-white/10 hover:text-zinc-100"
-        >
-          {showCoverflow ? <LayoutGridIcon className="h-4 w-4" /> : <GalleryHorizontalIcon className="h-4 w-4" />}
-        </button>
+        <div className="flex items-center gap-1 rounded-full border p-1">
+          {VIEWS.map(({ id, label, Icon }) => (
+            <button
+              key={id}
+              type="button"
+              aria-label={label}
+              aria-pressed={view === id}
+              onClick={() => setView(id)}
+              className={`grid h-7 w-7 place-items-center rounded-full transition ${
+                view === id ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+            </button>
+          ))}
+        </div>
       </div>
 
-      {!showCoverflow ? (
+      {view === "museum" && <MuseumWall onSelect={setActive} />}
+
+      {view === "grid" && (
         <div className="columns-2 gap-3 sm:columns-3 lg:columns-4">
           {EFFECTS.map((eff, i) => (
             <button
@@ -211,7 +229,9 @@ export default function EffectCarousel() {
             </button>
           ))}
         </div>
-      ) : (
+      )}
+
+      {view === "coverflow" && (
         <>
           <div
             role="region"

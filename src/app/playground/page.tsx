@@ -8,12 +8,6 @@ export const metadata: Metadata = {
   alternates: { canonical: "/playground" },
 };
 
-const highlights = [
-  { label: "Canvas effects", icon: Sparkles },
-  { label: "Grid / Coverflow", icon: Grid3X3 },
-  { label: "Fullscreen preview", icon: Maximize2 },
-];
-
 export default function Playground() {
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
@@ -31,18 +25,6 @@ export default function Playground() {
               웹에서 직접 실험한 캔버스 이펙트와 인터랙션을 모아둔 공간입니다.
               가볍게 둘러보고 마음에 드는 장면은 화면 전체로 감상할 수 있습니다.
             </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {highlights.map(({ label, icon: Icon }) => (
-              <span
-                key={label}
-                className="inline-flex items-center gap-1.5 rounded-md border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm"
-              >
-                <Icon className="h-3.5 w-3.5 text-accent-brand" />
-                {label}
-              </span>
-            ))}
           </div>
         </div>
       </header>

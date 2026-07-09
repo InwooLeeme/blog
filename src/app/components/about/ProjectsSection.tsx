@@ -7,7 +7,7 @@ import { FolderGit2, ExternalLink } from "lucide-react";
 import { techChipStyle, TECH_COLOR_FALLBACK } from "@/lib/tech";
 import BrandIcon from "../icon/BrandIcon";
 import IconGithub from "../icon/IconGithub";
-import SpotlightCard from "./SpotlightCard";
+import SpotlightCard, { CARD_ENTER_TRANSITION } from "./SpotlightCard";
 import { SectionHeading } from "./Timeline";
 import { useT } from "../LocaleProvider";
 import { useAboutData } from "./useAboutData";
@@ -54,7 +54,11 @@ export default function ProjectsSection() {
                   initial={reducedMotion ? false : { scaleX: 0 }}
                   whileInView={reducedMotion ? undefined : { scaleX: 1 }}
                   viewport={{ once: true, amount: 0.6 }}
-                  transition={{ duration: 0.4, delay: 0.15, ease: "easeOut" }}
+                  transition={{
+                    duration: 0.4,
+                    delay: CARD_ENTER_TRANSITION.duration * 0.3,
+                    ease: "easeOut",
+                  }}
                 />
                 {p.meta ? (
                   <p className="text-xs font-medium tabular-nums text-muted-foreground">

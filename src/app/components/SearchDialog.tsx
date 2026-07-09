@@ -9,6 +9,7 @@ import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { PostMeta } from "@/lib/posts";
+import { useT } from "./LocaleProvider";
 
 type Item = { slug: string; meta: PostMeta };
 
@@ -24,6 +25,7 @@ const FUSE_OPTIONS: IFuseOptions<Item> = {
 };
 
 export default function SearchDialog() {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<Item[] | null>(null);
   const [fuse, setFuse] = useState<Fuse<Item> | null>(null);
@@ -65,7 +67,7 @@ export default function SearchDialog() {
   return (
     <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
       <DialogPrimitive.Trigger asChild>
-        <Button variant="ghost" size="icon" aria-label="게시글 검색">
+        <Button variant="ghost" size="icon" aria-label={t("search.open")}>
           <Search className="h-5 w-5" />
         </Button>
       </DialogPrimitive.Trigger>
@@ -77,10 +79,10 @@ export default function SearchDialog() {
           className="fixed left-1/2 top-[20%] z-50 w-[min(92vw,560px)] -translate-x-1/2 rounded-xl border bg-background p-4 shadow-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
         >
           <DialogPrimitive.Title className="sr-only">
-            게시글 검색
+            {t("search.title")}
           </DialogPrimitive.Title>
           <DialogPrimitive.Description className="sr-only">
-            제목, 태그, 요약으로 게시글을 검색합니다.
+            {t("search.desc")}
           </DialogPrimitive.Description>
 
           <div className="relative">
@@ -93,13 +95,13 @@ export default function SearchDialog() {
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="제목, 태그, 요약으로 검색..."
-              aria-label="검색어 입력"
+              placeholder={t("search.placeholder")}
+              aria-label={t("search.inputAria")}
               className="w-full rounded-lg border bg-background pl-9 pr-10 py-2 text-sm outline-none focus:ring-2 focus:ring-accent-brand"
             />
             <DialogPrimitive.Close
               className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground transition hover:text-foreground"
-              aria-label="검색 닫기"
+              aria-label={t("search.close")}
             >
               <X className="h-4 w-4" />
             </DialogPrimitive.Close>
@@ -108,13 +110,13 @@ export default function SearchDialog() {
           <div className="mt-3 max-h-[60vh] overflow-y-auto">
             {!items ? (
               <p className="py-8 text-center text-sm text-muted-foreground">
-                불러오는 중...
+                {t("search.loading")}
               </p>
             ) : results.length === 0 ? (
               <p className="py-8 text-center text-sm text-muted-foreground">
                 {query.trim()
-                  ? `“${query.trim()}”에 해당하는 게시글이 없습니다.`
-                  : "게시글이 없습니다."}
+                  ? t("search.noResultsFor", { q: query.trim() })
+                  : t("search.empty")}
               </p>
             ) : (
               <ul className="space-y-1">

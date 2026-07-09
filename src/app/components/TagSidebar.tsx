@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Hash, LayoutGrid } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 import IconGithub from "./icon/IconGithub";
+import { useT } from "./LocaleProvider";
 
 export type TagCount = { tag: string; count: number };
 
@@ -21,7 +22,7 @@ export default function TagSidebar({
   avatarSrc = "/avatar.png",
   avatarAlt = "Blog Avatar",
   profileName = siteConfig.author,
-  profileDescription = "C++로 문제를 풀고, Next.js와 AI로 만듭니다."
+  profileDescription,
 }: {
   tagCounts: TagCount[];
   totalCount: number;
@@ -35,6 +36,7 @@ export default function TagSidebar({
   profileName?: string;
   profileDescription? : string
 }) {
+  const t = useT();
   const sorted = React.useMemo(() => {
     return [...tagCounts].sort(
       (a, b) => b.count - a.count || (a.tag < b.tag ? -1 : a.tag > b.tag ? 1 : 0)
@@ -98,7 +100,7 @@ export default function TagSidebar({
             </h3>
           </Link>
           <p className="mt-1 text-xs text-muted-foreground">
-            {profileDescription}
+            {profileDescription ?? t("sidebar.profileDesc")}
           </p>
           <div className="mt-3 flex items-center gap-2">
             <a

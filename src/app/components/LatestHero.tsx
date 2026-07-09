@@ -4,6 +4,7 @@ import { Calendar, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PostItem } from "@/lib/posts";
 import { formatPostDate, getCoverSrc } from "@/lib/post-display";
+import Tr from "./Tr";
 
 export default function LatestHero({ posts }: { posts: PostItem[] }) {
   const latest = posts.slice(0, 4);
@@ -55,7 +56,7 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
               {first.meta.readingTime ? (
                 <span className="inline-flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  {first.meta.readingTime}분
+                  <Tr id="post.readingTime" params={{ n: first.meta.readingTime }} />
                 </span>
               ) : null}
             </div>
@@ -117,7 +118,7 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
                     {meta.readingTime ? (
                       <span className="inline-flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {meta.readingTime}분
+                        <Tr id="post.readingTime" params={{ n: meta.readingTime }} />
                       </span>
                     ) : null}
                   </div>

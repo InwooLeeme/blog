@@ -3,9 +3,11 @@
 import * as React from "react";
 import { ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useT } from "./LocaleProvider";
 
 /** 스크롤이 일정 이상 내려가면 나타나는 "맨 위로" 버튼 */
 export default function ScrollToTop({ threshold = 400 }: { threshold?: number }) {
+  const t = useT();
   const [visible, setVisible] = React.useState(false);
 
   React.useEffect(() => {
@@ -26,7 +28,7 @@ export default function ScrollToTop({ threshold = 400 }: { threshold?: number })
     <button
       type="button"
       onClick={scrollToTop}
-      aria-label="맨 위로"
+      aria-label={t("scrollTop.aria")}
       tabIndex={visible ? 0 : -1}
       className={cn(
         "fixed bottom-6 right-6 z-50 grid h-11 w-11 place-items-center rounded-full",

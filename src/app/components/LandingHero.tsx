@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 import HeroParallax from "./HeroParallax";
+import Tr from "./Tr";
 
 /** 랜딩 히어로 — 갤럭시 배경 위 미니멀 브랜드 첫인상. */
 export default function LandingHero() {
@@ -17,7 +18,7 @@ export default function LandingHero() {
         </h1>
 
         <p className="mt-5 inline-flex items-center rounded-full border bg-card/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
-          알고리즘 · 개발 이야기
+          <Tr id="landing.tagline" />
         </p>
         {/* <div className="mt-8 flex items-center justify-center gap-3">
           <Link

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { NotesTreeNode } from "@/lib/notes";
+import { useT } from "../LocaleProvider";
 
 interface Props {
   tree: NotesTreeNode[];
@@ -33,6 +34,7 @@ function countFiles(nodes: NotesTreeNode[]): number {
 }
 
 export default function NotesTreeSidebar({ tree }: Props) {
+  const t = useT();
   const pathname = usePathname();
 
   const activeSlug = React.useMemo<string[] | null>(() => {
@@ -63,12 +65,12 @@ export default function NotesTreeSidebar({ tree }: Props) {
     tree.length === 0 ? (
       <div className="flex flex-col items-center gap-2 px-2 py-12 text-center text-xs text-muted-foreground">
         <FileCode2 className="h-7 w-7 opacity-30" />
-        <p>아직 노트가 없습니다.</p>
+        <p>{t("notes.empty")}</p>
         <p>
           <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
             content/notes/
           </code>
-          에 .mdx 추가
+          {t("notes.addHint")}
         </p>
       </div>
     ) : (
@@ -86,7 +88,7 @@ export default function NotesTreeSidebar({ tree }: Props) {
         <summary className="cursor-pointer list-none rounded-lg border bg-card px-4 py-2.5 text-sm font-medium flex items-center gap-2 transition hover:bg-muted/50">
           <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
           <ListTree className="h-4 w-4 text-accent-brand" />
-          <span>목차</span>
+          <span>{t("notes.toc")}</span>
           <span className="ml-auto rounded-full bg-accent-brand/10 px-2 py-0.5 text-xs font-medium text-accent-brand dark:text-accent-brand tabular-nums">
             {totalCount}
           </span>

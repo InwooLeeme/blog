@@ -168,6 +168,37 @@ body{ margin: 0; }
   z-index: 1;
 }
 
+/* ===== 언어 전환 (View Transitions) ===== */
+.language-toggle-icon {
+  view-transition-name: language-toggle-icon;
+}
+
+html.language-transitioning::view-transition-old(language-toggle-icon) {
+  animation: language-icon-out 110ms ease-in both;
+}
+
+html.language-transitioning::view-transition-new(language-toggle-icon) {
+  animation: language-icon-in 220ms ease-out both;
+}
+
+@keyframes language-icon-out {
+  to {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.7);
+  }
+}
+
+@keyframes language-icon-in {
+  from {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+}
+
 article :is(h2,h3,h4){ scroll-margin-top: 6rem; }
 
 /* Profile 내비 항목 — 대각선으로 주기적으로 흔들림 */

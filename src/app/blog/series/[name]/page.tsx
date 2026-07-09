@@ -5,6 +5,7 @@ import { Calendar } from "lucide-react";
 import { getAllSeries, getPostsBySeries } from "@/lib/posts";
 import { formatPostDate } from "@/lib/post-display";
 import { cn } from "@/lib/utils";
+import Tr from "@/app/components/Tr";
 
 export function generateStaticParams() {
   return getAllSeries().map(({ series }) => ({ name: series }));
@@ -46,7 +47,7 @@ export default async function SeriesDetailPage({
           {name}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          전체 {posts.length}개 회차
+          <Tr id="series.allEpisodes" params={{ n: posts.length }} />
         </p>
       </header>
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getAllSeries } from "@/lib/posts";
 import { formatPostDate } from "@/lib/post-display";
+import Tr from "@/app/components/Tr";
 
 export const metadata: Metadata = {
   title: "시리즈",
@@ -18,10 +19,10 @@ export default function SeriesIndexPage() {
           Series
         </p>
         <h1 className="mt-2 font-display text-3xl font-bold tracking-tight md:text-4xl">
-          시리즈
+          <Tr id="series.title" />
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {series.length}개의 시리즈로 정리되어 있습니다
+          <Tr id="series.organized" params={{ n: series.length }} />
         </p>
       </header>
 
@@ -36,9 +37,9 @@ export default function SeriesIndexPage() {
                 {name}
               </h2>
               <div className="mt-auto flex items-center gap-1.5 text-xs text-muted-foreground">
-                <span>{count}개 회차</span>
+                <span><Tr id="series.episodeCount" params={{ n: count }} /></span>
                 <span aria-hidden>·</span>
-                <span>최근 업데이트 {formatPostDate(latestDate)}</span>
+                <span><Tr id="series.updated" params={{ date: formatPostDate(latestDate) }} /></span>
               </div>
             </Link>
           </li>

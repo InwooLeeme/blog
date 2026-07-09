@@ -1,9 +1,15 @@
+"use client";
+
 import { CheckCircle2 } from "lucide-react";
-import { aboutSummary } from "@/lib/about";
+import { useT } from "../LocaleProvider";
+import { useAboutData } from "./useAboutData";
 
 export default function AboutSummary() {
+  const t = useT();
+  const { aboutSummary } = useAboutData();
+
   return (
-    <section aria-label="핵심 요약" className="mb-12 rounded-lg border bg-card/70 p-5">
+    <section aria-label={t("about.summaryAria")} className="mb-12 rounded-lg border bg-card/70 p-5">
       <ul className="space-y-3">
         {aboutSummary.map((line) => (
           <li key={line} className="flex gap-3 text-sm leading-relaxed">

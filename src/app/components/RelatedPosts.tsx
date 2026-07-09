@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Calendar } from "lucide-react";
 import type { PostItem } from "@/lib/posts";
 import { formatPostDate } from "@/lib/post-display";
+import Tr from "./Tr";
 
 interface IRelatedPostsProps {
     posts: PostItem[];
@@ -11,8 +12,8 @@ export default function RelatedPosts({ posts }: IRelatedPostsProps) {
     if (!posts || posts.length === 0) return null;
 
     return (
-        <section className="mt-12" aria-label="관련 글">
-            <h2 className="mb-4 text-lg font-bold tracking-tight">관련 글</h2>
+        <section className="mt-12" aria-label="related posts">
+            <h2 className="mb-4 text-lg font-bold tracking-tight"><Tr id="post.related" /></h2>
             <ul className="grid grid-cols-1 gap-3 md:grid-cols-3">
                 {posts.map((p) => (
                     <li key={p.slug}>

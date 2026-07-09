@@ -1,11 +1,16 @@
+"use client";
+
 import { ListChecks } from "lucide-react";
-import { workingStyles } from "@/lib/about";
 import { SectionHeading } from "./Timeline";
+import { useT } from "../LocaleProvider";
+import { useAboutData } from "./useAboutData";
 
 export default function WorkingStyleSection() {
+  const t = useT();
+  const { workingStyles } = useAboutData();
   return (
     <section id="working-style" className="scroll-mt-24">
-      <SectionHeading icon={<ListChecks className="h-5 w-5" />}>작업 방식</SectionHeading>
+      <SectionHeading icon={<ListChecks className="h-5 w-5" />}>{t("about.workingStyle")}</SectionHeading>
       <div className="grid gap-3">
         {workingStyles.map((item) => (
           <article key={item.title} className="rounded-lg border bg-card p-4">

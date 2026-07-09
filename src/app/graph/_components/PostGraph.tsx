@@ -12,6 +12,7 @@ import {
 import { useTransitionRouter } from "next-view-transitions";
 import { readAccent } from "@/app/playground/_components/effects/canvas";
 import type { GraphData, GraphNode, GraphEdge } from "@/lib/graph";
+import { useT } from "@/app/components/LocaleProvider";
 
 type SimNode = GraphNode &
   SimulationNodeDatum & { degree: number; phase: number; color: string; rgb: { r: number; g: number; b: number } };
@@ -58,6 +59,7 @@ function hexToRgb(hex: string) {
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
 export default function PostGraph({ data }: { data: GraphData }) {
+  const t = useT();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const router = useTransitionRouter();
   const [hoveredTitle, setHoveredTitle] = useState<string | null>(null);
@@ -379,9 +381,9 @@ export default function PostGraph({ data }: { data: GraphData }) {
 
   return (
     <div className="relative h-[70vh] w-full overflow-hidden rounded-lg border">
-      <canvas ref={canvasRef} role="img" aria-label="블로그 글 관계 그래프" />
+      <canvas ref={canvasRef} role="img" aria-label={t("graph.canvasAria")} />
       <div className="pointer-events-none absolute bottom-3 left-3 text-xs text-zinc-400">
-        {hoveredTitle ?? "휠로 확대/축소 · 드래그로 이동 · 노드를 클릭해 글로 이동"}
+        {hoveredTitle ?? t("graph.hint")}
       </div>
     </div>
   );

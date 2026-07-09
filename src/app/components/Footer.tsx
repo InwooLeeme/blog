@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Rss } from "lucide-react";
 import IconGithub from "./icon/IconGithub";
 import { siteConfig, footerLinks } from "@/lib/site";
+import Tr from "./Tr";
 
 /** 소셜 링크 — 새 항목은 여기에 한 줄 추가 (아이콘 JSX 포함) */
 type Social = { label: string; href: string; external?: boolean; icon: ReactNode };
@@ -37,7 +38,7 @@ export default function SiteFooter() {
               {siteConfig.name}
             </Link>
             <p className="text-sm text-muted-foreground">
-              {siteConfig.description}
+              <Tr id="site.description" />
             </p>
             <div className="flex items-center gap-2 pt-1">
               {socials.map((s) => (
@@ -59,7 +60,7 @@ export default function SiteFooter() {
           {/* 빠른 링크 */}
           <nav className="flex flex-col gap-2.5 text-sm">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              둘러보기
+              <Tr id="footer.explore" />
             </span>
             {footerLinks.map((l) => (
               <Link
@@ -67,7 +68,7 @@ export default function SiteFooter() {
                 href={l.href}
                 className="text-foreground/80 transition hover:text-accent-brand"
               >
-                {l.label}
+                {l.messageId ? <Tr id={l.messageId} /> : l.label}
               </Link>
             ))}
           </nav>

@@ -1,18 +1,23 @@
+"use client";
+
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import { FolderGit2, ExternalLink } from "lucide-react";
-import { projects } from "@/lib/about";
 import { techChipStyle, TECH_COLOR_FALLBACK } from "@/lib/tech";
 import BrandIcon from "../icon/BrandIcon";
 import IconGithub from "../icon/IconGithub";
 import { StaggerItem } from "../Stagger";
 import TiltCard from "./TiltCard";
 import { SectionHeading } from "./Timeline";
+import { useT } from "../LocaleProvider";
+import { useAboutData } from "./useAboutData";
 
 export default function ProjectsSection() {
+  const t = useT();
+  const { projects } = useAboutData();
   return (
     <section id="projects" className="scroll-mt-24">
-      <SectionHeading icon={<FolderGit2 className="h-5 w-5" />}>프로젝트</SectionHeading>
+      <SectionHeading icon={<FolderGit2 className="h-5 w-5" />}>{t("about.projects")}</SectionHeading>
       <div className="space-y-4">
         {projects.map((p, i) => {
           const accent = p.accent ?? TECH_COLOR_FALLBACK;

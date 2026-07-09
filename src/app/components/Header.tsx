@@ -4,6 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ModeToggle from "./ThemeToggle";
+import LanguageToggle from "./LanguageToggle";
+import { useT } from "./LocaleProvider";
 import IconGithub from "./icon/IconGithub";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,6 +63,7 @@ function Controls() {
           <IconGithub width={20} height={20} />
         </Link>
       </Button>
+      <LanguageToggle />
       <ModeToggle />
     </>
   );
@@ -138,12 +141,13 @@ function DesktopNav({ pathname }: { pathname: string }) {
 }
 
 function MobileNav({ pathname }: { pathname: string }) {
+  const t = useT();
   return (
     <div className="flex items-center gap-2 md:hidden">
       <Controls />
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline" size="icon" aria-label="메뉴 열기">
+          <Button variant="outline" size="icon" aria-label={t("header.openMenu")}>
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>

@@ -1,9 +1,13 @@
+"use client";
+
 import Image from "next/image";
 import { siteConfig } from "@/lib/site";
 import IconGithub from "../icon/IconGithub";
 import ShootingStars from "../ShootingStars";
+import { useT } from "../LocaleProvider";
 
 export default function AboutHero() {
+  const t = useT();
   return (
     <header className="relative isolate mb-10 flex flex-col items-center overflow-hidden py-12 text-center">
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
@@ -24,12 +28,12 @@ export default function AboutHero() {
       </div>
       <h1 className="mt-5 text-3xl font-bold tracking-tight">{siteConfig.author}</h1>
       <p className="mt-2 text-lg font-medium text-accent-brand">
-        문제를 풀고, 만들고, 기록합니다.
+        {t("about.heroTitle")}
       </p>
       <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-        C++로 알고리즘 문제를 풀고, Next.js와 AI로 무언가를 만듭니다.
+        {t("about.heroLine1")}
         <br/>
-        여기엔 그 과정에서 푼 문제와 새로 배운 것들을 남깁니다.
+        {t("about.heroLine2")}
       </p>
       <div className="mt-5 flex items-center gap-2">
         <a

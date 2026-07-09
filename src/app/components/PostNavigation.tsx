@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { PostItem } from "@/lib/posts";
+import Tr from "./Tr";
 
 interface IPostNavigationProps {
     prev: PostItem | null;
@@ -12,7 +13,7 @@ export default function PostNavigation({ prev, next }: IPostNavigationProps) {
 
     return (
         <nav
-            aria-label="이전/다음 글"
+            aria-label="prev/next posts"
             className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2"
         >
             {prev ? (
@@ -22,7 +23,7 @@ export default function PostNavigation({ prev, next }: IPostNavigationProps) {
                 >
                     <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                         <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
-                        이전 글
+                        <Tr id="post.prev" />
                     </span>
                     <span className="font-bold leading-snug line-clamp-2 group-hover:text-accent-brand">
                         {prev.meta.title}
@@ -37,7 +38,7 @@ export default function PostNavigation({ prev, next }: IPostNavigationProps) {
                     className="group flex flex-col gap-1 rounded-md border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent-brand hover:shadow-md sm:items-end sm:text-right"
                 >
                     <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        다음 글
+                        <Tr id="post.next" />
                         <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                     </span>
                     <span className="font-bold leading-snug line-clamp-2 group-hover:text-accent-brand">

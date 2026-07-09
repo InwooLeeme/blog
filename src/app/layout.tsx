@@ -8,6 +8,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import ViewTransitionRejectionGuard from "./components/ViewTransitionRejectionGuard";
 import PageTransition from "./components/PageTransition";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { LocaleProvider } from "./components/LocaleProvider";
 import BackgroundDecor from "./components/BackgroundDecor";
 import type { Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next"
@@ -86,6 +87,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <LocaleProvider>
             <BackgroundDecor />
             <div className="flex flex-col min-h-screen">
               <Header title={BlogInfo.title} />
@@ -97,6 +99,7 @@ export default function RootLayout({
             </div>
             <ScrollToTop />
             <ViewTransitionRejectionGuard />
+            </LocaleProvider>
           </ThemeProvider>
         </body>
       </html>

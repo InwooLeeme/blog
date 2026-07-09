@@ -4,9 +4,11 @@ import * as React from "react";
 import { Code2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { techChipStyle } from "@/lib/tech";
-import { techLevelLabels, techStack, type TechLevel } from "@/lib/about";
+import { techStack, type TechLevel } from "@/lib/about";
 import BrandIcon from "../icon/BrandIcon";
 import { SectionHeading } from "./Timeline";
+import { useT } from "../LocaleProvider";
+import { useAboutData } from "./useAboutData";
 
 const CHIP_DELAY_MS = 60;
 const levelTone: Record<TechLevel, string> = {
@@ -21,6 +23,8 @@ const levelTone: Record<TechLevel, string> = {
  * prefers-reduced-motion이면 즉시 표시.
  */
 export default function TechStackSection() {
+  const t = useT();
+  const { techLevelLabels } = useAboutData();
   const ref = React.useRef<HTMLElement>(null);
   const [visible, setVisible] = React.useState(false);
 
@@ -50,7 +54,7 @@ export default function TechStackSection() {
 
   return (
     <section ref={ref} id="tech-stack" className="scroll-mt-24">
-      <SectionHeading icon={<Code2 className="h-5 w-5" />}>기술 스택</SectionHeading>
+      <SectionHeading icon={<Code2 className="h-5 w-5" />}>{t("about.techStack")}</SectionHeading>
       <div className="mb-4 flex flex-wrap gap-1.5 text-xs">
         {Object.entries(techLevelLabels).map(([level, label]) => (
           <span

@@ -3,7 +3,7 @@ import { getAllPosts, getTagCounts } from "@/lib/posts"
 import PostGridLoadMore from "../components/PostGridLoadMore";
 import TagSidebar from "../components/TagSidebar";
 import LatestHero from "../components/LatestHero";
-import { siteConfig } from "@/lib/site";
+import Tr from "../components/Tr";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -25,14 +25,14 @@ export default function BlogIndexPage() {
           All Posts
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {siteConfig.description}
+          <Tr id="site.description" />
         </p>
         <p className="mt-4 text-sm text-muted-foreground">
           <Link href="/blog/series" className="group transition-colors hover:text-accent-brand">
             <strong className="font-display font-bold tabular-nums text-foreground group-hover:text-accent-brand">
               {seriesCount}
-            </strong>{" "}
-            개 시리즈로 정리되어 있습니다
+            </strong>
+            <Tr id="blog.seriesSuffix" />
           </Link>
         </p>
       </header>
@@ -53,7 +53,7 @@ export default function BlogIndexPage() {
 
             <div className="space-y-8">
               <h2 className="text-2xl md:text-3xl font-bold mt-2 mb-2">
-                전체 글 ({posts.length})
+                <Tr id="blog.allPosts" params={{ n: posts.length }} />
               </h2>
 
               <PostGridLoadMore posts={posts} />

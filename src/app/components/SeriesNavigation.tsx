@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { SeriesNav } from "@/lib/posts";
+import { useT } from "./LocaleProvider";
 
 const WINDOW_SIZE = 5;
 const WINDOW_THRESHOLD = 8;
@@ -28,6 +29,7 @@ function EpisodeRow({
   currentIdx: number;
   isLast: boolean;
 }) {
+  const t = useT();
   const state = getNodeState(index, currentIdx);
   const isCurrent = state === "current";
 
@@ -71,7 +73,7 @@ function EpisodeRow({
         <span className="line-clamp-1">{episode.title}</span>
         {isCurrent && (
           <span className="ml-auto shrink-0 rounded-full bg-accent-brand/15 px-1.5 py-0.5 text-xs font-medium">
-            지금 읽는 중
+            {t("seriesNav.readingNow")}
           </span>
         )}
       </Link>
@@ -87,6 +89,7 @@ function AdjacentLink({
   post: SeriesNav["prev"];
   direction: "prev" | "next";
 }) {
+  const t = useT();
   const isPrev = direction === "prev";
 
   if (!post) {
@@ -97,7 +100,7 @@ function AdjacentLink({
           !isPrev && "text-right",
         )}
       >
-        {isPrev ? "첫 회차입니다" : "마지막 회차입니다"}
+        {isPrev ? t("seriesNav.first") : t("seriesNav.last")}
       </div>
     );
   }
@@ -119,7 +122,7 @@ function AdjacentLink({
         )}
       >
         {isPrev && <ChevronLeft className="h-3.5 w-3.5" />}
-        {isPrev ? "이전 회차" : "다음 회차"}
+        {isPrev ? t("seriesNav.prev") : t("seriesNav.next")}
         {!isPrev && <ChevronRight className="h-3.5 w-3.5" />}
       </span>
       <span
@@ -136,6 +139,7 @@ function AdjacentLink({
 
 /** 시리즈 진행 타임라인 카드 */
 export default function SeriesNavigation({ nav }: { nav: SeriesNav }) {
+  const t = useT();
   const { series, prev, next, position, total, episodes } = nav;
   const [expanded, setExpanded] = useState(false);
 
@@ -151,7 +155,7 @@ export default function SeriesNavigation({ nav }: { nav: SeriesNav }) {
 
   return (
     <section
-      aria-label="시리즈"
+      aria-label={t("seriesNav.aria")}
       className="relative mt-12 overflow-hidden rounded-xl border bg-card p-5"
     >
       {/* 좌측 브랜드 그라데이션 레일 */}
@@ -166,7 +170,7 @@ export default function SeriesNavigation({ nav }: { nav: SeriesNav }) {
           SERIES
         </span>
         <span className="text-xs tabular-nums text-muted-foreground">
-          {position} / {total}회차
+          {t("seriesNav.position", { a: position, b: total })}
         </span>
       </div>
       <h2 className="mt-1 line-clamp-2 font-display text-xl font-bold tracking-tight">
@@ -194,7 +198,7 @@ export default function SeriesNavigation({ nav }: { nav: SeriesNav }) {
           onClick={() => setExpanded(true)}
           className="mt-1 text-xs font-medium text-muted-foreground transition hover:text-accent-brand"
         >
-          전체 {episodes.length}개 회차 보기
+          {t("seriesNav.viewAll", { n: episodes.length })}
         </button>
       )}
 

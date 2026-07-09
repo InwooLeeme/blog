@@ -46,3 +46,6 @@ next-env.d.ts
 # cluade
 CLAUDE.local.md
 .superpowers
+
+# codex
+AGENTS.md

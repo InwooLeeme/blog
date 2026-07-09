@@ -1,11 +1,12 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Hash, LayoutGrid } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 import IconGithub from "./icon/IconGithub";
@@ -37,6 +38,12 @@ export default function TagSidebar({
   profileDescription? : string
 }) {
   const t = useT();
+  const [avatarLoaded, setAvatarLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    setAvatarLoaded(false);
+  }, [avatarSrc]);
+
   const sorted = React.useMemo(() => {
     return [...tagCounts].sort(
       (a, b) => b.count - a.count || (a.tag < b.tag ? -1 : a.tag > b.tag ? 1 : 0)
@@ -91,8 +98,20 @@ export default function TagSidebar({
                 className="absolute -inset-3 rounded-full opacity-60 blur-xl transition-opacity bg-[radial-gradient(circle,var(--accent-brand),transparent_70%)] group-hover:opacity-90"
               />
               <Avatar className="relative h-24 w-24 ring-1 ring-accent-brand/70 shadow-lg shadow-accent-brand/20">
-                <AvatarImage src={avatarSrc} alt={avatarAlt} />
-                <AvatarFallback>{fallback}</AvatarFallback>
+                <Image
+                  src={avatarSrc}
+                  alt={avatarAlt}
+                  fill
+                  sizes="96px"
+                  className="object-cover"
+                  onLoad={() => setAvatarLoaded(true)}
+                  onError={() => setAvatarLoaded(false)}
+                />
+                {!avatarLoaded ? (
+                  <AvatarFallback className="absolute inset-0">
+                    {fallback}
+                  </AvatarFallback>
+                ) : null}
               </Avatar>
             </div>
             <h3 className="mt-3 text-base font-bold tracking-tight transition-colors group-hover:text-accent-brand">

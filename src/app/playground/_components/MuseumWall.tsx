@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { EFFECTS, type Effect } from "@/app/components/effects/registry";
+import { updateMountedEffects } from "./performance-policy";
 
 const ROT_CENTER = 12; // 뷰포트 중앙에 왔을 때 액자 각도(deg)
 const ROT_EDGE = 26; // 화면 가장자리에 있을 때 액자 각도(deg)
@@ -12,16 +13,16 @@ export default function MuseumWall({ onSelect }: { onSelect: (effect: Effect) =>
   const frameRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [mounted, setMounted] = useState<boolean[]>(() => EFFECTS.map(() => false));
 
-  // 뷰포트 근처에 온 액자만 캔버스를 마운트(한 번 켜지면 유지 — 이후엔 훅이 화면 밖에서 스스로 멈춤)
+  // 뷰포트 근처 액자만 캔버스를 마운트해 화면 밖 리소스를 즉시 해제한다
   useEffect(() => {
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
           const idx = frameRefs.current.indexOf(entry.target as HTMLDivElement);
           if (idx < 0) return;
-          setMounted((prev) => (prev[idx] ? prev : prev.map((m, i) => (i === idx ? true : m))));
-          io.unobserve(entry.target);
+          setMounted((prev) =>
+            updateMountedEffects(prev, idx, entry.isIntersecting),
+          );
         });
       },
       { rootMargin: "30% 0px" },

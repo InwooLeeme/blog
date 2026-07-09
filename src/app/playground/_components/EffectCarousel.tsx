@@ -5,6 +5,10 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { ChevronLeftIcon, ChevronRightIcon, GalleryHorizontalIcon, LandmarkIcon, LayoutGridIcon, XIcon } from "lucide-react";
 import { EFFECTS, type Effect } from "@/app/components/effects/registry";
 import MuseumWall from "./MuseumWall";
+import {
+  shouldRunCoverflowAnimation,
+  type PlaygroundView,
+} from "./performance-policy";
 
 const CARD_W = 220;
 const CARD_H = 300; // 포스터 비율
@@ -24,7 +28,7 @@ const ICON_BTN = "grid h-10 w-10 place-items-center rounded-full bg-white/10 tex
 // 메이슨리 타일마다 결정적으로 배정하는 세로 비율(핀터레스트 리듬) — id 기반이라 리렌더에도 흔들리지 않음
 const MASONRY_ASPECTS = ["aspect-[3/4]", "aspect-square", "aspect-[3/5]", "aspect-[4/5]", "aspect-[2/3]"];
 
-type View = "museum" | "grid" | "coverflow";
+type View = PlaygroundView;
 const VIEWS = [
   { id: "museum", label: "미술관으로 보기", Icon: LandmarkIcon },
   { id: "grid", label: "메이슨리로 보기", Icon: LayoutGridIcon },
@@ -107,7 +111,7 @@ export default function EffectCarousel() {
     setIndex(clamped);
   };
 
-  // 배치는 ref로 직접 DOM에 적용해 매 프레임 리렌더 없이 갱신
+  // 커버플로우가 실제로 보일 때만 ref 기반 DOM 배치를 매 프레임 갱신
   useEffect(() => {
     let raf = 0;
     const tick = (time: number) => {
@@ -135,9 +139,27 @@ export default function EffectCarousel() {
       });
       raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
+
+    const stop = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+    };
+
+    const sync = () => {
+      stop();
+      if (shouldRunCoverflowAnimation(view, document.visibilityState)) {
+        lastTime.current = 0;
+        raf = requestAnimationFrame(tick);
+      }
+    };
+
+    sync();
+    document.addEventListener("visibilitychange", sync);
+    return () => {
+      document.removeEventListener("visibilitychange", sync);
+      stop();
+    };
+  }, [view]);
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
     dragging.current = true;

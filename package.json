@@ -6,7 +6,8 @@
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
+    "test": "node --test",
     "new:atcoder": "node scripts/new-atcoder-post.mjs",
     "publish": "node scripts/publish-post.mjs"
   },

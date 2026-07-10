@@ -4,7 +4,7 @@ date: "2026-07-04"
 summary: "2025년 캡스톤으로 만든 음성 비서를, 2026년에 MCP 기반으로 다시 짰다. 음성은 뺐고, 판단과 실행을 나누는 구조는 그대로 가져갔다."
 tags: [개발, 프로젝트]
 draft: false
-cover: "https://inwooleeme.github.io/assets/projects/mcp_assistant_demo.png"
+cover: "https://inwooleeme.github.io/assets/projects/mcp_assistant_page.JPG"
 ---
 
 프로젝트 레포는 [여기](https://github.com/InwooLeeme/mcp-assistant)서 볼 수 있다.
@@ -35,7 +35,7 @@ cover: "https://inwooleeme.github.io/assets/projects/mcp_assistant_demo.png"
 
 그래서 아래와 같이 텍스트를 기반으로 한 깔끔한 디자인을 가지게 되었다.
 
-![MCP assistant 화면](https://inwooleeme.github.io/assets/projects/mcp_assistant_demo.png)
+![MCP assistant 화면](https://inwooleeme.github.io/assets/projects/mcp_assistant_page.JPG)
 
 그리고 다시 작성한 아키텍쳐는 아래와 같다.
 
@@ -192,15 +192,51 @@ planner 프롬프트에 검색어가 없으면 `open_url`로 사이트만 열도
 
 "말을 알아듣는다"는 화려함 뒤에 가려져 있던 진짜 핵심은 언제나 "의도를 계획으로, 계획을 실행으로 옮기는 파이프라인"이었다.
 
+### 그리고 얼마 뒤, 데스크톱 앱으로
+
+지난 글 마지막에 "로컬에서 동작하긴 하지만 데스크톱 앱 형태가 아니다"라고 적어뒀었는데, 이번에 그걸 손봤다.
+
+먼저 Agent 백엔드를 PyInstaller로 onedir 실행파일로 패키징했다. 개발할 때야 가상환경 켜고 `run.ps1`로 띄우면 그만이지만, 쓰는 사람한테 "파이썬 설치하고 venv 만들고 requirements 깔아주세요"라고 할 순 없으니까.
+
+그다음 Tauri로 데스크톱 셸을 스캐폴딩했다. Next.js UI는 정적으로 빌드해서 Tauri 웹뷰 안에 넣고, Rust 런타임이 창을 띄우면서 패키징해둔 `agent-backend.exe`와 `mcp-server.exe`를 자식 프로세스로 실행·정리하도록 했다.
+
+패키징하고 나니 개발 환경에선 안 보이던 문제들이 튀어나왔다. `mcp_servers.json`을 상대 경로로 찾고 있어서 exe로 묶으면 파일을 못 찾았고, `.env`가 빌드 결과물에 그대로 번들되고 있었다. 둘 다 고쳤고, README도 이 구조를 기준으로 다시 썼다.
+
+### 보안 구멍도 몇 개 막았다
+
+데스크톱 앱으로 묶으면서 다시 보니, 로컬 API에 인증이 아예 없었다. `localhost`니까 괜찮겠지 하고 넘어갔던 부분인데, 생각해보면 같은 PC의 다른 프로세스가 얼마든지 이 API를 두드려서 프로그램을 켜고 끌 수 있다는 뜻이었다.
+
+그래서 Bearer 토큰 인증을 추가했다. Tauri 셸이 실행될 때마다 난수 토큰을 만들어 백엔드와 프론트 양쪽에 주입하고, 프론트는 이 토큰을 헤더에 실어 백엔드를 호출한다. 개발 환경에서도 같은 흐름을 맞추려고 `run.ps1`에도 토큰 생성을 넣었는데, 처음엔 `Get-Random`으로 대충 만들었다가 이건 암호학적으로 안전한 난수가 아니라는 걸 뒤늦게 깨닫고 CSPRNG로 바꿨다.
+
+MCP 서버 등록 쪽도 손을 봤다. 원격 서버는 URL만 주면 등록되는 구조였는데, 생각해보니 이건 SSRF로 이어질 수 있는 구멍이었다. 그래서 원격 등록은 HTTPS만 허용하고 로컬·사설 대역 주소는 막았다.
+
+로컬 MCP 서버 등록은 더 근본적인 문제였다. command와 args를 그대로 받아서 실행하는 구조라, 사실상 임의 명령 실행 기능이나 다름없었다. 그래서 폼으로 값을 채우던 방식을 JSON 붙여넣기로 바꾸고, 실행 전에 한 번 더 확인하는 게이트를 넣었다. 최소한 뭘 등록하는지 사용자가 한 번은 보게 만든 거다.
+
+그 외에 MCP 서버 상태 확인이 실패했을 때 원시 예외 메시지가 그대로 노출되던 것도 막았고, mcp-server 쪽 도구 실행도 오작동이나 과도한 반복 실행을 막도록 강화했다. 배포 환경에서 기본 MCP 서버 경로를 못 찾던 버그, 설치 업데이트할 때마다 사용자가 추가해둔 MCP 서버 설정이 날아가던 버그도 이번에 같이 잡았다.
+
+큰 기능을 새로 만드는 것보다 이런 구멍을 하나씩 찾아서 막는 게 훨씬 지치는 일이라는 걸 새삼 느꼈다.
+
 ### 실행 방법
+
+개발 환경에서는 기존과 같다.
 
 ```bash
 # .env.example을 참고해 agent-backend/.env, client/.env.local 작성
-./run.ps1                       # 백엔드 + MCP 서버 기동
+./run.ps1                       # 백엔드 + MCP 서버 기동, 인증 토큰도 같이 생성
 
 npm --prefix client install
 npm --prefix client run dev     # http://localhost:3000
 ```
+
+데스크톱 앱으로 빌드하려면 이렇게 한다.
+
+```powershell
+./mcp-server/build.ps1
+./agent-backend/build.ps1
+npm run tauri build              # src-tauri/target/release/bundle/에 설치파일 생성
+```
+
+빌드된 앱은 실행할 때마다 인증 토큰을 알아서 만들어 쓰기 때문에 `.env`에 토큰 관련 값을 따로 넣을 필요는 없다.
 
 Windows 전용이라 프로그램 실행·미디어 제어에 Windows 네이티브 API를 쓴다.
 
@@ -208,8 +244,8 @@ Gemini API 키가 필요하다.
 
 ### 개선해야할 사항
 
-지난 글에 적어뒀던 대화 기억은 이번에 만들었다.
+데스크톱 앱 형태가 아니라던 문제는 이번에 해결했다.
 
-그런데 지금은 로컬에서 동작하긴 하지만 데스크톱 앱 형태가 아니다.
+다만 `GEMINI_API_KEY`는 보안상 설치 파일에 담지 않기로 해서, 설치 후 `%APPDATA%\mcp-assistant\.env`를 사용자가 직접 만들어 채워줘야 한다.
 
-그래서 이 부분을 좀 개선해야할 것 같다.
+의도한 선택이긴 한데, 첫 실행 경험만 놓고 보면 아직 매끄럽지 않다. 이 부분은 나중에 손볼 예정.

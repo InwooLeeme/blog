@@ -15,7 +15,6 @@ function Formula({ value }: { value: string }) {
   return (
     <span
       className="font-semibold text-foreground"
-      // eslint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

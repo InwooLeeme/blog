@@ -60,10 +60,11 @@ export function ChatbotLauncher({ host }: Props) {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     iframeRef.current?.focus();
+    const button = buttonRef.current;
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = prevOverflow;
-      buttonRef.current?.focus();
+      button?.focus();
     };
   }, [open]);
 

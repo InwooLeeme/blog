@@ -25,7 +25,6 @@ export default function MdxImage({
 }: MdxImageProps) {
     const base = {
         src,
-        alt,
         width: width ? Number(width) : 1200,
         height: height ? Number(height) : 675,
     }
@@ -40,6 +39,7 @@ export default function MdxImage({
                     >
                         <Image
                             {...base}
+                            alt={alt}
                             sizes="(min-width:1024px) 768px, 100vw"
                             className={`rounded-xl border ${className ?? ""}`}
                             {...rest}
@@ -56,6 +56,7 @@ export default function MdxImage({
                         <Dialog.Title className="sr-only">{alt || "이미지"}</Dialog.Title>
                         <Image
                             {...base}
+                            alt={alt}
                             sizes="95vw"
                             className="h-auto w-auto max-h-[90vh] max-w-[95vw] rounded-lg object-contain"
                         />

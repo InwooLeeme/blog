@@ -32,7 +32,9 @@ export function useCanvasScene(
   maxDpr = 2,
 ) {
   const createRef = useRef(create);
-  createRef.current = create;
+  useEffect(() => {
+    createRef.current = create;
+  });
 
   useEffect(() => {
     const canvas = ref.current;

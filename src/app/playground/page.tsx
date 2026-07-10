@@ -1,6 +1,6 @@
 import EffectCarousel from "./_components/EffectCarousel";
 import type { Metadata } from "next";
-import { GalleryHorizontal, Grid3X3, Maximize2, Sparkles } from "lucide-react";
+import { GalleryHorizontal } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Playground",

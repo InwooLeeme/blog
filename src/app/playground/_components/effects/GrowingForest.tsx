@@ -214,7 +214,7 @@ export default function GrowingForest() {
 
   useCanvasScene(ref, ({ ctx }) => {
     let width = 0, height = 0;
-    let trees: Tree[] = [];
+    const trees: Tree[] = [];
     let blades: Blade[] = [];
     let sx = 0, sy = 0, sr = 0;
 

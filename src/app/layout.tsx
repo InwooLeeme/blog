@@ -12,14 +12,7 @@ import { LocaleProvider } from "./components/LocaleProvider";
 import BackgroundDecor from "./components/BackgroundDecor";
 import type { Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next"
-
-const BlogInfo = {
-  title: "InwooLeeme.dev",
-  description: "알고리즘과 개발 이야기",
-};
-
-const SITE_URL =
-  process.env.SITE_URL || "https://inwooleeme.vercel.app";
+import { siteConfig } from "@/lib/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,12 +37,12 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL(siteConfig.url),
   title: {
-    default: BlogInfo.title,
-    template: `%s · ${BlogInfo.title}`,
+    default: siteConfig.name,
+    template: `%s · ${siteConfig.name}`,
   },
-  description: BlogInfo.description,
+  description: siteConfig.description,
   alternates: {
     types: {
       "application/rss+xml": "/feed.xml",
@@ -57,16 +50,16 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    siteName: BlogInfo.title,
-    title: BlogInfo.title,
-    description: BlogInfo.description,
-    url: SITE_URL,
+    siteName: siteConfig.name,
+    title: siteConfig.name,
+    description: siteConfig.description,
+    url: siteConfig.url,
     locale: "ko_KR",
   },
   twitter: {
     card: "summary_large_image",
-    title: BlogInfo.title,
-    description: BlogInfo.description,
+    title: siteConfig.name,
+    description: siteConfig.description,
   },
 };
 
@@ -90,7 +83,7 @@ export default function RootLayout({
             <LocaleProvider>
             <BackgroundDecor />
             <div className="flex flex-col min-h-screen">
-              <Header title={BlogInfo.title} />
+              <Header title={siteConfig.name} />
               <main className="flex-1">
                 <PageTransition>{children}</PageTransition>
               </main>

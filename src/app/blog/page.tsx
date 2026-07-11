@@ -14,15 +14,16 @@ export default function BlogIndexPage() {
   const posts = getAllPosts();
   const tagCounts = getTagCounts(posts);
   const seriesCount = new Set(posts.map((p) => p.meta.series).filter(Boolean)).size;
+  const rest = posts.slice(4);
 
   return (
     <div className="w-full max-w-6xl mx-auto mt-6 px-4 md:px-6 lg:px-8">
       <header className="mb-8 md:mb-12">
         <p className="text-xs font-semibold uppercase tracking-wider text-accent-brand">
-          Blog
+          <Tr id="blog.eyebrow" />
         </p>
         <h1 className="mt-2 font-display text-3xl font-bold tracking-tight md:text-4xl text-gradient-brand">
-          All Posts
+          <Tr id="blog.pageTitle" />
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           <Tr id="site.description" />
@@ -51,13 +52,15 @@ export default function BlogIndexPage() {
           <div className="mx-auto w-full max-w-6xl space-y-8">
             <LatestHero posts={posts} />
 
-            <div className="space-y-8">
-              <h2 className="text-2xl md:text-3xl font-bold mt-2 mb-2">
-                <Tr id="blog.allPosts" params={{ n: posts.length }} />
-              </h2>
+            {rest.length > 0 ? (
+              <div className="space-y-8">
+                <h2 className="text-2xl md:text-3xl font-bold mt-2 mb-2">
+                  <Tr id="blog.allPosts" params={{ n: posts.length }} />
+                </h2>
 
-              <PostGridLoadMore posts={posts} />
-            </div>
+                <PostGridLoadMore posts={rest} />
+              </div>
+            ) : null}
           </div>
         </main>
       </div>

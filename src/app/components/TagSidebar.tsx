@@ -65,7 +65,7 @@ export default function TagSidebar({
               variant="outline"
               className={cn("rounded-full py-1", !activeTag && "border-accent-brand")}
             >
-              All ({totalCount})
+              {t("sidebar.all")} ({totalCount})
             </Badge>
           </Link>
           {sorted.map(({ tag, count }) => (
@@ -149,7 +149,7 @@ export default function TagSidebar({
         <div className="mt-5 mb-3 flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Categories
+              {t("sidebar.categories")}
             </span>
           </div>
           <span className="rounded-full bg-accent-brand/10 px-2 py-0.5 text-xs font-medium text-accent-brand tabular-nums">
@@ -182,7 +182,7 @@ export default function TagSidebar({
                     !activeTag ? "text-accent-brand" : "text-muted-foreground"
                   )}
                 />
-                <span className="truncate">All Posts</span>
+                <span className="truncate">{t("sidebar.allPosts")}</span>
                 <span
                   className={cn(
                     "ml-auto rounded px-1.5 py-0.5 text-xs tabular-nums",

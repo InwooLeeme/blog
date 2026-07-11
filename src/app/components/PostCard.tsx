@@ -71,6 +71,12 @@ export default function PostCard({
                         {meta.title}
                     </h3>
 
+                    {meta.summary ? (
+                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-2">
+                            {meta.summary}
+                        </p>
+                    ) : null}
+
                     <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Calendar className="h-3 w-3" aria-hidden />
                         <time dateTime={meta.date}>{formatted}</time>

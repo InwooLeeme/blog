@@ -43,6 +43,13 @@ export default function Reveal({
       return;
     }
 
+    // 마운트 시 이미 뷰포트 안이면 즉시 표시
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      setVisible(true);
+      if (once) return;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -55,7 +62,14 @@ export default function Reveal({
       { threshold: 0.1, rootMargin: "0px 0px -8% 0px" },
     );
     observer.observe(el);
-    return () => observer.disconnect();
+
+    // 옵저버가 끝내 발화하지 않아도 콘텐츠가 사라지지 않도록 안전장치
+    const fallback = window.setTimeout(() => setVisible(true), 700);
+
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(fallback);
+    };
   }, [once]);
 
   return (

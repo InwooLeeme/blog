@@ -19,7 +19,7 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
     <>
       {/* 모바일·태블릿: 최신글 1건을 큰 히어로 카드로 */}
       <section className="lg:hidden mb-8">
-        <h2 className="text-xl font-bold mb-4">Latest</h2>
+        <h2 className="text-xl font-bold mb-4"><Tr id="blog.latest" /></h2>
 
         <Link
           href={`/blog/${first.slug}`}
@@ -66,11 +66,55 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
             </div>
           </div>
         </Link>
+
+        {latest.length > 1 ? (
+          <ul className="mt-3 divide-y divide-border overflow-hidden rounded-md border">
+            {latest.slice(1).map(({ slug, meta }) => {
+              const src = getCardCoverSrc(meta);
+              return (
+                <li key={slug}>
+                  <Link
+                    href={`/blog/${slug}`}
+                    className="group flex items-center gap-3 p-3 transition-colors hover:bg-muted/60"
+                  >
+                    <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded">
+                      {src ? (
+                        <Image
+                          src={src}
+                          alt={meta.title}
+                          fill
+                          className="object-cover"
+                          sizes="80px"
+                        />
+                      ) : (
+                        <CoverPlaceholder />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="line-clamp-2 text-sm font-semibold leading-snug transition-colors group-hover:text-accent-brand">
+                        {meta.title}
+                      </h4>
+                      <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                        <time dateTime={meta.date}>{formatPostDate(meta.date)}</time>
+                        {meta.readingTime ? (
+                          <>
+                            <span aria-hidden>·</span>
+                            <Tr id="post.readingTime" params={{ n: meta.readingTime }} />
+                          </>
+                        ) : null}
+                      </div>
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        ) : null}
       </section>
 
       {/* 데스크톱: 가로 아코디언 */}
       <section className="hidden lg:block mb-10">
-        <h2 className="text-xl font-bold mb-4">Latest</h2>
+        <h2 className="text-xl font-bold mb-4"><Tr id="blog.latest" /></h2>
 
         <div className="group/row flex gap-1 h-[24rem]">
           {latest.map(({ slug, meta }, i) => {
@@ -84,9 +128,12 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
                 className={cn(
                   "group relative basis-0 overflow-hidden rounded-md border bg-card",
                   "transition-[flex-grow,border-color] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                  "outline-none focus-visible:ring-2 focus-visible:ring-accent-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                   i === 0 ? "grow-[4] border-accent-brand" : "grow",
                   "group-hover/row:grow group-hover/row:border-border",
-                  "hover:!grow-[4] hover:!border-accent-brand"
+                  "group-focus-within/row:grow group-focus-within/row:border-border",
+                  "hover:!grow-[4] hover:!border-accent-brand",
+                  "focus-visible:!grow-[4] focus-visible:!border-accent-brand"
                 )}
               >
                 {coverSrc ? (
@@ -117,11 +164,12 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
                       "mt-2 text-base font-bold leading-snug line-clamp-2 drop-shadow transition-opacity duration-300",
                       i === 0 ? "opacity-100" : "opacity-0",
                       "group-hover/row:opacity-0 hover:!opacity-100",
+                      "group-focus-within/row:opacity-0 group-focus-visible:!opacity-100",
                     )}
                   >
                     {meta.title}
                   </h3>
-                  <div className="mt-2 flex items-center gap-3 text-xs text-white/85 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <div className="mt-2 flex items-center gap-3 text-xs text-white/85 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
                     <span className="inline-flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       <time dateTime={meta.date}>

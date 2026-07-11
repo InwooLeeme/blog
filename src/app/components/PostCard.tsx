@@ -1,10 +1,11 @@
 import { PostMeta } from "@/lib/posts";
-import { formatPostDate, getCoverSrc } from "@/lib/post-display";
+import { formatPostDate, getCardCoverSrc, getCoverLabel } from "@/lib/post-display";
 import { Link } from "next-view-transitions";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Calendar } from "lucide-react";
+import CoverPlaceholder from "./CoverPlaceholder";
 
 export default function PostCard({
     slug,
@@ -16,7 +17,7 @@ export default function PostCard({
     featured?: boolean;
 }) {
     const formatted = formatPostDate(meta.date);
-    const coverSrc = getCoverSrc(slug, meta);
+    const coverSrc = getCardCoverSrc(meta);
     const tags = meta.tags?.slice(0, 3) ?? [];
 
     return (
@@ -27,20 +28,22 @@ export default function PostCard({
                     style={{ viewTransitionName: `post-cover-${slug}` }}
                 >
                     <AspectRatio ratio={16 / 9}>
-                        <Image
-                            src={coverSrc}
-                            alt={meta.title}
-                            fill
-                            className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                            sizes={
-                                featured
-                                    ? "(min-width:768px) 66vw, 100vw"
-                                    : "(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
-                            }
-                            priority={false}
-                            // cover 없는 글은 이미 완성된 OG PNG로 폴백 → 재최적화 생략(400 방지)
-                            unoptimized={!meta.cover}
-                        />
+                        {coverSrc ? (
+                            <Image
+                                src={coverSrc}
+                                alt={meta.title}
+                                fill
+                                className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                                sizes={
+                                    featured
+                                        ? "(min-width:768px) 66vw, 100vw"
+                                        : "(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
+                                }
+                                priority={false}
+                            />
+                        ) : (
+                            <CoverPlaceholder label={getCoverLabel(meta)} />
+                        )}
                     </AspectRatio>
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                     <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-black/5 dark:ring-white/10 opacity-0 group-hover:opacity-100 transition" />

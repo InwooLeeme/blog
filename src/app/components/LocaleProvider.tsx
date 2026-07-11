@@ -38,7 +38,7 @@ export function useLocale() {
   return useContext(LocaleContext);
 }
 
-/** 현재 언어의 메시지 조회 함수 — t("post.loadMore"), t("series.viewAll", { n: 5 }) */
+/** 현재 언어의 메시지 조회 함수 — t("post.readingTime", { n: 5 }) */
 export function useT() {
   const { locale } = useLocale();
   return useCallback(

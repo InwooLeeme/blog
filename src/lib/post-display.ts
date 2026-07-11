@@ -33,3 +33,20 @@ export function getCardCoverSrc(meta: PostMeta): string | null {
 export function getCoverLabel(meta: PostMeta): string | undefined {
   return meta.tags?.[0] ?? meta.series;
 }
+
+/** 회차성 글의 컴팩트 라벨 — 제목에서 시리즈명 접두와 "[BOJ] " 접두를 제거한다.
+ *  "Atcoder Weekday Contest 076" (series "AtCoder Weekday Contest") → "076"
+ *  "[BOJ] 27958번 사격 연습"                                        → "27958번 사격 연습"
+ *  결과가 비면 원제목으로 fallback. */
+export function getEpisodeLabel(meta: PostMeta): string {
+  let label = meta.title.trim();
+  if (meta.series) {
+    const lowered = label.toLowerCase();
+    const seriesLower = meta.series.toLowerCase();
+    if (lowered.startsWith(seriesLower)) {
+      label = label.slice(meta.series.length).replace(/^[\s:·\-–—]+/, "").trim();
+    }
+  }
+  label = label.replace(/^\[BOJ\]\s*/i, "").trim();
+  return label || meta.title;
+}

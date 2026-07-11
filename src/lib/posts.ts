@@ -223,3 +223,23 @@ export function getRelatedPosts(slug: string, limit = 3): PostItem[] {
   // fallback: 태그 매칭이 없으면 최신 글 N개
   return posts.filter((p) => p.slug !== slug).slice(0, limit);
 }
+
+export type SeriesGroup = { series: string; posts: PostItem[]; total: number };
+
+/** 주어진 목록을 시리즈별로 묶는다. 그룹 내부는 최신(date desc)순, 그룹 자체는 각 그룹 최신 글 date desc순.
+ *  total은 해당 시리즈 전체 편수(getPostsBySeries 기준) — 목록에 일부만 있어도 정확한 편수를 준다. */
+export function groupPostsBySeries(posts: PostItem[]): SeriesGroup[] {
+  const map = new Map<string, PostItem[]>();
+  for (const p of posts) {
+    const s = p.meta.series;
+    if (!s) continue;
+    const arr = map.get(s);
+    if (arr) arr.push(p);
+    else map.set(s, [p]);
+  }
+  const groups = Array.from(map.entries()).map(([series, groupPosts]) => {
+    const sorted = [...groupPosts].sort((a, b) => (a.meta.date < b.meta.date ? 1 : -1));
+    return { series, posts: sorted, total: getPostsBySeries(series).length };
+  });
+  return groups.sort((a, b) => (a.posts[0].meta.date < b.posts[0].meta.date ? 1 : -1));
+}

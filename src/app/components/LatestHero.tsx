@@ -3,15 +3,16 @@ import Image from "next/image";
 import { Calendar, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PostItem } from "@/lib/posts";
-import { formatPostDate, getCoverSrc } from "@/lib/post-display";
+import { formatPostDate, getCardCoverSrc } from "@/lib/post-display";
 import Tr from "./Tr";
+import CoverPlaceholder from "./CoverPlaceholder";
 
 export default function LatestHero({ posts }: { posts: PostItem[] }) {
   const latest = posts.slice(0, 4);
   if (latest.length === 0) return null;
 
   const [first] = latest;
-  const firstCoverSrc = getCoverSrc(first.slug, first.meta);
+  const firstCoverSrc = getCardCoverSrc(first.meta);
   const firstPrimaryTag = first.meta.tags?.[0];
 
   return (
@@ -25,15 +26,18 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
           aria-label={first.meta.title}
           className="group relative block h-64 overflow-hidden rounded-md border"
         >
-          <Image
-            src={firstCoverSrc}
-            alt={first.meta.title}
-            fill
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-            sizes="100vw"
-            priority
-            unoptimized={!first.meta.cover}
-          />
+          {firstCoverSrc ? (
+            <Image
+              src={firstCoverSrc}
+              alt={first.meta.title}
+              fill
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+              sizes="100vw"
+              priority
+            />
+          ) : (
+            <CoverPlaceholder />
+          )}
 
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
 
@@ -70,7 +74,7 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
 
         <div className="group/row flex gap-1 h-[24rem]">
           {latest.map(({ slug, meta }, i) => {
-            const coverSrc = getCoverSrc(slug, meta);
+            const coverSrc = getCardCoverSrc(meta);
             const primaryTag = meta.tags?.[0];
             return (
               <Link
@@ -85,15 +89,18 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
                   "hover:!grow-[4] hover:!border-accent-brand"
                 )}
               >
-                <Image
-                  src={coverSrc}
-                  alt={meta.title}
-                  fill
-                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  sizes="(min-width:1024px) 50vw, 25vw"
-                  priority={i === 0}
-                  unoptimized={!meta.cover}
-                />
+                {coverSrc ? (
+                  <Image
+                    src={coverSrc}
+                    alt={meta.title}
+                    fill
+                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    sizes="(min-width:1024px) 50vw, 25vw"
+                    priority={i === 0}
+                  />
+                ) : (
+                  <CoverPlaceholder />
+                )}
 
                 {/* dark gradient overlay */}
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
@@ -105,7 +112,13 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
                       {primaryTag}
                     </span>
                   ) : null}
-                  <h3 className="mt-2 text-base font-bold leading-snug line-clamp-2 drop-shadow">
+                  <h3
+                    className={cn(
+                      "mt-2 text-base font-bold leading-snug line-clamp-2 drop-shadow transition-opacity duration-300",
+                      i === 0 ? "opacity-100" : "opacity-0",
+                      "group-hover/row:opacity-0 hover:!opacity-100",
+                    )}
+                  >
                     {meta.title}
                   </h3>
                   <div className="mt-2 flex items-center gap-3 text-xs text-white/85 opacity-0 transition-opacity duration-300 group-hover:opacity-100">

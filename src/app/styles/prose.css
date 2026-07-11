@@ -29,6 +29,12 @@
     font-size: 1.05em;
 }
 
+/* typography 플러그인 기본 백틱 장식 제거 (utilities 레이어를 이겨야 하므로 unlayered) */
+.prose-main :where(code):not(:where(pre code))::before,
+.prose-main :where(code):not(:where(pre code))::after {
+    content: none;
+}
+
 /* 이 아래는 typography 플러그인과 겹치지 않는 규칙만 둔다.
    typography가 생성하는 속성을 덮어써야 하면 위 unlayered 섹션에 추가할 것. */
 @layer components {

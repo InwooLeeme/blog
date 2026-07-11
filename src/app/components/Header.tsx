@@ -186,6 +186,14 @@ export default function Header({ title }: IHeader) {
   return (
     <div className="sticky top-0 z-50">
       <ReadingProgressBar />
+      {/* 스크롤 시 알약 헤더가 축소되며 생기는 상단/좌우 틈으로 본문이 비치지 않도록 배경을 페이드아웃 */}
+      <div
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-x-0 top-0 -z-10 h-20 bg-gradient-to-b from-background to-transparent transition-opacity duration-300",
+          scrolled ? "opacity-100" : "opacity-0",
+        )}
+      />
       <div
         className={cn(
           "backdrop-blur transition-[transform,border-radius,background-color,box-shadow,border-color] duration-300 ease-out [will-change:transform]",

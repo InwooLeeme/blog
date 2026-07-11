@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getAllPosts, getTagCounts, groupPostsBySeries } from "@/lib/posts"
+import { getAllPosts, getTagCounts, groupPostsBySeries, getAllSeries } from "@/lib/posts"
 import TagSidebar from "../components/TagSidebar";
 import LatestHero from "../components/LatestHero";
 import PostGrid from "../components/PostGrid";
@@ -49,6 +49,7 @@ export default function BlogIndexPage() {
           activeTag={null}
           basePath="/blog"
           tagBasePath="/blog/tags"
+          series={getAllSeries()}
         />
         {/* main */}
         <main className="min-w-0 flex-1">

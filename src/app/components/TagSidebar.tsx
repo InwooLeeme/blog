@@ -7,10 +7,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Hash, LayoutGrid } from "lucide-react";
+import { Hash, LayoutGrid, Layers } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 import IconGithub from "./icon/IconGithub";
 import { useT } from "./LocaleProvider";
+import type { SeriesSummary } from "@/lib/posts";
 
 export type TagCount = { tag: string; count: number };
 
@@ -24,6 +25,7 @@ export default function TagSidebar({
   avatarAlt = "Blog Avatar",
   profileName = siteConfig.author,
   profileDescription,
+  series,
 }: {
   tagCounts: TagCount[];
   totalCount: number;
@@ -36,6 +38,7 @@ export default function TagSidebar({
   avatarAlt?: string;
   profileName?: string;
   profileDescription? : string
+  series?: SeriesSummary[];
 }) {
   const t = useT();
   const [avatarLoaded, setAvatarLoaded] = React.useState(false);
@@ -144,6 +147,41 @@ export default function TagSidebar({
 
         {/* 구분선 */}
         <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+        {series && series.length > 0 && (
+          <>
+            <div className="mt-5 mb-3 flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t("series.title")}
+              </span>
+              <Link
+                href="/blog/series"
+                className="text-xs text-muted-foreground transition-colors hover:text-accent-brand"
+              >
+                {t("sidebar.allSeries")}
+              </Link>
+            </div>
+
+            <ul className="flex flex-col gap-0.5">
+              {series.map((s) => (
+                <li key={s.series}>
+                  <Link
+                    href={`/blog/series/${encodeURIComponent(s.series)}`}
+                    className="group relative flex items-center gap-2 rounded-md py-1.5 pl-3 pr-2 text-sm transition text-foreground/80 hover:bg-muted/70 hover:text-foreground"
+                  >
+                    <Layers className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    <span className="truncate">{s.series}</span>
+                    <span className="ml-auto rounded px-1.5 py-0.5 text-xs tabular-nums bg-muted text-muted-foreground group-hover:bg-background">
+                      {s.count}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          </>
+        )}
 
         {/* 카테고리 헤더 */}
         <div className="mt-5 mb-3 flex items-center justify-between">

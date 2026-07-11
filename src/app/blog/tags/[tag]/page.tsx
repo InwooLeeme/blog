@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getAllPosts, getAllTags, getTagCounts, getPostItemsByTag } from "@/lib/posts";
+import { getAllPosts, getAllTags, getTagCounts, getPostItemsByTag, getAllSeries } from "@/lib/posts";
 import TagSidebar from "../../../components/TagSidebar";
 import PostGrid from "../../../components/PostGrid";
 
@@ -38,9 +38,10 @@ export default async  function BlogTagPage({ params }: { params: Promise<{ tag: 
         <TagSidebar
           tagCounts={tagCounts}
           totalCount={posts.length}
-          activeTag={tag}          
+          activeTag={tag}
           basePath="/blog"
           tagBasePath="/blog/tags"
+          series={getAllSeries()}
         />
         <main className="min-w-0 flex-1">
           <h1 className="text-2xl md:text-3xl font-bold mt-2 mb-6">

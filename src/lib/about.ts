@@ -232,7 +232,7 @@ export const projects: Project[] = [
         type: "external"
       }
     ],
-    image: "https://inwooleeme.github.io/assets/projects/Nasdaq_Thumbnail.png",
+    image: "https://inwooleeme.github.io/assets/projects/database-nasdaq-page.png",
     accent: "#059669",
   },
   {

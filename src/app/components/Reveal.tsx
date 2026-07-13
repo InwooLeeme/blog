@@ -37,8 +37,9 @@ export default function Reveal({
     const el = ref.current;
     if (!el) return;
 
-    // 모션 최소화 설정이면 즉시 표시
+    // 모션 최소화 설정이면 즉시 표시 — 클라이언트 전용 API라 effect 안에서만 판별 가능
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVisible(true);
       return;
     }

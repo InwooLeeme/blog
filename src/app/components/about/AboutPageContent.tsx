@@ -48,6 +48,7 @@ export default function AboutPageContent() {
             aria-label={t("about.solvedacAria")}
             className="block w-full max-w-lg transition-transform duration-300 hover:scale-[1.015]"
           >
+            {/* eslint-disable-next-line @next/next/no-img-element -- 외부에서 동적으로 갱신되는 SVG 배지라 next/image 최적화 대상이 아님 */}
             <img
               src={siteConfig.solvedacCardUrl}
               alt={`${siteConfig.author} solved.ac profile card`}

@@ -52,9 +52,10 @@ export default function SearchDialog() {
     };
   }, [open, items]);
 
-  useEffect(() => {
-    if (!open) setQuery("");
-  }, [open]);
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) setQuery("");
+  };
 
   const results = useMemo<Item[]>(() => {
     if (!items) return [];
@@ -65,7 +66,7 @@ export default function SearchDialog() {
   }, [items, fuse, query]);
 
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
+    <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange}>
       <DialogPrimitive.Trigger asChild>
         <Button variant="ghost" size="icon" aria-label={t("search.open")}>
           <Search className="h-5 w-5" />

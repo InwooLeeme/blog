@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { notFound } from "next/navigation";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { getPostBySlug, getPublishedSlugs } from "@/lib/posts";
@@ -47,7 +48,7 @@ async function coverResponse(cover: string): Promise<Response | null> {
   }
 }
 
-type Post = ReturnType<typeof getPostBySlug>;
+type Post = NonNullable<ReturnType<typeof getPostBySlug>>;
 
 /** 제목·날짜·태그로 OG 이미지를 동적 생성 */
 async function generatedOgImage(post: Post) {
@@ -175,6 +176,7 @@ async function generatedOgImage(post: Post) {
 export default async function Image({ params }: ImageProps) {
   const { slug } = await params;
   const post = getPostBySlug(slug);
+  if (!post) return notFound();
 
   // cover가 있으면 cover를, 없거나 실패하면 동적 생성 이미지를 사용
   if (post.meta.cover) {

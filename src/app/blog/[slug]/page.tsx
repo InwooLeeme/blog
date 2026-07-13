@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypeSlug from "rehype-slug";
-import remarkGfm from "remark-gfm";
-import rehypePrettyCode from "rehype-pretty-code";
-import { transformerNotationDiff } from "@shikijs/transformers";
+import { mdxOptions } from "@/lib/mdx";
 import {
   getAdjacentPosts,
   getPostBySlug,
@@ -30,8 +26,6 @@ import { ProblemMeta } from "@/app/components/mdx/ProblemMeta";
 import { Complexity } from "@/app/components/mdx/Complexity";
 import { Steps, Step } from "@/app/components/mdx/Steps";
 import { Definition } from "@/app/components/mdx/Definition";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
 import JsonLd from "@/app/components/JsonLd";
 import { buildBlogPostingJsonLd, buildBreadcrumbJsonLd } from "@/lib/jsonLd";
 
@@ -134,33 +128,7 @@ export default async function PostPage({ params }: PageProps) {
           <div className="prose prose-zinc dark:prose-invert prose-main lg:text-xl">
             <MDXRemote
               source={content}
-              options={{
-                mdxOptions: {
-                  remarkPlugins: [remarkGfm, remarkMath],
-                  rehypePlugins: [
-                    rehypeSlug,
-                    [
-                      rehypeAutolinkHeadings,
-                      {
-                        behavior: "append",
-                        properties: { className: ["anchor"], ariaLabel: "Link to section" },
-                      },
-                    ],
-                    [rehypePrettyCode,
-                      {
-                        theme: {
-                          dark: "one-dark-pro",
-                          light: "one-light",
-                        },
-                        defaultLang: "plaintext",
-                        keepBackground: true,
-                        transformers: [transformerNotationDiff()],
-                      },
-                    ],
-                    rehypeKatex,
-                  ],
-                },
-              }}
+              options={{ mdxOptions }}
               components={components}
             />
           </div>

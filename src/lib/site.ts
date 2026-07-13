@@ -10,6 +10,12 @@ export const siteConfig = {
   solvedacUrl: "https://solved.ac/profile/inwooleeme",
   solvedacCardUrl:
     "https://raw.githubusercontent.com/InwooLeeme/InwooLeeme/main/solvedac-inwooleeme-v1.svg",
+  giscus: {
+    repo: "InwooLeeme/blog_comment",
+    repoId: "R_kgDOPvLsdQ",
+    category: "General",
+    categoryId: "DIC_kwDOPvLsdc4CvZeK",
+  },
 } as const;
 
 import type { MessageId } from "@/lib/i18n";

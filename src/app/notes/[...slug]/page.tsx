@@ -1,12 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypeSlug from "rehype-slug";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
-import rehypePrettyCode from "rehype-pretty-code";
-import rehypeKatex from "rehype-katex";
+import { mdxOptions } from "@/lib/mdx";
 import { getNoteBySlug, getNoteSlugs } from "@/lib/notes";
 import PreWithCopy from "@/app/components/mdx/pre-with-copy";
 import { Callout } from "@/app/components/mdx/Callout/index";
@@ -65,33 +60,7 @@ export default async function NotePage({ params }: PageProps) {
       <div className="prose prose-zinc dark:prose-invert prose-main">
         <MDXRemote
           source={note.content}
-          options={{
-            mdxOptions: {
-              remarkPlugins: [remarkGfm, remarkMath],
-              rehypePlugins: [
-                rehypeSlug,
-                [
-                  rehypeAutolinkHeadings,
-                  {
-                    behavior: "append",
-                    properties: { className: ["anchor"], ariaLabel: "Link to section" },
-                  },
-                ],
-                [
-                  rehypePrettyCode,
-                  {
-                    theme: {
-                      dark: "one-dark-pro",
-                      light: "one-light",
-                    },
-                    defaultLang: "plaintext",
-                    keepBackground: true,
-                  },
-                ],
-                rehypeKatex,
-              ],
-            },
-          }}
+          options={{ mdxOptions }}
           components={components}
         />
       </div>

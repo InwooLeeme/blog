@@ -10,7 +10,7 @@ cover: "/Atcoder_Thumbnail.png"
 
 <ProblemMeta platform="AtCoder" link="https://atcoder.jp/contests/awc0056/tasks/awc0056_a" title="A - Arranged Dish from a Recipe" tags="implementation" />
 
-각 레시피의 기본점 $A_i$를 배열에 저장해두고, M개 요리마다 어떤 레시피$(B_j)$를 썼는지·아레인지점$(S_j)$이 얼마인지만 보고 $A_{B_j} + S_j를$ 누적하면 끝.
+각 레시피의 기본점 $A_i$를 배열에 저장해두고, M개 요리마다 어떤 레시피 $(B_j)$를 썼는지·아레인지점 $(S_j)$이 얼마인지만 보고 $A_{B_j} + S_j$를 누적하면 끝.
 
 ```cpp showLineNumbers
 ll n, m, res;
@@ -31,7 +31,7 @@ auto solve = [](){
 
 <ProblemMeta platform="AtCoder" link="https://atcoder.jp/contests/awc0056/tasks/awc0056_b" title="B - Energy-Saving Strategy" tags="greedy" />
 
-절전모드로 바꾸면 $A_i가 ⌊A_i/2⌋$가 되니, 절약량은 $A_i - ⌊A_i/2⌋로 A_i$가 클수록 커진다. 그러니 전체 소비전력을 최소화하려면 절약량이 가장 큰, 즉 $A_i$가 가장 큰 기기 $K$대를 골라 절전모드로 돌리는 게 최적. 내림차순 정렬 후 앞 $K$개만 반으로 깎아주면 된다.
+절전모드로 바꾸면 $A_i$가 $⌊A_i/2⌋$가 되니, 절약량은 $A_i - ⌊A_i/2⌋$로 $A_i$가 클수록 커진다. 그러니 전체 소비전력을 최소화하려면 절약량이 가장 큰, 즉 $A_i$가 가장 큰 기기 $K$대를 골라 절전모드로 돌리는 게 최적. 내림차순 정렬 후 앞 $K$개만 반으로 깎아주면 된다.
 
 ```cpp showLineNumbers
 ll n, k, res;

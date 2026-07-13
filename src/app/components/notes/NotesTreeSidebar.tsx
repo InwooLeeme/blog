@@ -142,11 +142,9 @@ function FolderRow({
     return activePath === folderPath || activePath.startsWith(folderPath + "/");
   }, [activeSlug, node.path]);
 
-  const [open, setOpen] = React.useState(containsActive);
-
-  React.useEffect(() => {
-    if (containsActive) setOpen(true);
-  }, [containsActive]);
+  // null이면 containsActive를 따름, 사용자가 토글하면 그 값을 우선 사용
+  const [manualOpen, setManualOpen] = React.useState<boolean | null>(null);
+  const open = manualOpen ?? containsActive;
 
   const childCount = React.useMemo(
     () => countFiles(node.children),
@@ -157,7 +155,7 @@ function FolderRow({
     <li>
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setManualOpen(!open)}
         className="group flex w-full items-center gap-1.5 rounded-md py-1.5 pl-2 pr-2 text-left transition hover:bg-muted/70"
         aria-expanded={open}
       >

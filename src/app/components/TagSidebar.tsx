@@ -43,10 +43,6 @@ export default function TagSidebar({
   const t = useT();
   const [avatarLoaded, setAvatarLoaded] = React.useState(false);
 
-  React.useEffect(() => {
-    setAvatarLoaded(false);
-  }, [avatarSrc]);
-
   const sorted = React.useMemo(() => {
     return [...tagCounts].sort(
       (a, b) => b.count - a.count || (a.tag < b.tag ? -1 : a.tag > b.tag ? 1 : 0)

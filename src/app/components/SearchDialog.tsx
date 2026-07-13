@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import Link from "next/link";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import type Fuse from "fuse.js";
@@ -8,25 +15,91 @@ import type { IFuseOptions } from "fuse.js";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import type { PostMeta } from "@/lib/posts";
 import { useT } from "./LocaleProvider";
 
-type Item = { slug: string; meta: PostMeta };
+type Item = {
+  type: "post" | "note";
+  slug: string;
+  title: string;
+  summary: string;
+  tags: string[];
+};
 
 const FUSE_OPTIONS: IFuseOptions<Item> = {
   threshold: 0.4,
   ignoreLocation: true,
   minMatchCharLength: 2,
   keys: [
-    { name: "meta.title", weight: 0.6 },
-    { name: "meta.tags", weight: 0.3 },
-    { name: "meta.summary", weight: 0.1 },
+    { name: "title", weight: 0.6 },
+    { name: "tags", weight: 0.3 },
+    { name: "summary", weight: 0.1 },
   ],
 };
 
-export default function SearchDialog() {
-  const t = useT();
+function itemHref(item: Item) {
+  return item.type === "note" ? `/notes/${item.slug}` : `/blog/${item.slug}`;
+}
+
+type SearchContextValue = { open: boolean; setOpen: (open: boolean) => void };
+const SearchContext = createContext<SearchContextValue | null>(null);
+
+function useSearchDialog() {
+  const ctx = useContext(SearchContext);
+  if (!ctx) throw new Error("useSearchDialog must be used within SearchProvider");
+  return ctx;
+}
+
+// 검색 다이얼로그는 헤더 안에서 데스크톱/모바일 두 곳에 트리거 버튼이 필요하지만
+// 실제 다이얼로그(Root/Portal)는 한 번만 마운트해야 Ctrl/Cmd+K로 두 개가 동시에 열리지 않는다.
+// 그래서 Provider가 다이얼로그 콘텐츠를 직접 렌더링해 단일 마운트를 구조적으로 보장한다.
+export function SearchProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const value = useMemo(() => ({ open, setOpen }), [open]);
+
+  return (
+    <SearchContext.Provider value={value}>
+      {children}
+      <SearchDialogContent />
+    </SearchContext.Provider>
+  );
+}
+
+export function SearchTrigger() {
+  const t = useT();
+  const { setOpen } = useSearchDialog();
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <Button
+        variant="ghost"
+        size="icon"
+        aria-label={t("search.open")}
+        onClick={() => setOpen(true)}
+      >
+        <Search className="h-5 w-5" />
+      </Button>
+      <kbd className="hidden rounded border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground md:inline-block">
+        ⌘K
+      </kbd>
+    </div>
+  );
+}
+
+function SearchDialogContent() {
+  const t = useT();
+  const { open, setOpen } = useSearchDialog();
   const [items, setItems] = useState<Item[] | null>(null);
   const [fuse, setFuse] = useState<Fuse<Item> | null>(null);
   const [query, setQuery] = useState("");
@@ -52,9 +125,10 @@ export default function SearchDialog() {
     };
   }, [open, items]);
 
-  useEffect(() => {
-    if (!open) setQuery("");
-  }, [open]);
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) setQuery("");
+  };
 
   const results = useMemo<Item[]>(() => {
     if (!items) return [];
@@ -65,12 +139,7 @@ export default function SearchDialog() {
   }, [items, fuse, query]);
 
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
-      <DialogPrimitive.Trigger asChild>
-        <Button variant="ghost" size="icon" aria-label={t("search.open")}>
-          <Search className="h-5 w-5" />
-        </Button>
-      </DialogPrimitive.Trigger>
+    <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay
           className="fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
@@ -120,30 +189,30 @@ export default function SearchDialog() {
               </p>
             ) : (
               <ul className="space-y-1">
-                {results.map(({ slug, meta }) => (
-                  <li key={slug}>
+                {results.map((item) => (
+                  <li key={`${item.type}-${item.slug}`}>
                     <Link
-                      href={`/blog/${slug}`}
+                      href={itemHref(item)}
                       onClick={() => setOpen(false)}
                       className="block rounded-md px-3 py-2 transition hover:bg-muted"
                     >
                       <div className="font-medium line-clamp-1">
-                        {meta.title}
+                        {item.title}
                       </div>
-                      {meta.summary ? (
+                      {item.summary ? (
                         <div className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
-                          {meta.summary}
+                          {item.summary}
                         </div>
                       ) : null}
-                      {meta.tags && meta.tags.length > 0 ? (
+                      {item.tags.length > 0 ? (
                         <div className="mt-1 flex flex-wrap gap-1">
-                          {meta.tags.slice(0, 3).map((t) => (
+                          {item.tags.slice(0, 3).map((tag) => (
                             <Badge
-                              key={t}
+                              key={tag}
                               variant="secondary"
                               className="rounded-full text-xs"
                             >
-                              {t}
+                              {tag}
                             </Badge>
                           ))}
                         </div>

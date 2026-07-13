@@ -19,6 +19,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   // SSG HTML은 기본 언어로 나가므로, 저장된 언어는 마운트 후 반영한다(하이드레이션 불일치 방지)
   useEffect(() => {
     const saved = document.cookie.match(/(?:^|;\s*)locale=(ko|en)/)?.[1] as Locale | undefined;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (saved && saved !== DEFAULT_LOCALE) setLocaleState(saved);
   }, []);
 

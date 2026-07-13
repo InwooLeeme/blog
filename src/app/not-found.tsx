@@ -31,7 +31,9 @@ export default function NotFound() {
   const t = useT();
   const [emoji, setEmoji] = useState(KAOMOJIS[0]);
 
+  // 마운트 후에만 랜덤 선택 — 하이드레이션 불일치 방지 목적의 의도적 동기 setState
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setEmoji(pickRandom());
   }, []);
 

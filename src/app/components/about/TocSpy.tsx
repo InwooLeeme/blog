@@ -41,6 +41,7 @@ export default function TocSpy({ sections }: { sections: TocSection[] }) {
   React.useEffect(() => {
     const staticToc = document.getElementById("about-toc");
     if (!staticToc) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShowToc(true);
       return;
     }

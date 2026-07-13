@@ -24,6 +24,8 @@ export default function MobileToc() {
     const nodes = document.querySelectorAll<HTMLElement>(
       "#post-article h2, #post-article h3, #post-article h4",
     );
+    // 렌더된 MDX 본문의 실제 heading을 읽어야 해서 effect 안에서만 계산 가능
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHeadings(
       Array.from(nodes)
         .filter((el) => el.id)

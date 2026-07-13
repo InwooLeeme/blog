@@ -30,6 +30,7 @@ export default function ChatbotEmbed({
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
   const [mounted, setMounted] = React.useState(false);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   React.useEffect(() => setMounted(true), []);
 
   // 초기 로드 시 테마를 쿼리로 주입 (마운트 후 1회 결정)

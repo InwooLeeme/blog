@@ -27,6 +27,8 @@ const ReadingProgressBar = () => {
     }, []);
 
     useEffect(() => {
+        // 마운트 시점에 이미 스크롤된 위치(예: 뒤로가기 복원)를 즉시 반영하기 위한 동기 호출
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         calculateScrollProgress();
 
         window.addEventListener('scroll', calculateScrollProgress);

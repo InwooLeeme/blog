@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import ReadingProgressBar from "./ReadingProgressBar";
-import SearchDialog from "./SearchDialog";
+import { SearchProvider, SearchTrigger } from "./SearchDialog";
 import { cn } from "@/lib/utils";
 import { navLinks, siteConfig, isActivePath } from "@/lib/site";
 
@@ -57,7 +57,7 @@ function Wordmark({ title }: { title: string | undefined }) {
 function Controls() {
   return (
     <>
-      <SearchDialog />
+      <SearchTrigger />
       <Button asChild variant="ghost" size="icon" aria-label="GitHub">
         <Link href={siteConfig.githubUrl} target="_blank" rel="noreferrer">
           <IconGithub width={20} height={20} />
@@ -184,35 +184,37 @@ export default function Header({ title }: IHeader) {
   const scrolled = useScrolled();
 
   return (
-    <div className="sticky top-0 z-50">
-      <ReadingProgressBar />
-      {/* 스크롤 시 알약 헤더가 축소되며 생기는 상단/좌우 틈으로 본문이 비치지 않도록 배경을 페이드아웃 */}
-      <div
-        aria-hidden
-        className={cn(
-          "pointer-events-none absolute inset-x-0 top-0 -z-10 h-20 bg-gradient-to-b from-background to-transparent transition-opacity duration-300",
-          scrolled ? "opacity-100" : "opacity-0",
-        )}
-      />
-      <div
-        className={cn(
-          "backdrop-blur transition-[transform,border-radius,background-color,box-shadow,border-color] duration-300 ease-out [will-change:transform]",
-          scrolled
-            ? "rounded-full border bg-background/85 shadow-lg"
-            : "rounded-none border-b bg-background/70",
-        )}
-        style={{
-          transform: scrolled ? "translateY(6px) scale(0.97)" : "translateY(0) scale(1)",
-        }}
-      >
-        <div className="mx-auto flex h-14 max-w-6xl items-center px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-1 items-center gap-4">
-            <Wordmark title={title} />
+    <SearchProvider>
+      <div className="sticky top-0 z-50">
+        <ReadingProgressBar />
+        {/* 스크롤 시 알약 헤더가 축소되며 생기는 상단/좌우 틈으로 본문이 비치지 않도록 배경을 페이드아웃 */}
+        <div
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute inset-x-0 top-0 -z-10 h-20 bg-gradient-to-b from-background to-transparent transition-opacity duration-300",
+            scrolled ? "opacity-100" : "opacity-0",
+          )}
+        />
+        <div
+          className={cn(
+            "backdrop-blur transition-[transform,border-radius,background-color,box-shadow,border-color] duration-300 ease-out [will-change:transform]",
+            scrolled
+              ? "rounded-full border bg-background/85 shadow-lg"
+              : "rounded-none border-b bg-background/70",
+          )}
+          style={{
+            transform: scrolled ? "translateY(6px) scale(0.97)" : "translateY(0) scale(1)",
+          }}
+        >
+          <div className="mx-auto flex h-14 max-w-6xl items-center px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-1 items-center gap-4">
+              <Wordmark title={title} />
+            </div>
+            <DesktopNav pathname={pathname} />
+            <MobileNav pathname={pathname} />
           </div>
-          <DesktopNav pathname={pathname} />
-          <MobileNav pathname={pathname} />
         </div>
       </div>
-    </div>
+    </SearchProvider>
   );
 }

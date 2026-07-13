@@ -36,13 +36,14 @@ export function getPostSlugs() {
 /**
 * slug(또는 파일명)로부터 특정 게시글의 메타데이터(frontmatter)와 본문(content)을 읽어 반환합니다.
 * 주의/예외:
-* - 해당 MDX 파일이 없으면 fs.readFileSync에서 예외가 발생합니다.
+* - 해당 MDX 파일이 없으면 null을 반환합니다.
 * - frontmatter의 타입은 PostMeta로 단언(cast)하고 있으므로, 필수 필드 누락 시 런타임에만 문제될 수 있습니다.
 * - cache()로 감싸 동일 요청 내 같은 slug는 한 번만 읽습니다.
 */
 export const getPostBySlug = cache((slug: string) => {
   const realSlug = slug.replace(/\.mdx$/, "")
   const fullPath = path.join(POSTS_DIR, `${realSlug}.mdx`)
+  if (!fs.existsSync(fullPath)) return null
   const file = fs.readFileSync(fullPath, "utf8")
   const { content, data } = matter(file)
   const stats = rt(content)
@@ -60,7 +61,9 @@ export const getPostBySlug = cache((slug: string) => {
 * - cache()로 감싸 동일 요청 내 파일 스캔을 한 번으로 공유합니다.
 */
 export const getAllPosts = cache(() => {
-  const posts = getPostSlugs().map((s) => getPostBySlug(s))
+  const posts = getPostSlugs()
+    .map((s) => getPostBySlug(s))
+    .filter((p): p is NonNullable<typeof p> => p !== null)
   return posts
     .filter((p) => !p.meta.draft)
     .sort((a, b) => (a.meta.date < b.meta.date ? 1 : -1))

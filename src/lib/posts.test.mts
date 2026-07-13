@@ -5,6 +5,7 @@ import {
   getAllTags,
   getTagCounts,
   getPostItemsByTag,
+  getPostBySlug,
   getPostsBySeries,
   getSeriesNavigation,
   getAdjacentPosts,
@@ -49,6 +50,10 @@ test("getPostItemsByTag: filters posts containing the tag", () => {
     getPostItemsByTag(fixture, "x").map((p) => p.slug),
     ["a"],
   );
+});
+
+test("getPostBySlug: unknown slug returns null", () => {
+  assert.equal(getPostBySlug("__does-not-exist__"), null);
 });
 
 const posts = getAllPosts();

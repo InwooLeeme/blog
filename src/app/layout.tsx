@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
+import { Geist_Mono, Space_Grotesk } from "next/font/google";
+import localFont from "next/font/local";
 import { ViewTransitions } from "next-view-transitions";
 import "./globals.css";
 import Header from "./components/Header";
@@ -14,9 +15,14 @@ import type { Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next"
 import { siteConfig } from "@/lib/site";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// 본문 폰트 — 한글/라틴을 함께 다루는 Pretendard (public/fonts, Medium·Bold만 자체 호스팅)
+const pretendard = localFont({
+  src: [
+    { path: "../../public/fonts/Pretendard-Medium.otf", weight: "500", style: "normal" },
+    { path: "../../public/fonts/Pretendard-Bold.otf", weight: "700", style: "normal" },
+  ],
+  variable: "--font-pretendard",
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -72,7 +78,7 @@ export default function RootLayout({
     <ViewTransitions>
       <html lang="ko" suppressHydrationWarning>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased w-full`}
+          className={`${pretendard.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased w-full`}
         >
           <ThemeProvider
             attribute="class"

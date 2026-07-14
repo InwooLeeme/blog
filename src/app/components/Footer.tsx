@@ -27,7 +27,7 @@ export default function SiteFooter() {
 
   return (
     <footer className="border-t mt-16">
-      <div className="mx-auto max-w-5xl px-4 py-12">
+      <div className="mx-auto max-w-6xl px-4 py-12">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           {/* 브랜드 */}
           <div className="space-y-3">

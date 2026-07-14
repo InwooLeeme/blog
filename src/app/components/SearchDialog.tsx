@@ -23,6 +23,7 @@ type Item = {
   title: string;
   summary: string;
   tags: string[];
+  body: string;
 };
 
 const FUSE_OPTIONS: IFuseOptions<Item> = {
@@ -30,9 +31,10 @@ const FUSE_OPTIONS: IFuseOptions<Item> = {
   ignoreLocation: true,
   minMatchCharLength: 2,
   keys: [
-    { name: "title", weight: 0.6 },
-    { name: "tags", weight: 0.3 },
-    { name: "summary", weight: 0.1 },
+    { name: "title", weight: 0.5 },
+    { name: "tags", weight: 0.25 },
+    { name: "summary", weight: 0.15 },
+    { name: "body", weight: 0.1 },
   ],
 };
 

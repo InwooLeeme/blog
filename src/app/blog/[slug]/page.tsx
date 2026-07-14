@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
+import "katex/dist/katex.min.css";
 import { mdxOptions } from "@/lib/mdx";
 import {
   getAdjacentPosts,

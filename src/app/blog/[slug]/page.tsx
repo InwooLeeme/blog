@@ -109,7 +109,7 @@ export default async function PostPage({ params }: PageProps) {
             alt={meta.title}
             className="rounded-xl object-cover border"
             sizes="(min-width:1024px) 768px, 100vw"
-            priority={false}
+            priority
           />
         </div>
       ) : null}

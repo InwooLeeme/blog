@@ -12,7 +12,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-pretendard);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-space-grotesk);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -79,7 +79,7 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.91 0.006 255);
   --input: oklch(0.91 0.006 255);
-  --ring: oklch(0.708 0 0);
+  --ring: var(--accent-brand);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -119,7 +119,7 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --ring: var(--accent-brand);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -145,8 +145,12 @@
   /* 제목은 디스플레이 폰트 — 한글 글리프는 sans로 자동 폴백 */
   h1, h2, h3 {
     font-family: var(--font-display), var(--font-sans), ui-sans-serif, sans-serif;
+    text-wrap: balance;
   }
 }
+
+/* 한글은 단어(어절) 중간에서 줄바꿈되지 않도록 — 라틴 텍스트 줄바꿈에는 영향 없음 */
+body { word-break: keep-all; }
 
 html { scrollbar-gutter: stable; scroll-behavior: smooth; }
 
@@ -200,20 +204,23 @@ html.language-transitioning::view-transition-new(language-toggle-icon) {
 
 article :is(h2,h3,h4){ scroll-margin-top: 6rem; }
 
-/* Profile 내비 항목 — 대각선으로 주기적으로 흔들림 */
+/* Profile 내비 항목 — 마우스오버/포커스 시 한 번 대각선으로 흔들림 (상시 반복 애니메이션은 시선을 계속 뺏어 제거) */
 @keyframes diagonal-shake {
-  0%, 22%, 100% { transform: translate(0, 0) rotate(0deg); }
-  3%  { transform: translate(2.5px, -2.5px) rotate(-9deg); }
-  6%  { transform: translate(-2.5px, 2.5px) rotate(9deg); }
-  9%  { transform: translate(2.5px, -2px) rotate(-8deg); }
-  12% { transform: translate(-2.5px, 2px) rotate(8deg); }
-  15% { transform: translate(2px, -1.5px) rotate(-6deg); }
-  18% { transform: translate(-1.5px, 1.5px) rotate(5deg); }
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  15%  { transform: translate(2.5px, -2.5px) rotate(-9deg); }
+  30%  { transform: translate(-2.5px, 2.5px) rotate(9deg); }
+  45%  { transform: translate(2.5px, -2px) rotate(-8deg); }
+  60% { transform: translate(-2.5px, 2px) rotate(8deg); }
+  75% { transform: translate(2px, -1.5px) rotate(-6deg); }
+  90% { transform: translate(-1.5px, 1.5px) rotate(5deg); }
 }
-.animate-diagonal-shake {
+.hover-diagonal-shake {
   display: inline-block;
-  animation: diagonal-shake 2.2s ease-in-out infinite;
+}
+.group\/navitem:hover .hover-diagonal-shake,
+.group\/navitem:focus-visible .hover-diagonal-shake {
+  animation: diagonal-shake 0.8s ease-in-out 1;
 }
 @media (prefers-reduced-motion: reduce) {
-  .animate-diagonal-shake { animation: none; }
+  .hover-diagonal-shake { animation: none; }
 }

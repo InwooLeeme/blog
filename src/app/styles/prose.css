@@ -39,9 +39,9 @@
    typography가 생성하는 속성을 덮어써야 하면 위 unlayered 섹션에 추가할 것. */
 @layer components {
 
-    /* 아티클 기본 컨테이너 */
+    /* 아티클 기본 컨테이너 — 큰 화면에서도 한 줄 길이가 읽기 편한 범위(prose)를 유지 */
     .prose-main {
-        @apply mx-auto max-w-prose lg:max-w-6xl;
+        @apply mx-auto max-w-prose;
       }
 
     /* 헤딩 간격 & 앵커 위치 */

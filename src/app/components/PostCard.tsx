@@ -22,7 +22,7 @@ export default function PostCard({
 
     return (
         <Link href={`/blog/${slug}`} className="group block" aria-label={meta.title}>
-            <Card className="overflow-hidden h-full rounded-md py-0 gap-0 transition duration-300 hover:-translate-y-1 hover:border-accent-brand hover:shadow-xl hover:shadow-accent-brand/15">
+            <Card className="overflow-hidden h-full py-0 gap-0 transition duration-300 hover:border-accent-brand hover:shadow-xl hover:shadow-accent-brand/15">
                 <div
                     className="relative overflow-hidden"
                     style={{ viewTransitionName: `post-cover-${slug}` }}
@@ -46,7 +46,6 @@ export default function PostCard({
                         )}
                     </AspectRatio>
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                    <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-black/5 dark:ring-white/10 opacity-0 group-hover:opacity-100 transition" />
                 </div>
 
                 <CardContent className="p-4">

@@ -2,7 +2,7 @@
  * 블로그 글 그래프 뷰용 노드·엣지 데이터를 만드는 헬퍼.
  * - 서버에서만 실행 (getAllPosts 의존)
  */
-import { getAllPosts, getPostsBySeries, getAllSeries } from "./posts";
+import { getAllPosts, getPostsBySeries, getAllSeries } from "./posts.ts";
 
 export type GraphNode = {
   id: string;

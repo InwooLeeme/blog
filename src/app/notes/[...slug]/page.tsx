@@ -8,6 +8,8 @@ import PreWithCopy from "@/app/components/mdx/pre-with-copy";
 import { Callout } from "@/app/components/mdx/Callout/index";
 import MdxImage from "@/app/components/mdx/MdxImage";
 import { Rank } from "@/app/components/mdx/Rank";
+import JsonLd from "@/app/components/JsonLd";
+import { buildNoteArticleJsonLd, buildNoteBreadcrumbJsonLd } from "@/lib/jsonLd";
 
 interface PageProps {
   params: Promise<{ slug: string[] }>;
@@ -22,10 +24,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const note = getNoteBySlug(slug);
   if (!note) return {};
   const title = note.meta.title ?? slug[slug.length - 1];
+  const description = note.meta.description;
+  const canonical = `/notes/${slug.join("/")}`;
   return {
     title: `Notes | ${title}`,
-    description: note.meta.description ?? "",
-    alternates: { canonical: `/notes/${slug.join("/")}` },
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: "article",
+      title,
+      description,
+      url: canonical,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
   };
 }
 
@@ -47,6 +62,12 @@ export default async function NotePage({ params }: PageProps) {
 
   return (
     <article id="note-article" className="w-full">
+      <JsonLd
+        data={[
+          buildNoteArticleJsonLd(slug, note.meta),
+          buildNoteBreadcrumbJsonLd(slug, title),
+        ]}
+      />
       <header className="mb-6 mt-2">
         {breadcrumb.length > 0 ? (
           <nav className="mb-1 text-xs text-muted-foreground">

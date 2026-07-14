@@ -46,6 +46,55 @@ export function buildBreadcrumbJsonLd(slug: string, title: string) {
   };
 }
 
+/** 노트 상세 — schema.org TechArticle */
+export function buildNoteArticleJsonLd(
+  slug: string[],
+  meta: { title?: string; description?: string },
+) {
+  const path = slug.map(encodeURIComponent).join("/");
+  const url = `${SITE}/notes/${path}`;
+  const author = { "@type": "Person", name: siteConfig.author, url: SITE };
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    headline: meta.title ?? slug[slug.length - 1],
+    ...(meta.description ? { description: meta.description } : {}),
+    author,
+    publisher: author,
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    url,
+  };
+}
+
+/** 노트 상세 — 빵부스러기 경로 (Notes → 카테고리... → 제목) */
+export function buildNoteBreadcrumbJsonLd(slug: string[], title: string) {
+  const items = [{ name: "Notes", url: `${SITE}/notes` }];
+  const acc: string[] = [];
+  for (const segment of slug.slice(0, -1)) {
+    acc.push(segment);
+    items.push({
+      name: segment,
+      url: `${SITE}/notes/${acc.map(encodeURIComponent).join("/")}`,
+    });
+  }
+  items.push({
+    name: title,
+    url: `${SITE}/notes/${slug.map(encodeURIComponent).join("/")}`,
+  });
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((it, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: it.name,
+      item: it.url,
+    })),
+  };
+}
+
 /** 홈 — 사이트 식별 */
 export function buildWebSiteJsonLd() {
   return {

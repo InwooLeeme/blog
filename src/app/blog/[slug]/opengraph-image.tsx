@@ -16,7 +16,7 @@ export const dynamicParams = false;
 
 function loadFont(weight: 700 | 500) {
   const filename = `Pretendard-${weight === 700 ? "Bold" : "Medium"}.otf`;
-  return readFile(join(process.cwd(), "public", "fonts", filename));
+  return readFile(join(process.cwd(), "src", "assets", "fonts", filename));
 }
 
 interface ImageProps {

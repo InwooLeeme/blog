@@ -24,7 +24,7 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
         <Link
           href={`/blog/${first.slug}`}
           aria-label={first.meta.title}
-          className="group relative block h-64 overflow-hidden rounded-md border"
+          className="group relative block h-64 overflow-hidden rounded-xl border"
         >
           {firstCoverSrc ? (
             <Image
@@ -68,7 +68,7 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
         </Link>
 
         {latest.length > 1 ? (
-          <ul className="mt-3 divide-y divide-border overflow-hidden rounded-md border">
+          <ul className="mt-3 divide-y divide-border overflow-hidden rounded-xl border">
             {latest.slice(1).map(({ slug, meta }) => {
               const src = getCardCoverSrc(meta);
               return (
@@ -126,7 +126,7 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
                 href={`/blog/${slug}`}
                 aria-label={meta.title}
                 className={cn(
-                  "group relative basis-0 overflow-hidden rounded-md border bg-card",
+                  "group relative basis-0 overflow-hidden rounded-xl border bg-card",
                   "transition-[flex-grow,border-color] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
                   "outline-none focus-visible:ring-2 focus-visible:ring-accent-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                   i === 0 ? "grow-[4] border-accent-brand" : "grow",

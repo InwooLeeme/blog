@@ -120,14 +120,14 @@ function DesktopNav({ pathname }: { pathname: string }) {
           onMouseEnter={() => setHovered(i)}
           aria-current={i === activeIndex ? "page" : undefined}
           className={cn(
-            "relative rounded-full px-3 py-1.5 font-medium transition-colors",
+            "group/navitem relative rounded-full px-3 py-1.5 font-medium transition-colors",
             i === target
               ? "text-accent-brand"
               : "text-foreground/80 hover:text-foreground",
           )}
         >
           {link.href === "/about" ? (
-            <span className="animate-diagonal-shake">{link.label}</span>
+            <span className="hover-diagonal-shake">{link.label}</span>
           ) : (
             link.label
           )}

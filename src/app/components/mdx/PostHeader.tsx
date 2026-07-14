@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Calendar } from "lucide-react";
+import { formatPostDate } from "@/lib/post-display";
 
 interface IHeaderProps {
     title: string;
@@ -23,8 +24,8 @@ export default function PostHeader({title, date, readingTime, summary, series}: 
             {summary ? (
                 <p className="mt-2 mb-4 text-base text-muted-foreground">{summary}</p>
             ) : null}
-            <p className="mt-0 mb-8 text-sm text-muted-foreground flex items-center gap-1.5"><Calendar className="h-4 w-4" />{new Date(date).toLocaleDateString()}{readingTime ? <> · {readingTime} min read</> : null}</p>
-            <hr className="my-6 border-gray-200 dark:border-gray-700" />
+            <p className="mt-0 mb-8 text-sm text-muted-foreground flex items-center gap-1.5"><Calendar className="h-4 w-4" />{formatPostDate(date)}{readingTime ? <> · {readingTime} min read</> : null}</p>
+            <hr className="my-6" />
         </header>
     )
 }

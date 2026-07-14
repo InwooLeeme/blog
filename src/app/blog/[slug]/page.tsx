@@ -37,13 +37,10 @@ interface PageProps {
   }>;
 }
 
-// 정적 경로 생성
+// 정적 경로 생성 (발행 글만 미리 생성 — draft는 dynamicParams로 요청 시 렌더링)
 export function generateStaticParams() {
   return getPublishedSlugs().map((slug) => ({ slug }));
 }
-
-// generateStaticParams에 없는 슬러그는 404 처리
-export const dynamicParams = false;
 
 // 정적 메타데이터
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

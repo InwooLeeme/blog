@@ -11,10 +11,12 @@ export default function PostCard({
     slug,
     meta,
     featured = false,
+    priority = featured,
 }: {
     slug: string;
     meta: PostMeta;
     featured?: boolean;
+    priority?: boolean;
 }) {
     const formatted = formatPostDate(meta.date);
     const coverSrc = getCardCoverSrc(meta);
@@ -39,7 +41,7 @@ export default function PostCard({
                                         ? "(min-width:768px) 66vw, 100vw"
                                         : "(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
                                 }
-                                priority={false}
+                                priority={priority}
                             />
                         ) : (
                             <CoverPlaceholder label={getCoverLabel(meta)} />

@@ -18,8 +18,8 @@ import { siteConfig } from "@/lib/site";
 // 본문 폰트 — 한글/라틴을 함께 다루는 Pretendard (public/fonts, Medium·Bold만 자체 호스팅)
 const pretendard = localFont({
   src: [
-    { path: "../../public/fonts/Pretendard-Medium.otf", weight: "500", style: "normal" },
-    { path: "../../public/fonts/Pretendard-Bold.otf", weight: "700", style: "normal" },
+    { path: "../../public/fonts/Pretendard-Medium.woff2", weight: "500", style: "normal" },
+    { path: "../../public/fonts/Pretendard-Bold.woff2", weight: "700", style: "normal" },
   ],
   variable: "--font-pretendard",
   display: "swap",

@@ -253,6 +253,11 @@ export const projects: Project[] = [
         href: "https://github.com/InwooLeeme/mcp-assistant",
         type: "github",
       },
+      {
+        label: "논문 보기",
+        href: "https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12288718",
+        type: "external",
+      },
     ],
     image: "https://inwooleeme.github.io/assets/projects/mcp_assistant_demo.png",
     accent: "#0891b2",

@@ -357,16 +357,17 @@ function updateScene(s: Scene, dt: number) {
   }
 }
 
-/** 코어 뒤에 깔리는 성운 헤일로 (가산 합성, 어두운 테마 전용) */
+/** 코어 뒤에 깔리는 성운 헤일로 — 어두운 테마는 가산 합성, 밝은 테마는 옅은 일반 합성으로 성단 형태를 드러낸다 */
 function drawNebula(s: Scene) {
   const { ctx } = s;
   const { sx, sy, scale } = project(s, 0, 0, CONFIG.clusterZ);
+  const alphaScale = s.dark ? 1 : 0.35;
   for (const [mul, a] of [[1, 0.1], [0.5, 0.16]] as const) {
     const r = CONFIG.nebulaRadius * scale * mul;
     const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, r);
     g.addColorStop(0, CONFIG.nebulaColor);
     g.addColorStop(1, "transparent");
-    ctx.globalAlpha = a;
+    ctx.globalAlpha = a * alphaScale;
     ctx.fillStyle = g;
     ctx.beginPath();
     ctx.arc(sx, sy, r, 0, Math.PI * 2);
@@ -446,25 +447,25 @@ function drawScene(s: Scene) {
   ctx.clearRect(0, 0, s.width, s.height);
   const depthSpan = CONFIG.zFar - CONFIG.zNear;
 
-  // 어두운 테마: 가산 합성으로 겹친 별이 백열 코어로 타오른다
-  if (s.dark) {
-    ctx.globalCompositeOperation = "lighter";
-    drawNebula(s);
-  }
+  // 어두운 테마: 가산 합성으로 겹친 별이 백열 코어로 타오른다. 밝은 테마도 옅게 성운을 깔아 성단 형태를 살린다
+  ctx.globalCompositeOperation = s.dark ? "lighter" : "source-over";
+  drawNebula(s);
 
   for (const star of s.stars) {
     const { sx, sy, scale } = project(s, star.x, star.y, star.z);
     if (sx < -16 || sx > s.width + 16 || sy < -16 || sy > s.height + 16) continue;
     const depth = Math.max(0, Math.min(1, (CONFIG.zFar - star.z) / depthSpan)); // 0(멀다)~1(가깝다)
     const twinkle = 0.35 + Math.sin(star.phase) * 0.25;
-    ctx.globalAlpha = Math.min(1, twinkle * (0.5 + depth * 0.5));
     if (s.dark) {
+      ctx.globalAlpha = Math.min(1, twinkle * (0.5 + depth * 0.5));
       const r = star.baseR * scale * 3 + 1;
       ctx.drawImage(s.starSprites.get(star.color)!, sx - r, sy - r, r * 2, r * 2);
     } else {
+      // 밝은 배경에서는 작은 단색 점이 묻히기 쉬워 최소 크기·불투명도를 높여 별 무리가 드러나게 한다
+      ctx.globalAlpha = Math.min(1, 0.55 + twinkle * (0.3 + depth * 0.3));
       ctx.fillStyle = s.baseColor;
       ctx.beginPath();
-      ctx.arc(sx, sy, star.baseR * scale, 0, Math.PI * 2);
+      ctx.arc(sx, sy, star.baseR * scale * 1.6 + 0.4, 0, Math.PI * 2);
       ctx.fill();
     }
   }

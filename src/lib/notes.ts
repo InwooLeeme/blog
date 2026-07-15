@@ -29,6 +29,15 @@ export type NotesTreeNode =
 
 const NOTES_DIR = path.join(process.cwd(), "content", "notes");
 
+/** 카테고리 폴더명 표시용 포맷 — 전부 소문자인 폴더명만 첫 글자를 올려 다른 카테고리(DataStructure, DP 등)와
+ *  대소문자 표기를 맞춘다. 경로(URL)에는 영향 없음 — 표시 라벨만 다듬는다. */
+export function formatCategoryLabel(name: string): string {
+  if (/^[a-z][a-z0-9-]*$/.test(name)) {
+    return name[0].toUpperCase() + name.slice(1);
+  }
+  return name;
+}
+
 function safeReaddir(dir: string): fs.Dirent[] {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir, { withFileTypes: true });
@@ -71,7 +80,7 @@ function buildTree(dir: string, relPath: string = ""): NotesTreeNode[] {
       const children = buildTree(path.join(dir, entry.name), childRel);
       folders.push({
         type: "folder",
-        name: entry.name,
+        name: formatCategoryLabel(entry.name),
         path: childRel,
         children,
       });
@@ -91,3 +100,13 @@ function buildTree(dir: string, relPath: string = ""): NotesTreeNode[] {
 }
 
 export const getNotesTree = cache((): NotesTreeNode[] => buildTree(NOTES_DIR));
+
+/** 트리 안의 노트(파일) 총 개수를 센다 */
+export function countNotes(nodes: NotesTreeNode[]): number {
+  let n = 0;
+  for (const node of nodes) {
+    if (node.type === "file") n++;
+    else n += countNotes(node.children);
+  }
+  return n;
+}

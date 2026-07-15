@@ -24,6 +24,7 @@ export type NavLink = { href: string; label: string; messageId?: MessageId };
 
 /** 헤더 내비게이션 */
 export const navLinks: NavLink[] = [
+  { href: "/blog", label: "블로그", messageId: "footer.blog" },
   { href: "/about", label: "Profile" },
   { href: "/notes", label: "Notes" },
   { href: "/playground", label: "Playground" },

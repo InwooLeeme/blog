@@ -121,7 +121,7 @@ test("getRelatedPosts: tag-overlap posts rank before non-overlap posts", () => {
   }
 });
 
-test("groupPostsBySeries: groups by series, sorted date desc within and across groups", () => {
+test("groupPostsBySeries: groups by series, episodes sorted slug asc within, latest-episode date desc across groups", () => {
   const seriesPosts = posts.filter((p) => !!p.meta.series);
   assert.ok(seriesPosts.length > 0, "fixture assumption: series posts exist");
 
@@ -129,14 +129,17 @@ test("groupPostsBySeries: groups by series, sorted date desc within and across g
   assert.ok(groups.length > 0);
 
   for (const group of groups) {
+    // 회차는 slug(zero-padded) 오름차순 — getPostsBySeries와 동일 규칙이라 번호 순서대로 읽힌다
     for (let i = 1; i < group.posts.length; i++) {
-      assert.ok(group.posts[i - 1].meta.date >= group.posts[i].meta.date);
+      assert.ok(group.posts[i - 1].slug.localeCompare(group.posts[i].slug) <= 0);
     }
     assert.equal(group.total, getPostsBySeries(group.series).length);
   }
 
+  const latestDateOf = (groupPosts: (typeof groups)[number]["posts"]) =>
+    groupPosts.reduce((max, p) => (p.meta.date > max ? p.meta.date : max), groupPosts[0].meta.date);
   for (let i = 1; i < groups.length; i++) {
-    assert.ok(groups[i - 1].posts[0].meta.date >= groups[i].posts[0].meta.date);
+    assert.ok(latestDateOf(groups[i - 1].posts) >= latestDateOf(groups[i].posts));
   }
 });
 

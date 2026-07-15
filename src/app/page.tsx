@@ -19,7 +19,7 @@ export default function Home() {
       <JsonLd data={[buildWebSiteJsonLd(), buildPersonJsonLd()]} />
       <LandingHero />
 
-      <section className="mx-auto w-full mt-10 max-w-6xl px-4 pb-20 md:px-6 lg:px-8">
+      <section className="mx-auto w-full mt-10 max-w-6xl px-4 pb-12 md:px-6 lg:px-8">
         <h2 className="mb-6 text-2xl font-bold"><Tr id="landing.recent" /></h2>
 
         <div className="grid gap-5 lg:grid-cols-3">

@@ -23,7 +23,7 @@ export type GraphData = {
   edges: GraphEdge[];
 };
 
-/** 이보다 많은 글이 공유하는 태그는 너무 흔해서(예: PS, Atcoder) 엣지에서 제외 — 털뭉치 방지 */
+/** 이보다 많은 글이 공유하는 태그는 너무 흔해서(예: PS, AtCoder) 엣지에서 제외 — 털뭉치 방지 */
 const MAX_TAG_GROUP_SIZE = 5;
 
 export function buildGraphData(): GraphData {

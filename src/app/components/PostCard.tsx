@@ -44,7 +44,7 @@ export default function PostCard({
                                 priority={priority}
                             />
                         ) : (
-                            <CoverPlaceholder label={getCoverLabel(meta)} />
+                            <CoverPlaceholder label={getCoverLabel(meta)} seed={slug} />
                         )}
                     </AspectRatio>
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

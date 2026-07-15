@@ -70,6 +70,7 @@ function Controls() {
 }
 
 function DesktopNav({ pathname }: { pathname: string }) {
+  const t = useT();
   const activeIndex = navLinks.findIndex((l) => isActivePath(pathname, l.href));
   const [hovered, setHovered] = React.useState<number | null>(null);
   const navRef = React.useRef<HTMLElement>(null);
@@ -128,6 +129,8 @@ function DesktopNav({ pathname }: { pathname: string }) {
         >
           {link.href === "/about" ? (
             <span className="hover-diagonal-shake">{link.label}</span>
+          ) : link.messageId ? (
+            t(link.messageId)
           ) : (
             link.label
           )}
@@ -167,7 +170,7 @@ function MobileNav({ pathname }: { pathname: string }) {
                         : "text-foreground hover:bg-muted/70",
                     )}
                   >
-                    {n.label}
+                    {n.messageId ? t(n.messageId) : n.label}
                   </Link>
                 </SheetClose>
               );

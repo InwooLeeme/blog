@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import "katex/dist/katex.min.css";
 import { mdxOptions } from "@/lib/mdx";
-import { getNoteBySlug, getNoteSlugs } from "@/lib/notes";
+import { formatCategoryLabel, getNoteBySlug, getNoteSlugs } from "@/lib/notes";
 import PreWithCopy from "@/app/components/mdx/pre-with-copy";
 import { Callout } from "@/app/components/mdx/Callout/index";
 import MdxImage from "@/app/components/mdx/MdxImage";
@@ -71,7 +71,7 @@ export default async function NotePage({ params }: PageProps) {
       <header className="mb-6 mt-2">
         {breadcrumb.length > 0 ? (
           <nav className="mb-1 text-xs text-muted-foreground">
-            {breadcrumb.join(" / ")}
+            {breadcrumb.map(formatCategoryLabel).join(" / ")}
           </nav>
         ) : null}
         <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">{title}</h1>

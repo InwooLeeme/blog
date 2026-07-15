@@ -55,7 +55,7 @@ function buildProblemBlock({ link, title, tags, lang, code, time }) {
 }
 
 async function main() {
-  const title = await ask("글 제목 (예: Atcoder Weekday Contest 077)");
+  const title = await ask("글 제목 (예: AtCoder Weekday Contest 077)");
   if (!title) {
     console.log("제목이 필요합니다. 종료합니다.");
     rl.close();
@@ -73,7 +73,7 @@ async function main() {
     return;
   }
 
-  const frontmatter = ["---", `title: "${title}"`, `date: "${date}"`, `summary: "${title} 풀이"`, "tags: [Atcoder]", `series: "${series}"`, "draft: true", 'cover: ""', "---"].join(
+  const frontmatter = ["---", `title: "${title}"`, `date: "${date}"`, `summary: "${title} 풀이"`, "tags: [AtCoder]", `series: "${series}"`, "draft: true", 'cover: ""', "---"].join(
     "\n",
   );
 

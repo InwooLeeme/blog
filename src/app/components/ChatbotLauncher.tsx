@@ -125,7 +125,8 @@ export function ChatbotLauncher({ host }: Props) {
         style={{
           position: "fixed",
           right: 20,
-          bottom: 20,
+          // 전역 ScrollToTop 버튼(우하단 24px)과 겹치지 않도록 그 위에 쌓는다
+          bottom: 84,
           zIndex: 2147483002,
           display: "flex",
           alignItems: "center",

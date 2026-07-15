@@ -229,7 +229,8 @@ export function getRelatedPosts(slug: string, limit = 3): PostItem[] {
 
 export type SeriesGroup = { series: string; posts: PostItem[]; total: number };
 
-/** 주어진 목록을 시리즈별로 묶는다. 그룹 내부는 최신(date desc)순, 그룹 자체는 각 그룹 최신 글 date desc순.
+/** 주어진 목록을 시리즈별로 묶는다. 그룹 내부는 회차(slug) 오름차순 — getPostsBySeries와 동일 규칙이라
+ *  회차 번호가 순서대로 읽힌다. 그룹 자체는 각 그룹 최신 글 date desc순.
  *  total은 해당 시리즈 전체 편수(getPostsBySeries 기준) — 목록에 일부만 있어도 정확한 편수를 준다. */
 export function groupPostsBySeries(posts: PostItem[]): SeriesGroup[] {
   const map = new Map<string, PostItem[]>();
@@ -240,9 +241,14 @@ export function groupPostsBySeries(posts: PostItem[]): SeriesGroup[] {
     if (arr) arr.push(p);
     else map.set(s, [p]);
   }
-  const groups = Array.from(map.entries()).map(([series, groupPosts]) => {
-    const sorted = [...groupPosts].sort((a, b) => (a.meta.date < b.meta.date ? 1 : -1));
-    return { series, posts: sorted, total: getPostsBySeries(series).length };
-  });
-  return groups.sort((a, b) => (a.posts[0].meta.date < b.posts[0].meta.date ? 1 : -1));
+  const latestDateOf = (groupPosts: PostItem[]) =>
+    groupPosts.reduce((max, p) => (p.meta.date > max ? p.meta.date : max), groupPosts[0].meta.date);
+
+  return Array.from(map.entries())
+    .map(([series, groupPosts]): SeriesGroup => ({
+      series,
+      posts: [...groupPosts].sort((a, b) => a.slug.localeCompare(b.slug)),
+      total: getPostsBySeries(series).length,
+    }))
+    .sort((a, b) => (latestDateOf(a.posts) < latestDateOf(b.posts) ? 1 : -1));
 }

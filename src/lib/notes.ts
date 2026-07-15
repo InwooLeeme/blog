@@ -100,3 +100,13 @@ function buildTree(dir: string, relPath: string = ""): NotesTreeNode[] {
 }
 
 export const getNotesTree = cache((): NotesTreeNode[] => buildTree(NOTES_DIR));
+
+/** 트리 안의 노트(파일) 총 개수를 센다 */
+export function countNotes(nodes: NotesTreeNode[]): number {
+  let n = 0;
+  for (const node of nodes) {
+    if (node.type === "file") n++;
+    else n += countNotes(node.children);
+  }
+  return n;
+}

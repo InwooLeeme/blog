@@ -89,6 +89,7 @@ code[data-line-numbers] > [data-line]::before {
 /* diff 라인 — GitHub 스타일 (@shikijs/transformers의 notationDiff) */
 .diff {
     position: relative;
+    padding-left: 1rem;
 }
 [data-line].diff.add {
     background: rgba(63, 185, 80, 0.15);

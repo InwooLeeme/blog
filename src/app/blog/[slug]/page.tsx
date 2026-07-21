@@ -123,7 +123,7 @@ export default async function PostPage({ params }: PageProps) {
             series={meta.series}
           />
           {/* MDX 본문 */}
-          <div className="prose prose-zinc dark:prose-invert prose-main lg:text-xl">
+          <div className="prose prose-zinc dark:prose-invert prose-main lg:prose-xl">
             <MDXRemote
               source={content}
               options={{ mdxOptions }}

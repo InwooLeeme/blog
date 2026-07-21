@@ -112,7 +112,7 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
         ) : null}
       </section>
 
-      {/* 데스크톱: 가로 아코디언 */}
+      {/* 데스크톱: 가로 아코디언 — 접혀 있을 때도 제목은 항상 보이고, 호버하면 넓게 펴진다 */}
       <section className="hidden lg:block mb-10">
         <h2 className="text-xl font-bold mb-4"><Tr id="blog.latest" /></h2>
 
@@ -149,24 +149,17 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
                   <CoverPlaceholder />
                 )}
 
-                {/* dark gradient overlay */}
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                {/* dark gradient overlay — 커버 이미지 위에서 제목이 항상 읽히도록 */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
 
-                {/* content overlay */}
+                {/* content overlay — 제목은 접힌 상태에서도 항상 보인다 */}
                 <div className="absolute inset-x-0 bottom-0 p-4 text-white">
                   {primaryTag ? (
                     <span className="inline-block rounded bg-accent-brand px-2 py-0.5 text-xs font-semibold text-accent-brand-fg">
                       {primaryTag}
                     </span>
                   ) : null}
-                  <h3
-                    className={cn(
-                      "mt-2 text-base font-bold leading-snug line-clamp-2 drop-shadow transition-opacity duration-300",
-                      i === 0 ? "opacity-100" : "opacity-0",
-                      "group-hover/row:opacity-0 hover:!opacity-100",
-                      "group-focus-within/row:opacity-0 group-focus-visible:!opacity-100",
-                    )}
-                  >
+                  <h3 className="mt-2 text-base font-bold leading-snug line-clamp-2 drop-shadow">
                     {meta.title}
                   </h3>
                   <div className="mt-2 flex items-center gap-3 text-xs text-white/85 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">

@@ -50,7 +50,7 @@ export default function PostCard({
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                 </div>
 
-                <CardContent className="p-4">
+                <CardContent className="flex flex-1 flex-col p-4">
                     {tags.length > 0 ? (
                         <div className="mb-2 flex flex-wrap gap-1.5">
                             {tags.map((tag) => (
@@ -78,7 +78,7 @@ export default function PostCard({
                         </p>
                     ) : null}
 
-                    <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <div className="mt-auto pt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Calendar className="h-3 w-3" aria-hidden />
                         <time dateTime={meta.date}>{formatted}</time>
                         {meta.readingTime ? (

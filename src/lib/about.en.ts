@@ -199,6 +199,26 @@ export const projects: Project[] = [
     image: "https://inwooleeme.github.io/assets/projects/mcp_assistant_demo.png",
     accent: "#0891b2",
   },
+  {
+    name: "Developer Income Analysis Pipeline",
+    meta: "2026 · 6-person team project",
+    highlights: [
+      "End-to-end data analysis pipeline testing whether developers favorable toward AI tools earn differently, using the Stack Overflow 2024 Developer Survey",
+      "Automated 8 stages as scripts: loading, preprocessing, descriptive stats, visualization, hypothesis testing, regression, cross-validation, and report generation",
+      "Tested the salary gap between groups with Welch's t-test (α=0.05) and Cohen's d, then isolated the effect of AI sentiment itself via RidgeCV multivariate regression controlling for country, experience, role, education, org size, remote work, and age",
+      "Stage 0 benchmarks Pandas vs Polars on loading/filtering/aggregation; stage 1 validates that both libraries agree (shape, missing values)",
+      "Auto-generates static Seaborn charts, interactive Plotly charts, trained models (.joblib), and a `report.md` analysis report",
+    ],
+    tech: ["Python", "Pandas", "Polars", "scikit-learn", "SciPy", "Seaborn", "Plotly", "pytest", "Ruff"],
+    links: [
+      {
+        label: "GitHub",
+        href: "https://github.com/InwooLeeme/adult-income-analysis-pipeline",
+        type: "github",
+      },
+    ],
+    accent: "#2563eb",
+  },
 ];
 
 export const workingStyles: WorkingStyle[] = [

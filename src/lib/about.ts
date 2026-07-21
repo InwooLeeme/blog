@@ -52,6 +52,14 @@ export const techStack: TechCategory[] = [
     ],
   },
   {
+    category: "Data",
+    items: [
+      { name: "Pandas", level: "learning" },
+      { name: "Polars", level: "learning" },
+      { name: "scikit-learn", level: "learning" },
+    ],
+  },
+  {
     category: "Tooling",
     items: [
       { name: "Git", level: "used" },
@@ -261,6 +269,26 @@ export const projects: Project[] = [
     ],
     image: "https://inwooleeme.github.io/assets/projects/mcp_assistant_demo.png",
     accent: "#0891b2",
+  },
+  {
+    name: "개발자 소득 분석 파이프라인",
+    meta: "2026 · 6인 팀 프로젝트",
+    highlights: [
+      "Stack Overflow 2024 개발자 설문 데이터로 \"AI 도구에 우호적인 개발자는 연봉이 다른가\"를 검증한 End-to-End 데이터 분석 파이프라인",
+      "데이터 로딩·전처리·기술통계·시각화·가설검정·회귀·교차검증·리포트 생성까지 8단계를 스크립트로 자동화했다",
+      "Welch's t-test(α=0.05)와 Cohen's d로 두 집단의 연봉 차이를 검정하고, RidgeCV 다변량 회귀로 국가·경력·직군·학력·조직 규모·재택 여부·나이를 통제해 AI 태도 자체의 효과를 분리했다",
+      "0단계에서 Pandas와 Polars의 로딩·필터링·집계 성능을 벤치마크하고, 1단계에서 두 라이브러리의 결과가 일치하는지(shape·결측치) 검증한다",
+      "Seaborn 정적 차트와 Plotly 인터랙티브 차트, 학습된 모델(.joblib), 분석 리포트(report.md)를 산출물로 자동 생성한다",
+    ],
+    tech: ["Python", "Pandas", "Polars", "scikit-learn", "SciPy", "Seaborn", "Plotly", "pytest", "Ruff"],
+    links: [
+      {
+        label: "GitHub",
+        href: "https://github.com/InwooLeeme/adult-income-analysis-pipeline",
+        type: "github",
+      },
+    ],
+    accent: "#2563eb",
   },
   // TODO: 다른 프로젝트 추가
 ];

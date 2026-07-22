@@ -1,6 +1,6 @@
 "use client";
 
-import { Trophy, Medal, PenTool, BadgeCheck } from "lucide-react";
+import { Trophy, Medal, PenTool, BadgeCheck, GraduationCap } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 import Reveal from "../Reveal";
 import AboutSummary from "./AboutSummary";
@@ -18,10 +18,11 @@ import { useAboutData } from "./useAboutData";
 /** About 본문 — 언어 컨텍스트를 읽어 ko/en 데이터 번들과 섹션 라벨을 전환 */
 export default function AboutPageContent() {
   const t = useT();
-  const { awards, competitions, contestWorks, certifications } = useAboutData();
+  const { education, awards, competitions, contestWorks, certifications } = useAboutData();
 
   const sections = [
     { id: "tech-stack", label: t("about.techStack") },
+    { id: "education", label: t("about.education") },
     { id: "awards", label: t("about.awards") },
     { id: "competitions", label: t("about.competitions") },
     { id: "contest-works", label: t("about.contestWorks") },
@@ -85,7 +86,24 @@ export default function AboutPageContent() {
           <TechStackSection />
         </Reveal>
 
-        {/* 2. 수상 이력 */}
+        {/* 2. 학력·활동 */}
+        <Reveal>
+          <section id="education" className="scroll-mt-24">
+            <SectionHeading icon={<GraduationCap className="h-5 w-5" />}>
+              {t("about.education")}
+            </SectionHeading>
+            <AnimatedTimeline
+              items={education.map((e) => ({
+                date: e.date,
+                title: e.title,
+                detail: e.detail,
+                link: e.link,
+              }))}
+            />
+          </section>
+        </Reveal>
+
+        {/* 3. 수상 이력 */}
         <Reveal>
           <section id="awards" className="scroll-mt-24">
             <SectionHeading icon={<Trophy className="h-5 w-5" />}>{t("about.awards")}</SectionHeading>
@@ -100,7 +118,7 @@ export default function AboutPageContent() {
           </section>
         </Reveal>
 
-        {/* 3. 대회 참가 이력 */}
+        {/* 4. 대회 참가 이력 */}
         <Reveal>
           <section id="competitions" className="scroll-mt-24">
             <SectionHeading icon={<Medal className="h-5 w-5" />}>{t("about.competitions")}</SectionHeading>
@@ -115,7 +133,7 @@ export default function AboutPageContent() {
           </section>
         </Reveal>
 
-        {/* 4. 알고리즘 대회 출제 및 운영 */}
+        {/* 5. 알고리즘 대회 출제 및 운영 */}
         <Reveal>
           <section id="contest-works" className="scroll-mt-24">
             <SectionHeading icon={<PenTool className="h-5 w-5" />}>
@@ -132,15 +150,15 @@ export default function AboutPageContent() {
           </section>
         </Reveal>
 
-        {/* 5. 프로젝트 */}
+        {/* 6. 프로젝트 */}
         <ProjectsSection />
 
-        {/* 6. 작업 방식 */}
+        {/* 7. 작업 방식 */}
         <Reveal>
           <WorkingStyleSection />
         </Reveal>
 
-        {/* 7. 자격증 */}
+        {/* 8. 자격증 */}
         <Reveal>
           <section id="certifications" className="scroll-mt-24">
             <SectionHeading icon={<BadgeCheck className="h-5 w-5" />}>{t("about.certifications")}</SectionHeading>

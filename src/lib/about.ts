@@ -68,8 +68,21 @@ export const techStack: TechCategory[] = [
   },
 ];
 
-/** 수상 이력 */
+/** 학력·활동 */
 export type TimelineLink = { label: string; href: string };
+export type Education = { date: string; title: string; detail?: string; link?: TimelineLink };
+
+export const education: Education[] = [
+  { date: "2019.03–2026.08", title: "전북대학교 소프트웨어공학과" },
+  {
+    date: "2024.03–2025.12",
+    title: "전북대학교 알고리즘 동아리 ALPS",
+    detail: "매주 알고리즘 학습 및 문제 풀이, 코딩테스트 및 알고리즘 대회 대비",
+  },
+  { date: "2026.07–현재", title: "SK SKALA" },
+];
+
+/** 수상 이력 */
 export type Award = { date: string; title: string; detail?: string; link?: TimelineLink };
 
 export const awards: Award[] = [

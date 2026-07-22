@@ -1,0 +1,96 @@
+---
+title: "LeetCode Day 1"
+date: "2026-07-22"
+summary: "LeetCode Day 1 풀이"
+tags: [LeetCode]
+series: "LeetCode Day"
+draft: false
+cover: "https://inwooleeme.github.io/assets/projects/LeetCode_Sharing.png"
+---
+
+## LeetCode 문제 풀이
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/jump-game-ii/description/"
+    title = "Jump Game II" tags = "dp"
+/>
+
+실버상위? 느낌의 $dp$인 듯
+
+$dp[i]$ : $i$번까지 왔을 때 필요한 최소 횟수로 정의하고 1차원 $dp$를 짜면 된다
+
+```cpp showLineNumbers
+class Solution {
+public:
+    int jump(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> dp(n + 1, int(1e9));
+        dp[0] = 0;
+        for(int i = 0; i < n; i++){
+            int k = nums[i];
+            for(int j = 0; j <= i + k; j++){
+                if(j >= n) continue;
+                dp[j] = min(dp[j], dp[i] + 1);
+            }
+        }
+        return dp[n - 1];
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/jump-game/description/"
+    title = "Jump Game" tags = "dp"
+/>
+
+위와 거의 동일
+
+$dp[i]$ : $i$번까지 올 수 있는가?로 놓고 $dp$를 돌리면 된다
+
+다른 사람 솔루션을 보니 그리디로 $O(N)$에 풀 수 있는 듯
+
+```cpp showLineNumbers
+class Solution {
+public:
+    bool canJump(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> dp(n + 1, 0);
+        dp[0] = 1;
+        for(int i = 0; i < n; i++){
+            if(!dp[i]) continue;
+            int k = nums[i];
+            for(int j = 0; j <= i + k; j++){
+                if(j >= n) continue;
+                dp[j] = dp[i];
+            }
+        }
+        return dp[n - 1];
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/jump-game-iii/description/"
+    title = "Jump Game III" tags = "bfs"
+/>
+
+bfs를 이용해서 구해주면 된다.
+
+```cpp showLineNumbers
+class Solution {
+public:
+    bool canReach(vector<int>& arr, int start) {
+        int n = arr.size();
+        vector<int> dist(n + 1, -1);
+        queue<int> q;
+        dist[start] = 0; q.push(start);
+        while(q.size()){
+            auto cur = q.front(); q.pop();
+            if(!arr[cur]) return 1;
+            for(const auto& nxt : {cur - arr[cur], cur + arr[cur]}){
+                if(nxt < 0 or nxt >= n) continue;
+                if(dist[nxt] != -1) continue;
+                dist[nxt] = dist[cur] + 1; q.push(nxt);
+            }
+        }
+        return 0;
+    }
+};
+```

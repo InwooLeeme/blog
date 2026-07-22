@@ -7,6 +7,7 @@ import type {
   Certification,
   Competition,
   ContestWork,
+  Education,
   Project,
   TechLevel,
   WorkingStyle,
@@ -23,6 +24,16 @@ export const techLevelLabels: Record<TechLevel, string> = {
   used: "Hands-on",
   learning: "Exploring",
 };
+
+export const education: Education[] = [
+  { date: "2019.03–2026.08", title: "Jeonbuk National University, Dept. of Software Engineering" },
+  {
+    date: "2024.03–2025.12",
+    title: "Jeonbuk National University Algorithm Club ALPS",
+    detail: "Weekly algorithm study and problem solving; preparing for coding tests and algorithm contests",
+  },
+  { date: "2026.07–present", title: "SK SKALA" },
+];
 
 export const awards: Award[] = [
   {

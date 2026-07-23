@@ -101,6 +101,22 @@ function buildTree(dir: string, relPath: string = ""): NotesTreeNode[] {
 
 export const getNotesTree = cache((): NotesTreeNode[] => buildTree(NOTES_DIR));
 
+/** 트리(폴더 먼저, 파일 나중, 각각 알파벳순 정렬됨)에서 가장 먼저 나오는 노트의 slug를 찾는다.
+ *  노트 카테고리 카드가 "이 카테고리 보기" 링크로 이동할 대상을 정할 때 쓴다. */
+export function firstNoteSlug(nodes: NotesTreeNode[]): string[] | null {
+  for (const node of nodes) {
+    if (node.type === "file") return node.slug;
+    const found = firstNoteSlug(node.children);
+    if (found) return found;
+  }
+  return null;
+}
+
+/** 노트 slug 배열을 라우트 경로로 변환한다 (`/notes/<세그먼트1>/<세그먼트2>/...`). */
+export function noteHref(slug: string[]): string {
+  return `/notes/${slug.map(encodeURIComponent).join("/")}`;
+}
+
 /** 트리 안의 노트(파일) 총 개수를 센다 */
 export function countNotes(nodes: NotesTreeNode[]): number {
   let n = 0;

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { countNotes, getNotesTree } from "@/lib/notes";
 import NotesIndexContent from "../components/notes/NotesIndexContent";
+import NotesCategoryGrid from "../components/notes/NotesCategoryGrid";
 
 export const metadata: Metadata = {
   title: "Notes",
@@ -14,9 +15,12 @@ export default function NotesIndexPage() {
   const noteCount = countNotes(tree);
 
   return (
-    <article className="prose prose-zinc dark:prose-invert prose-main">
-      <h1>Notes</h1>
-      <NotesIndexContent categoryCount={categoryCount} noteCount={noteCount} />
-    </article>
+    <div>
+      <article className="prose prose-zinc dark:prose-invert prose-main">
+        <h1>Notes</h1>
+        <NotesIndexContent categoryCount={categoryCount} noteCount={noteCount} />
+      </article>
+      <NotesCategoryGrid tree={tree} />
+    </div>
   );
 }

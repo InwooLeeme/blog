@@ -23,8 +23,8 @@ export default function Home() {
         <h2 className="mb-6 text-2xl font-bold"><Tr id="landing.recent" /></h2>
 
         <div className="grid gap-5 lg:grid-cols-3">
-          {latest.map((p) => (
-            <PostCard key={p.slug} slug={p.slug} meta={p.meta} priority />
+          {latest.map((p, i) => (
+            <PostCard key={p.slug} slug={p.slug} meta={p.meta} priority index={i} />
           ))}
         </div>
 

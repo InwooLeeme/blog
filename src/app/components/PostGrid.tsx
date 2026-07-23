@@ -12,7 +12,7 @@ export default function PostGrid({ posts, featureFirst = true }: { posts: PostIt
           delay={(i % 2) * 100}
           className={featureFirst && i === 0 ? "md:col-span-2" : undefined}
         >
-          <PostCard slug={slug} meta={meta} featured={featureFirst && i === 0} />
+          <PostCard slug={slug} meta={meta} featured={featureFirst && i === 0} index={i} />
         </Reveal>
       ))}
     </div>

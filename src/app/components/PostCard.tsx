@@ -12,11 +12,14 @@ export default function PostCard({
     meta,
     featured = false,
     priority = featured,
+    index,
 }: {
     slug: string;
     meta: PostMeta;
     featured?: boolean;
     priority?: boolean;
+    /** 그리드에서의 렌더 순서 — 커버 플레이스홀더 색이 이웃 카드와 겹치지 않도록 전달 */
+    index: number;
 }) {
     const formatted = formatPostDate(meta.date);
     const coverSrc = getCardCoverSrc(meta);
@@ -44,7 +47,7 @@ export default function PostCard({
                                 priority={priority}
                             />
                         ) : (
-                            <CoverPlaceholder label={getCoverLabel(meta)} seed={slug} />
+                            <CoverPlaceholder label={getCoverLabel(meta)} seed={index} />
                         )}
                     </AspectRatio>
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

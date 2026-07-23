@@ -1,0 +1,180 @@
+---
+title: "LeetCode Day 2"
+date: "2026-07-22"
+summary: "LeetCode Day 2 풀이"
+tags: [LeetCode]
+series: "LeetCode Day"
+draft: false
+cover: "https://inwooleeme.github.io/assets/projects/LeetCode_Sharing.png"
+---
+
+## LeetCode 문제 풀이
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/coin-change/description/"
+    title = "Coin Change" tags = "dp"
+/>
+
+```cpp showLineNumbers
+class Solution {
+public:
+    int coinChange(vector<int>& coins, int amount) {
+        vector<int> dp(amount + 1, int(1e9));
+        dp[0] = 1;
+        for(const auto& x : coins){
+            for(int j = x; j <= amount; j++){
+                if(dp[j - x] == int(1e9)) continue;
+                dp[j] = min(dp[j], dp[j - x] + 1);
+            }
+        }
+        return dp[amount] == int(1e9) ? -1 : dp[amount] - 1;
+    }
+};
+```
+
+$dp[i]$ : $i$원을 만들 수 있는 최소 동전의 개수로 놓고 $dp$를 돌리면 된다.
+~~웰노운임 ㅇㅇ~~
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/kth-largest-element-in-an-array/description/"
+    title = "Kth Largest Element in an Array" tags = "sorting"
+/>
+
+nth_element를 이용하면 쉽다
+
+```cpp showLineNumbers
+class Solution {
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        nth_element(nums.begin(), nums.begin() + (k - 1), nums.end(), greater<>());
+        return nums[k - 1];
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/range-sum-query-mutable/description/"
+    title = "Range Sum Query - Mutable" tags = "segment_tree"
+/>
+
+처음엔 굳이 세그가 필요한가....라고 생각했다가 그냥 세그를 썼다
+
+```cpp showLineNumbers
+class NumArray {
+public:
+    
+    struct segtree{
+        vector<int> tree;
+        int sz;
+        segtree(){}
+
+        void init(int n){
+            sz = n;
+            tree.resize(sz << 1);
+        }
+        
+        void update(int i, int val){
+            --i |= sz; tree[i] = val;
+            while(i >>= 1) tree[i] = tree[i << 1] + tree[i << 1 | 1];
+        }
+        int query(int l, int r){
+            int ret = 0;
+            --l |= sz; --r |= sz;
+            while(l <= r){
+                if(l & 1) ret += tree[l++];
+                if(~r & 1) ret += tree[r--];
+                l >>= 1, r >>= 1;
+            }
+            return ret;
+        }
+    } seg;
+
+    NumArray(vector<int>& nums) {
+        int n = nums.size();
+        int sz = 1;
+        while(sz < n) sz <<= 1;
+        seg.init(sz);
+        for(int i = 1; i <= n; i++) seg.update(i, nums[i - 1]);
+    }
+    
+    void update(int index, int val) {
+        seg.update(index + 1, val);
+    }
+    
+    int sumRange(int left, int right) {
+        return seg.query(left + 1, right + 1);
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/battleships-in-a-board/description/"
+    title = "Battleships in a Board" tags = "dfs, bfs"
+/>
+
+bfs나 bfs 또는 유니온 파인드로 컴포넌트의 개수를 세자
+
+```cpp showLineNumbers
+class Solution {
+public:
+    int countBattleships(vector<vector<char>>& board) {
+        int ret = 0;
+        int n = board.size(), m = board[0].size();
+        vector<vector<bool>> vist(n, vector<bool>(m));
+        const int dx[4] = {1, 0, -1, 0};
+        const int dy[4] = {0, 1, 0, -1};
+        auto dfs = [&](int x, int y, auto&& dfs) -> int{
+            int res = 1;
+            vist[x][y] = 1;
+            for(int d = 0; d < 4; d++){
+                auto nx = x + dx[d], ny = y + dy[d];
+                if(nx < 0 or nx >= n or ny < 0 or ny >= m) continue;
+                if(vist[nx][ny]) continue;
+                if(board[nx][ny] == '.') continue;
+                res += dfs(nx, ny, dfs);  
+            }
+            return res;
+        };
+        for(int i = 0; i < n; i++) for(int j = 0; j < m; j++){
+            if(!vist[i][j] and board[i][j] == 'X') ret += (dfs(i, j, dfs) ? 1 : 0);
+        }
+        return ret; 
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/redundant-connection/description/"
+    title = "Redundant Connection" tags = "unionfind"
+/>
+
+unionfind를 이용해서 mst를 만드는 것처럼 간선을 끊어주자
+
+```cpp showLineNumbers
+class Solution {
+public:
+    struct unionfind{
+        vector<int> p;
+        unionfind(int n):p(n + 1){
+            iota(p.begin(), p.end(), 0);
+        }
+        int F(int x){ return x == p[x] ? x : p[x] = F(p[x]); }
+        bool U(int a, int b){
+            a = F(a),b = F(b);
+            if(a == b) return 0;
+            p[b] = a; return 1;
+        }
+    };
+    vector<int> findRedundantConnection(vector<vector<int>>& edges) {
+        int n = 0;
+        for(const auto& i : edges){
+            auto a = i[0],b = i[1];
+            n = max(n, a), n = max(b, n);
+        }
+        unionfind uf(n);
+        int cnt = 0;
+        for(const auto& i: edges){
+            auto a = i[0],b = i[1];
+            if(uf.U(a, b)){
+            }
+            else return {a, b};
+        }
+        return {};
+    }
+};
+```

@@ -24,7 +24,7 @@ export default function Home() {
 
         <div className="grid gap-5 lg:grid-cols-3">
           {latest.map((p, i) => (
-            <PostCard key={p.slug} slug={p.slug} meta={p.meta} priority index={i} />
+            <PostCard key={p.slug} slug={p.slug} meta={p.meta} priority={i === 0} index={i} />
           ))}
         </div>
 

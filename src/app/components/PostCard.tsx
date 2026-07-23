@@ -26,7 +26,7 @@ export default function PostCard({
     const tags = meta.tags?.slice(0, 3) ?? [];
 
     return (
-        <Link href={`/blog/${slug}`} className="group block" aria-label={meta.title}>
+        <Link href={`/blog/${slug}`} className="group block h-full" aria-label={meta.title}>
             <Card className="overflow-hidden h-full py-0 gap-0 transition duration-300 hover:border-accent-brand hover:shadow-xl hover:shadow-accent-brand/15">
                 <div
                     className="relative overflow-hidden"

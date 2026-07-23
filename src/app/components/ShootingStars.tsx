@@ -74,6 +74,7 @@ type Scene = {
   height: number;
   dark: boolean; // 어두운 테마 — 가산 합성·글로우 사용 여부
   meteorsEnabled: boolean;
+  maxMeteors: number; // 화면 크기에 따라 조절되는 동시 유성 상한(모바일 부하 축소)
   stars: Star[];
   starSprites: Map<string, HTMLCanvasElement>; // 색별 글로우 스프라이트(1회 생성)
   meteors: Meteor[];
@@ -153,10 +154,9 @@ function clusterPoint() {
  * 성단(중심 농축) + 배경 field(화면 전체 산포) 별을 채운다.
  * field는 z를 뽑고 화면을 균일 샘플링한 뒤 월드 좌표를 역산해 가장자리까지 덮는다.
  */
-function populateStars(width: number, height: number): Star[] {
-  const count = Math.min(
-    CONFIG.maxStars,
-    Math.floor((width * height) / CONFIG.areaPerStar),
+function populateStars(width: number, height: number, densityMul = 1): Star[] {
+  const count = Math.floor(
+    Math.min(CONFIG.maxStars, (width * height) / CONFIG.areaPerStar) * densityMul,
   );
   const fieldCount = Math.round(count * CONFIG.fieldRatio);
   const cx = width / 2;
@@ -346,7 +346,7 @@ function updateScene(s: Scene, dt: number) {
 
   s.spawnTimer -= dt;
   if (s.spawnTimer <= 0) {
-    if (s.meteors.length < CONFIG.maxMeteors) s.meteors.push(createMeteor(s.width, s.height));
+    if (s.meteors.length < s.maxMeteors) s.meteors.push(createMeteor(s.width, s.height));
     s.spawnTimer = rand(CONFIG.spawnDelay);
   }
 
@@ -511,6 +511,9 @@ export default function ShootingStars(
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
+    // 좁은 화면(모바일)에서는 DPR·별 밀도·동시 유성 수를 줄여 메인스레드 부담을 낮춘다
+    const isMobile = window.innerWidth < 640;
+
     const colors = resolveColors(forceDark);
     const scene: Scene = {
       ctx,
@@ -518,6 +521,7 @@ export default function ShootingStars(
       height: 0,
       dark: colors.dark,
       meteorsEnabled: meteors,
+      maxMeteors: isMobile ? Math.max(1, Math.ceil(CONFIG.maxMeteors / 2)) : CONFIG.maxMeteors,
       stars: [],
       starSprites: buildStarSprites(),
       meteors: [],
@@ -541,7 +545,7 @@ export default function ShootingStars(
 
     // 부모 크기에 맞춰 캔버스 재설정 + 별 재생성
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, CONFIG.maxDpr);
+      const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : CONFIG.maxDpr);
       scene.width = parent.clientWidth;
       scene.height = parent.clientHeight;
       canvas.width = scene.width * dpr;
@@ -549,7 +553,7 @@ export default function ShootingStars(
       canvas.style.width = `${scene.width}px`;
       canvas.style.height = `${scene.height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      scene.stars = populateStars(scene.width, scene.height);
+      scene.stars = populateStars(scene.width, scene.height, isMobile ? 0.5 : 1);
     };
 
     const tick = (time: number) => {
@@ -571,8 +575,30 @@ export default function ShootingStars(
     };
 
     resize();
-    if (prefersReducedMotion) drawScene(scene);
-    else start();
+    drawScene(scene); // 정적 프레임을 즉시 한 번 그려 캔버스가 비어 보이지 않게 한다
+
+    // 애니메이션 루프 시작은 첫 페인트 이후(유휴 시간)로 미뤄, 초기 로드 구간의 메인스레드 점유(TBT)를 줄인다.
+    // 뷰포트에 보이는 동안에만 돌리므로 "유휴 도달"과 "가시성" 둘 다 만족해야 실제로 시작한다.
+    let isIntersecting = false;
+    let deferralDone = prefersReducedMotion;
+    const maybeStart = () => {
+      if (prefersReducedMotion) return;
+      if (isIntersecting && deferralDone) start();
+    };
+
+    let idleId: number | undefined;
+    let idleTimeoutId: ReturnType<typeof setTimeout> | undefined;
+    if (!prefersReducedMotion) {
+      const onDeferralDone = () => {
+        deferralDone = true;
+        maybeStart();
+      };
+      if (typeof window.requestIdleCallback === "function") {
+        idleId = window.requestIdleCallback(onDeferralDone, { timeout: 1200 });
+      } else {
+        idleTimeoutId = setTimeout(onDeferralDone, 200);
+      }
+    }
 
     // 마우스 시차 — 커서를 캔버스 기준 [-1,1]로 정규화해 카메라 목표로
     const handleMouseMove = (e: MouseEvent) => {
@@ -588,7 +614,8 @@ export default function ShootingStars(
     const visibilityObserver = new IntersectionObserver(
       ([entry]) => {
         if (prefersReducedMotion) return;
-        if (entry.isIntersecting) start();
+        isIntersecting = entry.isIntersecting;
+        if (isIntersecting) maybeStart();
         else stop();
       },
       { threshold: 0 },
@@ -616,6 +643,10 @@ export default function ShootingStars(
 
     return () => {
       stop();
+      if (idleId !== undefined && typeof window.cancelIdleCallback === "function") {
+        window.cancelIdleCallback(idleId);
+      }
+      if (idleTimeoutId !== undefined) clearTimeout(idleTimeoutId);
       visibilityObserver.disconnect();
       themeObserver.disconnect();
       window.removeEventListener("mousemove", handleMouseMove);

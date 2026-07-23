@@ -80,6 +80,23 @@ test("getPostBySlug: memoizes file reads across calls in production", (t) => {
   }
 });
 
+test("getAllPosts: caches the computed list in production", () => {
+  const originalEnv = process.env.NODE_ENV;
+  process.env.NODE_ENV = "production";
+
+  try {
+    const first = getAllPosts();
+    const second = getAllPosts();
+    assert.strictEqual(
+      second,
+      first,
+      "second call should return the cached array instead of recomputing",
+    );
+  } finally {
+    process.env.NODE_ENV = originalEnv;
+  }
+});
+
 const posts = getAllPosts();
 
 test("getAllPosts: sorted by date descending", () => {

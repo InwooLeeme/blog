@@ -41,25 +41,19 @@ export function getPostSlugs() {
 * - cache()로 감싸 동일 요청 내 같은 slug는 한 번만 읽습니다.
 * - 프로덕션에서는 slug별 파싱 결과를 프로세스 전역(postCache)에도 메모이즈해 요청/페이지가 달라져도 재사용합니다.
 */
-type LoadedPost = { slug: string; meta: PostMeta; content: string };
+type LoadedPost = PostItem & { content: string };
 
-// 프로덕션(빌드/배포)에서는 콘텐츠가 불변이므로 슬러그별 파싱 결과를 프로세스 전역에 메모이즈한다.
+// 프로덕션(빌드/배포)에서는 콘텐츠가 불변이므로 slug별 파싱 결과를 프로세스 전역에 메모이즈한다.
 // dev에서는 MDX 파일을 고치고 새로고침하면 바로 반영돼야 하므로 캐시하지 않는다(cache()는 요청 단위라 매번 새로 읽힘).
-const postCache = new Map<string, LoadedPost | null>();
+const postCache = new Map<string, LoadedPost>();
 
 export const getPostBySlug = cache((slug: string) => {
   const realSlug = slug.replace(/\.mdx$/, "")
   const isProd = process.env.NODE_ENV === "production"
-  if (isProd) {
-    const cached = postCache.get(realSlug)
-    if (cached !== undefined) return cached
-  }
+  if (isProd && postCache.has(realSlug)) return postCache.get(realSlug)!
 
   const fullPath = path.join(POSTS_DIR, `${realSlug}.mdx`)
-  if (!fs.existsSync(fullPath)) {
-    if (isProd) postCache.set(realSlug, null)
-    return null
-  }
+  if (!fs.existsSync(fullPath)) return null
   const file = fs.readFileSync(fullPath, "utf8")
   const { content, data } = matter(file)
   const stats = rt(content)
@@ -77,14 +71,24 @@ export const getPostBySlug = cache((slug: string) => {
 * 모든 게시글을 읽어와 "발행 가능한 목록"으로 정리해 반환합니다.
 * - draft 제외, date 내림차순(최신 먼저) 정렬.
 * - cache()로 감싸 동일 요청 내 파일 스캔을 한 번으로 공유합니다.
+* - 프로덕션에서는 결과 배열 자체도 프로세스 전역에 메모이즈해, 정적 페이지마다
+*   반복되는 디렉터리 스캔·정렬을 한 번으로 줄인다.
 */
+let cachedAllPosts: PostItem[] | null = null;
+
 export const getAllPosts = cache(() => {
+  const isProd = process.env.NODE_ENV === "production"
+  if (isProd && cachedAllPosts) return cachedAllPosts
+
   const posts = getPostSlugs()
     .map((s) => getPostBySlug(s))
     .filter((p): p is NonNullable<typeof p> => p !== null)
-  return posts
+  const result = posts
     .filter((p) => !p.meta.draft)
     .sort((a, b) => (a.meta.date < b.meta.date ? 1 : -1))
+
+  if (isProd) cachedAllPosts = result
+  return result
 })
 
 /**

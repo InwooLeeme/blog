@@ -25,9 +25,11 @@ const pretendard = localFont({
   display: "swap",
 });
 
+// 코드블록 등 일부 UI에서만 쓰이므로 모든 페이지의 초기 로드에서 preload하지 않는다
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  preload: false,
 });
 
 // 제목용 디스플레이 폰트

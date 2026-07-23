@@ -4,6 +4,7 @@ import {
   getNoteSlugs,
   getNoteBySlug,
   getNotesTree,
+  firstNoteSlug,
   type NotesTreeNode,
 } from "./notes.ts";
 
@@ -47,6 +48,39 @@ test("getNotesTree: flattened file count matches getNoteSlugs count", () => {
   const tree = getNotesTree();
   const files = flattenFiles(tree);
   assert.equal(files.length, slugs.length);
+});
+
+test("firstNoteSlug: returns the first file slug in a flat list", () => {
+  const nodes: NotesTreeNode[] = [
+    { type: "file", name: "b", slug: ["b"] },
+    { type: "file", name: "a", slug: ["a"] },
+  ];
+  assert.deepEqual(firstNoteSlug(nodes), ["b"]);
+});
+
+test("firstNoteSlug: descends into folders before trying sibling files, matching display order", () => {
+  const nodes: NotesTreeNode[] = [
+    {
+      type: "folder",
+      name: "Graph",
+      path: "Graph",
+      children: [{ type: "file", name: "Dijkstra", slug: ["Graph", "Dijkstra"] }],
+    },
+    { type: "file", name: "top-level", slug: ["top-level"] },
+  ];
+  assert.deepEqual(firstNoteSlug(nodes), ["Graph", "Dijkstra"]);
+});
+
+test("firstNoteSlug: skips empty folders to find a file deeper in the tree", () => {
+  const nodes: NotesTreeNode[] = [
+    { type: "folder", name: "Empty", path: "Empty", children: [] },
+    { type: "file", name: "only-file", slug: ["only-file"] },
+  ];
+  assert.deepEqual(firstNoteSlug(nodes), ["only-file"]);
+});
+
+test("firstNoteSlug: empty tree returns null", () => {
+  assert.equal(firstNoteSlug([]), null);
 });
 
 test("getNotesTree: folders are sorted before files at every level, alphabetically within each group", () => {

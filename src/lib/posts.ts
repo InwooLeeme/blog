@@ -39,20 +39,38 @@ export function getPostSlugs() {
 * - 해당 MDX 파일이 없으면 null을 반환합니다.
 * - frontmatter의 타입은 PostMeta로 단언(cast)하고 있으므로, 필수 필드 누락 시 런타임에만 문제될 수 있습니다.
 * - cache()로 감싸 동일 요청 내 같은 slug는 한 번만 읽습니다.
+* - 프로덕션에서는 slug별 파싱 결과를 프로세스 전역(postCache)에도 메모이즈해 요청/페이지가 달라져도 재사용합니다.
 */
+type LoadedPost = { slug: string; meta: PostMeta; content: string };
+
+// 프로덕션(빌드/배포)에서는 콘텐츠가 불변이므로 슬러그별 파싱 결과를 프로세스 전역에 메모이즈한다.
+// dev에서는 MDX 파일을 고치고 새로고침하면 바로 반영돼야 하므로 캐시하지 않는다(cache()는 요청 단위라 매번 새로 읽힘).
+const postCache = new Map<string, LoadedPost | null>();
+
 export const getPostBySlug = cache((slug: string) => {
   const realSlug = slug.replace(/\.mdx$/, "")
+  const isProd = process.env.NODE_ENV === "production"
+  if (isProd) {
+    const cached = postCache.get(realSlug)
+    if (cached !== undefined) return cached
+  }
+
   const fullPath = path.join(POSTS_DIR, `${realSlug}.mdx`)
-  if (!fs.existsSync(fullPath)) return null
+  if (!fs.existsSync(fullPath)) {
+    if (isProd) postCache.set(realSlug, null)
+    return null
+  }
   const file = fs.readFileSync(fullPath, "utf8")
   const { content, data } = matter(file)
   const stats = rt(content)
   const minutes = Math.max(1, Math.round(stats.minutes))
-  return {
+  const post: LoadedPost = {
     slug: realSlug,
     meta: { ...(data as PostMeta), readingTime: minutes },
     content,
   }
+  if (isProd) postCache.set(realSlug, post)
+  return post
 })
 
 /**

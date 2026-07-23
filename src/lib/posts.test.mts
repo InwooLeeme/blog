@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import fs from "node:fs";
 import {
   getAllPosts,
   getAllTags,
   getTagCounts,
   getPostItemsByTag,
   getPostBySlug,
+  getPostSlugs,
   getPostsBySeries,
   getSeriesNavigation,
   getAdjacentPosts,
@@ -54,6 +56,28 @@ test("getPostItemsByTag: filters posts containing the tag", () => {
 
 test("getPostBySlug: unknown slug returns null", () => {
   assert.equal(getPostBySlug("__does-not-exist__"), null);
+});
+
+test("getPostBySlug: memoizes file reads across calls in production", (t) => {
+  const [slug] = getPostSlugs();
+  assert.ok(slug, "fixture assumption: at least one post file exists");
+
+  const originalEnv = process.env.NODE_ENV;
+  process.env.NODE_ENV = "production";
+  const readSpy = t.mock.method(fs, "readFileSync");
+
+  try {
+    getPostBySlug(slug);
+    const afterFirstCall = readSpy.mock.callCount();
+    getPostBySlug(slug);
+    assert.equal(
+      readSpy.mock.callCount(),
+      afterFirstCall,
+      "second call should hit the cache instead of reading the file again",
+    );
+  } finally {
+    process.env.NODE_ENV = originalEnv;
+  }
 });
 
 const posts = getAllPosts();

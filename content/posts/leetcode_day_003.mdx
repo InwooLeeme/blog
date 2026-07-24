@@ -1,0 +1,189 @@
+---
+title: "LeetCode Day 3"
+date: "2026-07-22"
+summary: "LeetCode Day 3 풀이"
+tags: [LeetCode]
+series: "LeetCode Day"
+draft: false
+cover: "https://inwooleeme.github.io/assets/projects/LeetCode_Sharing.png"
+---
+
+## LeetCode 문제 풀이
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/unique-paths/description/"
+    title = "Unique Paths" tags = "dp"
+/>
+
+- 난이도 : Medium
+
+$dp[i][j]$ : $(i, j)$까지 오는 경우의 수로 놓고 탑다운 dp를 돌리자
+
+```cpp showLineNumbers
+class Solution {
+public:
+    int uniquePaths(int m, int n) {
+        int dp[m][n];
+        memset(dp, -1, sizeof(dp));
+        const int dx[2] = {1, 0};
+        const int dy[2] = {0, 1};
+        auto f = [&](int x, int y, auto&& f) -> int{
+            if(x == m - 1 and y == n - 1) return 1;
+            int& ret = dp[x][y];
+            if(ret != -1) return ret;
+            ret = 0;
+            for(int d = 0; d < 2; d++){
+                auto nx = x + dx[d], ny = y + dy[d];
+                if(nx < 0 or nx >= m or ny < 0 or ny >= n) continue;
+                ret += f(nx, ny, f);
+            }
+            return ret;
+        };
+        return f(0, 0, f);
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/unique-paths-ii/description/"
+    title = "Unique Paths II" tags = "dp"
+/>
+
+- 난이도 : Medium
+
+위와 동일 설명 생략
+
+```cpp showLineNumbers
+class Solution {
+public:
+    int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
+        int m = obstacleGrid.size(), n = obstacleGrid[0].size();
+        int dp[m][n];
+        memset(dp, -1, sizeof(dp));
+        const int dx[2] = {1, 0};
+        const int dy[2] = {0, 1};
+        auto f = [&](int x, int y, auto&& f) -> int{
+            if(x == m - 1 and y == n - 1) return 1;
+            int& ret = dp[x][y];
+            if(ret != -1) return ret;
+            ret = 0;
+            for(int d = 0; d < 2; d++){
+                auto nx = x + dx[d], ny = y + dy[d];
+                if(nx < 0 or nx >= m or ny < 0 or ny >= n) continue;
+                if(obstacleGrid[nx][ny]) continue;
+                ret += f(nx, ny, f);
+            }
+            return ret;
+        };
+        return (obstacleGrid[0][0] ? 0 : f(0, 0, f));
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/remove-element/description/"
+    title = "Remove Element" tags = "implementation"
+/>
+
+- 난이도 : Easy
+
+그냥 구현해주면 되는데 문제 지문이 너무 헷갈린다
+
+```cpp showLineNumbers
+class Solution {
+public:
+    int removeElement(vector<int>& nums, int val) {
+        int k = 0;
+        for(const auto& i : nums){
+            if(i == val) continue;
+            nums[k++] = i;
+        }
+        return k;
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/minimum-path-sum/description/"
+    title = "Minimum Path Sum" tags = "dp"
+/>
+
+- 난이도 : Medium
+
+$dp$를 짜기 귀찮아서 다익을 썼다
+
+```cpp showLineNumbers
+class Solution {
+public:
+    int minPathSum(vector<vector<int>>& grid) {
+        const int inf = 1LL << 30;
+        int n = grid.size(),m = grid[0].size();
+        vector<vector<int>> dist(n, vector<int>(m, inf));
+        priority_queue<array<int, 3>, vector<array<int,3>>, greater<>> pq;
+        pq.push({dist[0][0] = grid[0][0], 0, 0});
+        while(pq.size()){
+            auto [cdist, x, y] = pq.top(); pq.pop();
+            for(int d = 0; d < 2; d++){
+                auto nx = x + "10"[d] - '0',ny = y + "01"[d] - '0';
+                if(nx < 0 or nx >= n or ny < 0 or ny >= m) continue;
+                if(dist[nx][ny] > cdist + grid[nx][ny]){
+                    pq.push({dist[nx][ny] = cdist + grid[nx][ny], nx, ny});
+                }
+            }
+        }
+        return dist[n - 1][m - 1];
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/top-k-frequent-elements/description/"
+    title = "Top K Frequent Elements" tags = "hash_map, priority_queue"
+/>
+
+- 난이도 : Medium
+
+Map으로 빈도수를 카운팅 한 이후 pq를 이용해서 $K$ 상위 K개의 원소만 남기는 식으로 하면 된다.
+
+```cpp showLineNumbers
+class Solution {
+public:
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        vector<int> v;
+        map<int, int> M;
+        for(const auto& i : nums) M[i]++;
+        priority_queue<pair<int,int>> pq;
+        int max = INT_MIN;
+        for(auto x : M){
+            pq.push({x.second,x.first});
+        }
+        while(k--){
+            int x = pq.top().second;
+            v.push_back(x);
+            pq.pop();
+        }
+        return v;
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/sort-characters-by-frequency/description/"
+    title = "Sort Characters By Frequency" tags = "sorting"
+/>
+
+- 난이도 : Medium
+
+map과 sorting을 쓰면 그냥 풀린다 ~~왜 미디엄임?~~
+
+실행 시간이 늦게 나와서 보니까 다른 사람은 버킷 sorting으로 풀었는데 그냥 STL로 딸깍해주자...
+
+나는 Map을 쓰진 않고 그냥 배열 256개를 박아서 풀면 $O(1)$에 빈도수 측정이 가능하다.
+
+```cpp showLineNumbers
+class Solution {
+public:
+    string frequencySort(string s) {
+        int M[256]{};
+        for(const auto& i : s) M[i]++;
+        sort(s.begin(), s.end(), [&](auto& a, auto& b){
+            return M[a] == M[b] ? a > b : M[a] > M[b];
+        });
+        return s;
+    }
+};
+```

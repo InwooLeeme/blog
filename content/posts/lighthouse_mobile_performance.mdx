@@ -4,6 +4,7 @@ date: "2026-07-24"
 summary: "캔버스 애니메이션을 의심하고 고쳤는데 점수는 1점밖에 안 올랐다. 진짜 범인은 따로 있었고, 실제 트레이스를 떠보고 나서야 잡았다."
 tags: [개발, 성능]
 draft: false
+cover: "https://inwooleeme.github.io/assets/projects/LightHouse.png"
 ---
 
 블로그를 모바일 Lighthouse로 돌려봤더니 Accessibility·Best Practices·SEO는 다 100점인데 Performance만 74점이 나왔다. 나머지가 죄다 만점이다 보니 이 74점이 유독 눈에 밟혔다. 분명 뭔가 하나가 확실하게 발목을 잡고 있다는 뜻이었다.
@@ -28,16 +29,6 @@ if (typeof window.requestIdleCallback === "function") {
 
 typecheck·lint·빌드까지 통과시키고 develop에 병합하고 나니 여기까지는 순조로웠다.
 
-## 다시 재봤는데 점수가 그대로였다
-
-병합하자마자 로컬에서 다시 Lighthouse를 돌렸다. `npm run dev`로 띄운 서버를 대상으로.
-
-결과는 똑같이 74점이었다. 셋이나 고쳤는데 1점도 안 오르니 뭔가 잘못됐다 싶었는데, 알고 보니 문제는 코드가 아니라 테스트 방법이었다. 개발 서버는 React 개발 모드라 검사 로직이 덕지덕지 붙어 있는 데다 번들도 minify가 안 되고, 라우트별 on-demand 컴파일 때문에 첫 응답까지 느리다. 이 오버헤드가 내가 고친 것들보다 훨씬 커서 차이를 통째로 덮어버리고 있었다.
-
-<Callout type="warn">
-Lighthouse는 반드시 프로덕션 빌드로 측정해야 한다. `npm run dev`로 잰 Performance 점수는 애초에 의미가 없다.
-</Callout>
-
 ## 프로덕션으로 다시 재봐도 1점
 
 `npm run build && npm run start`로 다시 띄우고 재측정했다. 이번엔 진짜 프로덕션 빌드니 기대를 좀 했는데, 결과는 74에서 75로 딱 1점 오르는 데 그쳤다. 세 가지나 고쳤는데 이 정도밖에 안 움직인다는 게 아무래도 이상해서, 여기서 더 추측하는 대신 실제 트레이스를 떠보기로 했다.
@@ -54,7 +45,7 @@ npx lighthouse http://localhost:3001/ \
   --output=json --chrome-flags="--headless=new"
 ```
 
-JSON 결과를 까보고 좀 놀랐다. TBT는 이미 0ms였다. 캔버스 수정이 제대로 먹혔다는 뜻이었다. 그런데 LCP(Largest Contentful Paint)가 **12.2초**였다. 점수를 깎아 먹는 진짜 범인은 처음에 의심했던 셋이 아니라 이거였다.
+JSON 결과를 까봤더니 TBT는 이미 0ms였다. 캔버스 수정이 제대로 동작한다는 거였는데 LCP(Largest Contentful Paint)가 **12.2초**였다. 점수를 깎아 먹는 진짜 범인은 처음에 의심했던 셋이 아니라 이거였다.
 
 ## 페이지 무게를 까보니
 

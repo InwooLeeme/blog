@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function Playground() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
       <header className="mb-8 border-b pb-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
@@ -30,6 +30,6 @@ export default function Playground() {
       </header>
 
       <EffectCarousel />
-    </main>
+    </div>
   );
 }

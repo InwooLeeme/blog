@@ -5,10 +5,12 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import type Fuse from "fuse.js";
 import type { IFuseOptions } from "fuse.js";
@@ -89,6 +91,7 @@ export function SearchTrigger() {
         size="icon"
         aria-label={t("search.open")}
         onClick={() => setOpen(true)}
+        className="relative before:absolute before:-inset-1 before:content-['']"
       >
         <Search className="h-5 w-5" />
       </Button>
@@ -101,10 +104,13 @@ export function SearchTrigger() {
 
 function SearchDialogContent() {
   const t = useT();
+  const router = useRouter();
   const { open, setOpen } = useSearchDialog();
   const [items, setItems] = useState<Item[] | null>(null);
   const [fuse, setFuse] = useState<Fuse<Item> | null>(null);
   const [query, setQuery] = useState("");
+  const [activeIndex, setActiveIndex] = useState(0);
+  const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
 
   useEffect(() => {
     if (!open || items) return;
@@ -130,6 +136,7 @@ function SearchDialogContent() {
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
     if (!next) setQuery("");
+    setActiveIndex(0);
   };
 
   const results = useMemo<Item[]>(() => {
@@ -139,6 +146,27 @@ function SearchDialogContent() {
     if (!fuse) return [];
     return fuse.search(q, { limit: 20 }).map((r) => r.item);
   }, [items, fuse, query]);
+
+  useEffect(() => {
+    itemRefs.current[activeIndex]?.scrollIntoView({ block: "nearest" });
+  }, [activeIndex]);
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (results.length === 0) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.min(i + 1, results.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.max(i - 1, 0));
+    } else if (e.key === "Enter") {
+      const item = results[activeIndex];
+      if (!item) return;
+      e.preventDefault();
+      setOpen(false);
+      router.push(itemHref(item));
+    }
+  };
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange}>
@@ -165,9 +193,21 @@ function SearchDialogContent() {
               autoFocus
               type="search"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setActiveIndex(0);
+              }}
+              onKeyDown={handleInputKeyDown}
               placeholder={t("search.placeholder")}
               aria-label={t("search.inputAria")}
+              role="combobox"
+              aria-expanded={results.length > 0}
+              aria-controls="search-results-listbox"
+              aria-activedescendant={
+                results[activeIndex]
+                  ? `search-result-${results[activeIndex].type}-${results[activeIndex].slug}`
+                  : undefined
+              }
               className="w-full rounded-lg border bg-background pl-9 pr-10 py-2 text-sm outline-none focus:ring-2 focus:ring-accent-brand"
             />
             <DialogPrimitive.Close
@@ -190,13 +230,22 @@ function SearchDialogContent() {
                   : t("search.empty")}
               </p>
             ) : (
-              <ul className="space-y-1">
-                {results.map((item) => (
-                  <li key={`${item.type}-${item.slug}`}>
+              <ul className="space-y-1" role="listbox" id="search-results-listbox">
+                {results.map((item, index) => (
+                  <li key={`${item.type}-${item.slug}`} role="presentation">
                     <Link
+                      id={`search-result-${item.type}-${item.slug}`}
+                      ref={(el) => {
+                        itemRefs.current[index] = el;
+                      }}
                       href={itemHref(item)}
+                      role="option"
+                      aria-selected={index === activeIndex}
                       onClick={() => setOpen(false)}
-                      className="block rounded-md px-3 py-2 transition hover:bg-muted"
+                      onMouseEnter={() => setActiveIndex(index)}
+                      className={`block rounded-md px-3 py-2 transition hover:bg-muted ${
+                        index === activeIndex ? "bg-muted" : ""
+                      }`}
                     >
                       <div className="font-medium line-clamp-1">
                         {item.title}

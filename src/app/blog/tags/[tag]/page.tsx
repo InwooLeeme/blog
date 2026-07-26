@@ -43,13 +43,13 @@ export default async  function BlogTagPage({ params }: { params: Promise<{ tag: 
           tagBasePath="/blog/tags"
           series={getAllSeries()}
         />
-        <main className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1">
           <h1 className="text-2xl md:text-3xl font-bold mt-2 mb-6">
             #{tag} ({filtered.length})
           </h1>
 
           <PostGrid posts={filtered} />
-        </main>
+        </div>
       </div>
     </div>
   );

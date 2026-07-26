@@ -11,16 +11,18 @@ import PageTransition from "./components/PageTransition";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { LocaleProvider } from "./components/LocaleProvider";
 import BackgroundDecor from "./components/BackgroundDecor";
+import Tr from "./components/Tr";
 import type { Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next"
 import { siteConfig } from "@/lib/site";
 
-// 본문 폰트 — 한글/라틴을 함께 다루는 Pretendard (public/fonts, Medium·Bold만 자체 호스팅)
-// 서브셋되지 않은 전체 완성형 한글 글리프 포함으로 두 파일 합쳐 약 1.6MB에 달해,
+// 본문 폰트 — 한글/라틴을 함께 다루는 Pretendard (public/fonts, Regular·Medium·Bold 자체 호스팅)
+// 서브셋되지 않은 전체 완성형 한글 글리프 포함으로 세 파일 합쳐 약 2.3MB에 달해,
 // preload로 걸어두면 저속 회선에서 다른 리소스(LCP 이미지 등)와 대역폭을 다툰다.
 // display: swap이라 preload 없이도 폴백 폰트로 즉시 텍스트가 보이고 이후 교체되므로 안전하다.
 const pretendard = localFont({
   src: [
+    { path: "../../public/fonts/Pretendard-Regular.woff2", weight: "400", style: "normal" },
     { path: "../../public/fonts/Pretendard-Medium.woff2", weight: "500", style: "normal" },
     { path: "../../public/fonts/Pretendard-Bold.woff2", weight: "700", style: "normal" },
   ],
@@ -82,10 +84,12 @@ export default function RootLayout({
 }>) {
   return (
     <ViewTransitions>
-      <html lang="ko" suppressHydrationWarning>
-        <body
-          className={`${pretendard.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased w-full`}
-        >
+      <html
+        lang="ko"
+        suppressHydrationWarning
+        className={`${pretendard.variable} ${geistMono.variable} ${spaceGrotesk.variable}`}
+      >
+        <body className="antialiased w-full">
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -93,10 +97,16 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <LocaleProvider>
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-100 focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-accent-brand"
+            >
+              <Tr id="header.skipToContent" />
+            </a>
             <BackgroundDecor />
             <div className="flex flex-col min-h-screen">
               <Header title={siteConfig.name} />
-              <main className="flex-1">
+              <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
                 <PageTransition>{children}</PageTransition>
               </main>
               <Analytics />

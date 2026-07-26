@@ -58,7 +58,13 @@ function Controls() {
   return (
     <>
       <SearchTrigger />
-      <Button asChild variant="ghost" size="icon" aria-label="GitHub">
+      <Button
+        asChild
+        variant="ghost"
+        size="icon"
+        aria-label="GitHub"
+        className="relative before:absolute before:-inset-1 before:content-['']"
+      >
         <Link href={siteConfig.githubUrl} target="_blank" rel="noreferrer">
           <IconGithub width={20} height={20} />
         </Link>
@@ -101,6 +107,11 @@ function DesktopNav({ pathname }: { pathname: string }) {
       ref={navRef}
       className="relative hidden items-center gap-1 text-sm md:flex"
       onMouseLeave={() => setHovered(null)}
+      onBlur={(e) => {
+        if (!navRef.current?.contains(e.relatedTarget as Node | null)) {
+          setHovered(null);
+        }
+      }}
     >
       <span
         aria-hidden
@@ -119,6 +130,7 @@ function DesktopNav({ pathname }: { pathname: string }) {
             itemsRef.current[i] = el;
           }}
           onMouseEnter={() => setHovered(i)}
+          onFocus={() => setHovered(i)}
           aria-current={i === activeIndex ? "page" : undefined}
           className={cn(
             "group/navitem relative rounded-full px-3 py-1.5 font-medium transition-colors",
@@ -150,7 +162,12 @@ function MobileNav({ pathname }: { pathname: string }) {
       <Controls />
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline" size="icon" aria-label={t("header.openMenu")}>
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label={t("header.openMenu")}
+            className="relative before:absolute before:-inset-1 before:content-['']"
+          >
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>

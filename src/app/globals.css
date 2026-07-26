@@ -137,7 +137,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring;
   }
   body {
     @apply bg-background text-foreground;
@@ -153,6 +153,11 @@
 body { word-break: keep-all; }
 
 html { scrollbar-gutter: stable; scroll-behavior: smooth; }
+
+/* TOC 앵커 등 CSS 기반 스크롤 점프가 전정 장애 사용자에게 노출되지 않도록 */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
 
 body{ margin: 0; }
 

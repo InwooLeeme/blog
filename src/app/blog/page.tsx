@@ -52,7 +52,7 @@ export default function BlogIndexPage() {
           series={getAllSeries()}
         />
         {/* main */}
-        <main className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1">
           <div className="mx-auto w-full max-w-6xl space-y-8">
             <LatestHero posts={posts} />
 
@@ -74,7 +74,7 @@ export default function BlogIndexPage() {
               </section>
             ) : null}
           </div>
-        </main>
+        </div>
       </div>
     </div>
   );

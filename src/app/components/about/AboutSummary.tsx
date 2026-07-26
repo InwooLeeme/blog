@@ -9,7 +9,10 @@ export default function AboutSummary() {
   const { aboutSummary } = useAboutData();
 
   return (
-    <section aria-label={t("about.summaryAria")} className="mb-12 rounded-lg border bg-card/70 p-5">
+    <section
+      aria-label={t("about.summaryAria")}
+      className="mx-auto mb-12 max-w-2xl rounded-lg border bg-card/70 p-5"
+    >
       <ul className="space-y-3">
         {aboutSummary.map((line) => (
           <li key={line} className="flex gap-3 text-sm leading-relaxed">

@@ -32,7 +32,7 @@ export default function AboutPageContent() {
   ];
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
+    <div className="mx-auto max-w-5xl px-4 py-10">
       <TocSpy sections={sections} />
       <AboutHero />
       <Reveal>

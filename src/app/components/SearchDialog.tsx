@@ -89,6 +89,7 @@ export function SearchTrigger() {
         size="icon"
         aria-label={t("search.open")}
         onClick={() => setOpen(true)}
+        className="relative before:absolute before:-inset-1 before:content-['']"
       >
         <Search className="h-5 w-5" />
       </Button>

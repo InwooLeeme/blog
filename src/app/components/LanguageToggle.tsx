@@ -69,7 +69,7 @@ export default function LanguageToggle() {
     <Button
       variant="ghost"
       size="icon"
-      className="disabled:opacity-100"
+      className="relative disabled:opacity-100 before:absolute before:-inset-1 before:content-['']"
       aria-label={t("header.language")}
       disabled={isTransitioning}
       onClick={toggle}

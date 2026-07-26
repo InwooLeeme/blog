@@ -58,7 +58,13 @@ function Controls() {
   return (
     <>
       <SearchTrigger />
-      <Button asChild variant="ghost" size="icon" aria-label="GitHub">
+      <Button
+        asChild
+        variant="ghost"
+        size="icon"
+        aria-label="GitHub"
+        className="relative before:absolute before:-inset-1 before:content-['']"
+      >
         <Link href={siteConfig.githubUrl} target="_blank" rel="noreferrer">
           <IconGithub width={20} height={20} />
         </Link>
@@ -150,7 +156,12 @@ function MobileNav({ pathname }: { pathname: string }) {
       <Controls />
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline" size="icon" aria-label={t("header.openMenu")}>
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label={t("header.openMenu")}
+            className="relative before:absolute before:-inset-1 before:content-['']"
+          >
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>

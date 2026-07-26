@@ -107,6 +107,11 @@ function DesktopNav({ pathname }: { pathname: string }) {
       ref={navRef}
       className="relative hidden items-center gap-1 text-sm md:flex"
       onMouseLeave={() => setHovered(null)}
+      onBlur={(e) => {
+        if (!navRef.current?.contains(e.relatedTarget as Node | null)) {
+          setHovered(null);
+        }
+      }}
     >
       <span
         aria-hidden
@@ -125,6 +130,7 @@ function DesktopNav({ pathname }: { pathname: string }) {
             itemsRef.current[i] = el;
           }}
           onMouseEnter={() => setHovered(i)}
+          onFocus={() => setHovered(i)}
           aria-current={i === activeIndex ? "page" : undefined}
           className={cn(
             "group/navitem relative rounded-full px-3 py-1.5 font-medium transition-colors",

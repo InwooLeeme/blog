@@ -29,6 +29,7 @@ const StarTrails = dynamic(() => import("@/app/playground/_components/effects/St
 const FireflyForest = dynamic(() => import("@/app/playground/_components/effects/FireflyForest"), { ssr: false });
 const FluidInk = dynamic(() => import("@/app/playground/_components/effects/FluidInk"), { ssr: false });
 const GrowingForest = dynamic(() => import("@/app/playground/_components/effects/GrowingForest"), { ssr: false });
+const ColorBubbles = dynamic(() => import("@/app/playground/_components/effects/ColorBubbles"), { ssr: false });
 
 /** 플레이그라운드 캐러셀과 랜딩 게이트가 함께 쓰는 이펙트 목록 */
 export const EFFECTS: Effect[] = [
@@ -48,4 +49,5 @@ export const EFFECTS: Effect[] = [
   { id: "fireflies", title: "반딧불 숲", description: "어두운 숲을 무작위로 떠다니며 점멸하는 반딧불", Component: FireflyForest },
   { id: "fluid-ink", title: "잉크 유체", description: "커서가 흘린 잉크가 소용돌이치며 번져 나가는 유체", Component: FluidInk },
   { id: "tree-growth", title: "나무의 성장", description: "가지를 뻗고 잎을 틔우며 천천히 자라나는 숲", Component: GrowingForest },
+  { id: "color-bubbles", title: "색방울", description: "화면을 떠다니다 가장자리에서 튕겨나가며, 서로 겹치면 빛이 밝게 섞이는 색색의 공들", Component: ColorBubbles },
 ];

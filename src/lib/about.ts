@@ -73,13 +73,13 @@ export type TimelineLink = { label: string; href: string };
 export type Education = { date: string; title: string; detail?: string; link?: TimelineLink };
 
 export const education: Education[] = [
-  { date: "2019.03–2026.08", title: "전북대학교 소프트웨어공학과" },
+  { date: "2026.07–현재", title: "SK SKALA" },
   {
     date: "2024.03–2025.12",
     title: "전북대학교 알고리즘 동아리 ALPS",
     detail: "매주 알고리즘 학습 및 문제 풀이, 코딩테스트 및 알고리즘 대회 대비",
   },
-  { date: "2026.07–현재", title: "SK SKALA" },
+  { date: "2019.03–2026.08", title: "전북대학교 소프트웨어공학과" },
 ];
 
 /** 수상 이력 */
@@ -87,14 +87,10 @@ export type Award = { date: string; title: string; detail?: string; link?: Timel
 
 export const awards: Award[] = [
   {
-    date : "2024",
-    title: "전남대학교 소프트웨어중심대학 제7회 SW프로그래밍 경진대회(호남•제주권)",
-    detail: "장려상 · 알고리즘 문제 해결 역량을 평가받은 권역 대회"
-  },
-  {
-    date: "2024",
-    title: "ICPC 전북대학교 예선 경시대회",
-    detail: "금상 · 팀 기반 알고리즘 경시대회"
+    date: "2025",
+    title: "한국정보기술학회 하계종합학술대회 대학생 논문경진대회",
+    detail: "우수논문상 · 「MCP 기반 PC용 개인 음성 비서 시스템 구축 방안」",
+    link: { label: "관련 프로젝트 글", href: "/blog/mcp_assistant" },
   },
   {
     date: "2025",
@@ -102,10 +98,14 @@ export const awards: Award[] = [
     detail: "금상 · 전년도에 이어 참가"
   },
   {
-    date: "2025",
-    title: "한국정보기술학회 하계종합학술대회 대학생 논문경진대회",
-    detail: "우수논문상 · 「MCP 기반 PC용 개인 음성 비서 시스템 구축 방안」",
-    link: { label: "관련 프로젝트 글", href: "/blog/mcp_assistant" },
+    date: "2024",
+    title: "ICPC 전북대학교 예선 경시대회",
+    detail: "금상 · 팀 기반 알고리즘 경시대회"
+  },
+  {
+    date : "2024",
+    title: "전남대학교 소프트웨어중심대학 제7회 SW프로그래밍 경진대회(호남•제주권)",
+    detail: "장려상 · 알고리즘 문제 해결 역량을 평가받은 권역 대회"
   }
 ];
 
@@ -114,19 +114,19 @@ export type Competition = { date: string; name: string; result?: string; link?: 
 
 export const competitions: Competition[] = [
   {
-    date: "2022",
+    date: "2025",
     name: "UCPC 예선",
-    result: "240th · 알고리즘 대회 참가 기록"
+    result: "135th · 꾸준히 참가한 알고리즘 대회"
   },
   {
     date: "2024",
     name: "UCPC 예선",
-    result: "132th · 팀 대회 경험 확장"
+    result: "132nd · 팀 대회 경험 확장"
   },
   {
-    date: "2025",
+    date: "2022",
     name: "UCPC 예선",
-    result: "135th · 꾸준히 참가한 알고리즘 대회"
+    result: "240th · 알고리즘 대회 참가 기록"
   }
 ];
 
@@ -135,9 +135,9 @@ export type ContestWork = { date: string; title: string; detail?: string; link?:
 
 export const contestWorks: ContestWork[] = [
   {
-    date: "2024",
+    date: "2026",
     title: "전북대학교 알고리즘 경진대회",
-    detail: "출제 · 운영 · 참가자가 풀 수 있는 난이도와 검증 가능한 풀이를 함께 고민",
+    detail: "출제 · 운영 · 문제 조건, 예외 케이스, 채점 데이터, 대회 난이도 검토",
   },
   {
     date: "2025",
@@ -145,9 +145,9 @@ export const contestWorks: ContestWork[] = [
     detail: "출제 · 운영 · 문제 조건, 예외 케이스, 채점 데이터 검토",
   },
   {
-    date: "2026",
+    date: "2024",
     title: "전북대학교 알고리즘 경진대회",
-    detail: "출제 · 운영 · 문제 조건, 예외 케이스, 채점 데이터, 대회 난이도 검토",
+    detail: "출제 · 운영 · 참가자가 풀 수 있는 난이도와 검증 가능한 풀이를 함께 고민",
   }
 ];
 
@@ -337,10 +337,10 @@ export type Certification = {
 
 export const certifications: Certification[] = [
   {
-    date: "2025.10.31",
-    name: "한국사능력검정시험 1급",
-    nameEn: "Korean History Proficiency Test (Advanced Level, Grade 1)",
-    issuer: "국사편찬위원회",
+    date: "2026.03.06",
+    name: "데이터분석 준전문가 ADsP",
+    nameEn: "Advanced Data Analytics Semi-Professional",
+    issuer: "한국데이터산업진흥원",
   },
   {
     date: "2025.12.24",
@@ -348,9 +348,9 @@ export const certifications: Certification[] = [
     issuer: "한국산업인력공단",
   },
   {
-    date: "2026.03.06",
-    name: "데이터분석 준전문가 ADsP",
-    nameEn: "Advanced Data Analytics Semi-Professional",
-    issuer: "한국데이터산업진흥원",
+    date: "2025.10.31",
+    name: "한국사능력검정시험 1급",
+    nameEn: "Korean History Proficiency Test (Advanced Level, Grade 1)",
+    issuer: "국사편찬위원회",
   },
 ];

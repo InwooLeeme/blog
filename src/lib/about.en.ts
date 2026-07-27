@@ -26,25 +26,21 @@ export const techLevelLabels: Record<TechLevel, string> = {
 };
 
 export const education: Education[] = [
-  { date: "2019.03–2026.08", title: "Jeonbuk National University, Dept. of Software Engineering" },
+  { date: "2026.07–present", title: "SK SKALA" },
   {
     date: "2024.03–2025.12",
     title: "Jeonbuk National University Algorithm Club ALPS",
     detail: "Weekly algorithm study and problem solving; preparing for coding tests and algorithm contests",
   },
-  { date: "2026.07–present", title: "SK SKALA" },
+  { date: "2019.03–2026.08", title: "Jeonbuk National University, Dept. of Software Engineering" },
 ];
 
 export const awards: Award[] = [
   {
-    date: "2024",
-    title: "7th SW Programming Contest, Chonnam National University SW-Centered University (Honam·Jeju)",
-    detail: "Encouragement Award · Regional contest evaluating algorithmic problem-solving",
-  },
-  {
-    date: "2024",
-    title: "ICPC Jeonbuk National University Preliminary Contest",
-    detail: "Gold Prize · Team-based algorithm contest",
+    date: "2025",
+    title: "KIIT Summer Conference Undergraduate Paper Competition",
+    detail: "Best Paper Award · “Building an MCP-based Personal Voice Assistant System for PC”",
+    link: { label: "Related project post", href: "/blog/mcp_assistant" },
   },
   {
     date: "2025",
@@ -52,18 +48,22 @@ export const awards: Award[] = [
     detail: "Gold Prize · Participated again following the previous year",
   },
   {
-    date: "2025",
-    title: "KIIT Summer Conference Undergraduate Paper Competition",
-    detail: "Best Paper Award · “Building an MCP-based Personal Voice Assistant System for PC”",
-    link: { label: "Related project post", href: "/blog/mcp_assistant" },
+    date: "2024",
+    title: "ICPC Jeonbuk National University Preliminary Contest",
+    detail: "Gold Prize · Team-based algorithm contest",
+  },
+  {
+    date: "2024",
+    title: "7th SW Programming Contest, Chonnam National University SW-Centered University (Honam·Jeju)",
+    detail: "Encouragement Award · Regional contest evaluating algorithmic problem-solving",
   },
 ];
 
 export const competitions: Competition[] = [
   {
-    date: "2022",
+    date: "2025",
     name: "UCPC Preliminary",
-    result: "240th · Algorithm contest participation record",
+    result: "135th · A contest I keep coming back to",
   },
   {
     date: "2024",
@@ -71,17 +71,17 @@ export const competitions: Competition[] = [
     result: "132nd · Expanding team contest experience",
   },
   {
-    date: "2025",
+    date: "2022",
     name: "UCPC Preliminary",
-    result: "135th · A contest I keep coming back to",
+    result: "240th · Algorithm contest participation record",
   },
 ];
 
 export const contestWorks: ContestWork[] = [
   {
-    date: "2024",
+    date: "2026",
     title: "Jeonbuk National University Algorithm Contest",
-    detail: "Problem setting · Operations · Balancing solvable difficulty with verifiable solutions",
+    detail: "Problem setting · Operations · Reviewing constraints, edge cases, judge data, and overall difficulty",
   },
   {
     date: "2025",
@@ -89,9 +89,9 @@ export const contestWorks: ContestWork[] = [
     detail: "Problem setting · Operations · Reviewing constraints, edge cases, and judge data",
   },
   {
-    date: "2026",
+    date: "2024",
     title: "Jeonbuk National University Algorithm Contest",
-    detail: "Problem setting · Operations · Reviewing constraints, edge cases, judge data, and overall difficulty",
+    detail: "Problem setting · Operations · Balancing solvable difficulty with verifiable solutions",
   },
 ];
 
@@ -180,7 +180,7 @@ export const projects: Project[] = [
         type: "external",
       },
     ],
-    image: "https://inwooleeme.github.io/assets/projects/Nasdaq_Thumbnail.png",
+    image: "https://inwooleeme.github.io/assets/projects/database-nasdaq-page.png",
     accent: "#059669",
   },
   {
@@ -252,9 +252,9 @@ export const workingStyles: WorkingStyle[] = [
 
 export const certifications: Certification[] = [
   {
-    date: "2025.10.31",
-    name: "Korean History Proficiency Test (Advanced Level, Grade 1)",
-    issuer: "National Institute of Korean History",
+    date: "2026.03.06",
+    name: "ADsP (Advanced Data Analytics Semi-Professional)",
+    issuer: "Korea Data Agency",
   },
   {
     date: "2025.12.24",
@@ -262,8 +262,8 @@ export const certifications: Certification[] = [
     issuer: "Human Resources Development Service of Korea",
   },
   {
-    date: "2026.03.06",
-    name: "ADsP (Advanced Data Analytics Semi-Professional)",
-    issuer: "Korea Data Agency",
+    date: "2025.10.31",
+    name: "Korean History Proficiency Test (Advanced Level, Grade 1)",
+    issuer: "National Institute of Korean History",
   },
 ];

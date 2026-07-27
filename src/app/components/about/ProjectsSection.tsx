@@ -8,7 +8,7 @@ import { techChipStyle, TECH_COLOR_FALLBACK } from "@/lib/tech";
 import BrandIcon from "../icon/BrandIcon";
 import IconGithub from "../icon/IconGithub";
 import SpotlightCard, { CARD_ENTER_TRANSITION } from "./SpotlightCard";
-import { SectionHeading } from "./Timeline";
+import { SectionHeading } from "./SectionHeading";
 import { useT } from "../LocaleProvider";
 import { useAboutData } from "./useAboutData";
 
@@ -32,9 +32,9 @@ export default function ProjectsSection() {
                 <div className="relative aspect-[16/9] w-full overflow-hidden">
                   <Image
                     src={p.image}
-                    alt={`${p.name} 미리보기`}
+                    alt={t("about.projectPreviewAlt", { name: p.name })}
                     fill
-                    sizes="(max-width: 768px) 100vw, 672px"
+                    sizes="(max-width: 768px) 100vw, 992px"
                     className="object-cover"
                   />
                   <div

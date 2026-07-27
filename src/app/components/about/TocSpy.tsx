@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { useT } from "../LocaleProvider";
 
 type TocSection = { id: string; label: string };
 
@@ -13,6 +14,7 @@ type TocSection = { id: string; label: string };
  * - prefers-reduced-motion이면 진행률 바만 표시(트랜지션 없음)
  */
 export default function TocSpy({ sections }: { sections: TocSection[] }) {
+  const t = useT();
   const [progress, setProgress] = React.useState(0);
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const [showToc, setShowToc] = React.useState(false);
@@ -86,17 +88,17 @@ export default function TocSpy({ sections }: { sections: TocSection[] }) {
         />
       </div>
 
-      {/* 미니 목차 — xl 이상에서만 */}
+      {/* 미니 목차 — 3xl 컨테이너 기준으로 잡았던 원래 여백(256px)을 5xl 컨테이너에서도 유지하려면 2xl부터 */}
       <nav
-        aria-label="현재 위치 목차"
+        aria-label={t("about.tocSpyAria")}
         className={cn(
-          "fixed right-6 top-1/2 z-40 hidden -translate-y-1/2 xl:block",
+          "fixed right-6 top-1/2 z-40 hidden -translate-y-1/2 2xl:block",
           "transition-all duration-300 motion-reduce:transition-none",
           showToc ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-3 opacity-0",
         )}
       >
         <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          On this page
+          {t("about.toc")}
         </p>
         <ul className="space-y-0.5">
           {sections.map((s) => {

@@ -3,9 +3,18 @@
 import * as React from "react";
 import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { TimelineItem } from "./Timeline";
 
 const ITEM_DELAY_MS = 160;
+
+export type TimelineItem = {
+  date: string;
+  title: string;
+  detail?: string;
+  link?: {
+    label: string;
+    href: string;
+  };
+};
 
 function TimelineLink({ link }: { link: NonNullable<TimelineItem["link"]> }) {
   const external = /^https?:\/\//.test(link.href);

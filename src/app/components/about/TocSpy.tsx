@@ -88,7 +88,7 @@ export default function TocSpy({ sections }: { sections: TocSection[] }) {
         />
       </div>
 
-      {/* 미니 목차 — 3xl 컨테이너 기준으로 잡았던 원래 여백(256px)을 5xl 컨테이너에서도 유지하려면 2xl부터 */}
+      {/* 미니 목차 — 3xl 컨테이너 기준으로 잡았던 원래 여백(256px)을 5xl 컨테이너(AboutPageContent.tsx의 max-w-5xl)에서도 유지하려면 2xl부터. ProjectsSection.tsx의 이미지 sizes와 함께 조정 필요 */}
       <nav
         aria-label={t("about.tocSpyAria")}
         className={cn(

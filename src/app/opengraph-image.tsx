@@ -1,18 +1,12 @@
 import { ImageResponse } from "next/og";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { OG_IMAGE_SIZE, OG_IMAGE_CONTENT_TYPE, loadOgFonts, OgBlobBackground } from "@/lib/og";
 
 export const alt = "InwooLeeme.dev";
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
-
-function loadFont(weight: 700 | 500) {
-  const filename = `Pretendard-${weight === 700 ? "Bold" : "Medium"}.otf`;
-  return readFile(join(process.cwd(), "src", "assets", "fonts", filename));
-}
+export const size = OG_IMAGE_SIZE;
+export const contentType = OG_IMAGE_CONTENT_TYPE;
 
 export default async function Image() {
-  const [bold, medium] = await Promise.all([loadFont(700), loadFont(500)]);
+  const fonts = await loadOgFonts();
 
   return new ImageResponse(
     (
@@ -31,34 +25,7 @@ export default async function Image() {
           position: "relative",
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            top: -200,
-            right: -200,
-            width: 700,
-            height: 700,
-            borderRadius: "50%",
-            background:
-              "radial-gradient(circle, #fff383 0%, transparent 70%)",
-            opacity: 0.35,
-            display: "flex",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            bottom: -250,
-            left: -250,
-            width: 700,
-            height: 700,
-            borderRadius: "50%",
-            background:
-              "radial-gradient(circle, #fff383 0%, transparent 70%)",
-            opacity: 0.18,
-            display: "flex",
-          }}
-        />
+        <OgBlobBackground />
 
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           <div
@@ -93,12 +60,6 @@ export default async function Image() {
         </div>
       </div>
     ),
-    {
-      ...size,
-      fonts: [
-        { name: "Pretendard", data: bold, style: "normal", weight: 700 },
-        { name: "Pretendard", data: medium, style: "normal", weight: 500 },
-      ],
-    },
+    { ...size, fonts },
   );
 }

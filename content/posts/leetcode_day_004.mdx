@@ -1,0 +1,242 @@
+---
+title: "LeetCode Day 4"
+date: "2026-07-27"
+summary: "LeetCode Day 4 풀이"
+tags: [LeetCode]
+series: "LeetCode Day"
+draft: false
+cover: "https://inwooleeme.github.io/assets/projects/LeetCode_Sharing.png"
+---
+
+## LeetCode 문제 풀이
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/out-of-boundary-paths/description/?envType=problem-list-v2&envId=dynamic-programming"
+    title = "Out of Boundary Paths" tags = "dp"
+/>
+
+- 난이도 : Medium
+
+$dp[i][j][k]$ : $(i, j)$에 $k$번 거쳐서 오는 방법의 수로 놓고 $dp$를 돌리면 되는데 중요한 건 맵 밖으로 나가는 걸 카운팅해주면 된다.
+
+```cpp showLineNumbers
+class Solution {
+public:
+    int dp[55][55][55];
+    const int MOD = int(1e9) + 7;
+    int findPaths(int m, int n, int maxMove, int startRow, int startColumn) {
+        memset(dp, -1, sizeof(dp));
+        const int dx[4] = {1, 0, -1, 0};
+        const int dy[4] = {0, 1, 0, -1};
+        auto f = [&](int dep, int x, int y, auto&& f) -> int{
+            if(x < 0 or x >= m or y < 0 or y >= n and dep <= maxMove) return 1;
+            int& ret = dp[x][y][dep];
+            if(ret != -1) return ret;
+            ret = 0;
+            for(int d = 0; d < 4; d++){
+                auto nx = x + dx[d], ny = y + dy[d];
+                if(dep + 1 > maxMove) continue;
+                ret += f(dep + 1, nx, ny, f);
+                ret %= MOD;
+            }
+            return ret % MOD;
+        };
+        return f(0, startRow, startColumn, f) % MOD;
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/4sum-ii/"
+    title = "Minimum Falling Path Sum" tags = "hash_map"
+/>
+
+- 난이도 : Medium
+
+$dp[i][j]$ : $(i, j)$까지 왔을 때 얻을 수 있는 최소값이라고 정의한 다음 $dp$를 돌리면 쉽다.
+
+```cpp showLineNumbers
+class Solution {
+public:
+    int fourSumCount(vector<int>& nums1, vector<int>& nums2, vector<int>& nums3, vector<int>& nums4) {
+        int res = 0;
+        unordered_map<int, int> M;
+        for(const auto& a : nums1) for(const auto& b : nums2) M[a + b]++;
+        for(const auto& c : nums3) for(const auto& d : nums4) res += (M[-c-d]);
+        return res;
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/minimum-falling-path-sum/description/"
+    title = "4Sum II" tags = "dp"
+/>
+
+- 난이도 : Medium
+
+```cpp showLineNumbers
+class Solution {
+public:
+    int minFallingPathSum(vector<vector<int>>& matrix) {
+        int mn = INT_MAX;
+        int n = matrix.size(), m = matrix[0].size();
+        vector<vector<int>> dp(n, vector<int>(m, int(1e9)));
+        const int dx[3] = {1, 1, 1};
+        const int dy[3] = {1, 0, -1};
+        for(int i = 0; i < m; i++) dp[0][i] = matrix[0][i];
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < m; j++){
+                for(int d = 0; d < 3; d++){
+                    auto nx = i + dx[d], ny = j + dy[d];
+                    if(nx < 0 or nx >= n or ny < 0 or ny >= m) continue;
+                    dp[nx][ny] = min(dp[nx][ny], dp[i][j] + matrix[nx][ny]);
+                }
+            }
+        }
+        for(int i = 0; i < m; i++) mn = min(mn, dp[n - 1][i]);
+        return mn;
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/longest-common-subsequence/description/?envType=problem-list-v2&envId=dynamic-programming"
+    title = "Longest Common Subsequence" tags = "dp"
+/>
+
+- 난이도 : Medium
+
+$dp[i][j]$ : text1의 $i$번 문자까지 보고 text2의 $j$번 문자까지 봤을 때의 LCS의 최대 길이
+
+```cpp showLineNumbers
+class Solution {
+public:
+    int longestCommonSubsequence(string text1, string text2) {
+        int n = text1.size(), m = text2.size();
+        vector<vector<int>> dp(n + 1, vector<int>(m + 1));
+        for(int i = 1; i <= n; i++){
+            for(int j = 1; j <= m; j++){
+                if(text1[i - 1] == text2[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;
+                else dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
+        return dp[n][m];
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/count-islands-with-total-value-divisible-by-k/description/"
+    title = "Count Islands With Total Value Divisible by K" tags = "dfs, bfs"
+/>
+
+- 난이도 : Medium
+
+dfs를 이용해서 각 컴포넌트 안의 수 합계를 구하면 된다. Easy함 ㅇㅇ
+
+```cpp showLineNumbers
+class Solution {
+public:
+    int countIslands(vector<vector<int>>& grid, int k) {
+        using ll = long long;
+        int res = 0;
+        int n = grid.size(), m = grid[0].size();
+        vector<vector<bool>> vist(n, vector<bool>(m));
+        const int dx[4] = {1, 0, -1, 0};
+        const int dy[4] = {0, 1, 0, -1};
+        auto dfs = [&](int x, int y, auto&& dfs) -> ll{
+            vist[x][y] = 1;
+            ll ret = grid[x][y];
+            for(int d = 0; d < 4; d++){
+                auto nx = x + dx[d], ny = y + dy[d];
+                if(nx < 0 or nx >= n or ny < 0 or ny >= m) continue;
+                if(vist[nx][ny] or !grid[nx][ny]) continue;
+                ret += dfs(nx, ny, dfs);
+            }
+            return ret;
+        };
+        for(int i = 0; i < n; i++) for(int j = 0; j < m; j++){
+            if(vist[i][j] or !grid[i][j]) continue;
+            res += (dfs(i, j, dfs)% k == 0);
+        }
+        return res;
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/find-maximum-number-of-string-pairs/description/"
+    title = "Find Maximum Number of String Pairs" tags = "hash_map"
+/>
+
+- 난이도 : Easy
+
+map을 이용해서 반대 글자가 있으면 카운팅
+
+```cpp showLineNumbers
+#include <ext/pb_ds/assoc_container.hpp>
+using namespace __gnu_pbds;
+
+class Solution {
+public:
+    int maximumNumberOfStringPairs(vector<string>& words) {
+        int cnt = 0;
+        gp_hash_table<string, int> M;
+        for(const auto& i : words){
+            string s = i;
+            auto t = s;
+            swap(t[0], t[1]);
+            cnt += (M[t] ? 1 : 0);
+            M[s]++;
+        }
+        return cnt;
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/count-operations-to-obtain-zero/description/"
+    title = "Count Operations to Obtain Zero" tags = "implementation"
+/>
+
+- 난이도 : Easy
+
+그냥 구현
+
+```cpp showLineNumbers
+class Solution {
+public:
+    int countOperations(int num1, int num2) {
+        int res = 0;
+        while(num1 and num2){
+            if(num1 >= num2) num1 -= num2;
+            else num2 -= num1;
+            res++;
+            num1 = max(num1, 0);
+            num2 = max(num2, 0);
+        }
+        return res;
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/check-if-all-the-integers-in-a-range-are-covered/description/"
+    title = "Check if All the Integers in a Range Are Covered" tags = "sorting, sweeping"
+/>
+
+- 난이도 : Easy
+
+스위핑을 이용해서 전부 다 확인하면 된다
+
+```cpp showLineNumbers
+class Solution {
+public:
+    bool isCovered(vector<vector<int>>& ranges, int left, int right) {
+        vector<int> check(55);
+        for(const auto& i : ranges){
+            int a = i[0],b = i[1];
+            check[a]++;
+            check[b + 1]--;
+        }
+        for(int i = 1,cnt = 0; i <= right; i++){
+            cnt += check[i];
+            if(i >= left and !cnt) return 0;
+        }
+        return 1;
+    }
+};
+```

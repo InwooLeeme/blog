@@ -3,21 +3,17 @@ import { notFound } from "next/navigation";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { getPostBySlug, getPublishedSlugs } from "@/lib/posts";
+import { OG_IMAGE_SIZE, OG_IMAGE_CONTENT_TYPE, loadOgFonts } from "@/lib/og";
 
 export const alt = "Blog post";
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+export const size = OG_IMAGE_SIZE;
+export const contentType = OG_IMAGE_CONTENT_TYPE;
 
 export function generateStaticParams() {
   return getPublishedSlugs().map((slug) => ({ slug }));
 }
 
 export const dynamicParams = false;
-
-function loadFont(weight: 700 | 500) {
-  const filename = `Pretendard-${weight === 700 ? "Bold" : "Medium"}.otf`;
-  return readFile(join(process.cwd(), "src", "assets", "fonts", filename));
-}
 
 interface ImageProps {
   params: Promise<{ slug: string }>;
@@ -52,7 +48,7 @@ type Post = NonNullable<ReturnType<typeof getPostBySlug>>;
 
 /** 제목·날짜·태그로 OG 이미지를 동적 생성 */
 async function generatedOgImage(post: Post) {
-  const [bold, medium] = await Promise.all([loadFont(700), loadFont(500)]);
+  const fonts = await loadOgFonts();
 
   const title = post.meta.title;
   const date = post.meta.date;
@@ -163,13 +159,7 @@ async function generatedOgImage(post: Post) {
         </div>
       </div>
     ),
-    {
-      ...size,
-      fonts: [
-        { name: "Pretendard", data: bold, style: "normal", weight: 700 },
-        { name: "Pretendard", data: medium, style: "normal", weight: 500 },
-      ],
-    },
+    { ...size, fonts },
   );
 }
 

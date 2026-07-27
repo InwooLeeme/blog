@@ -34,6 +34,7 @@ export default function ProjectsSection() {
                     src={p.image}
                     alt={t("about.projectPreviewAlt", { name: p.name })}
                     fill
+                    // About 본문 컨테이너 폭(AboutPageContent.tsx의 max-w-5xl)에 맞춘 값 — TocSpy.tsx의 2xl 브레이크포인트와 함께 조정 필요
                     sizes="(max-width: 768px) 100vw, 992px"
                     className="object-cover"
                   />

@@ -1,0 +1,148 @@
+---
+title: "LeetCode Day 5"
+date: "2026-07-27"
+summary: "LeetCode Day 5 풀이"
+tags: [LeetCode]
+series: "LeetCode Day"
+draft: false
+cover: "https://inwooleeme.github.io/assets/projects/LeetCode_Sharing.png"
+---
+
+## LeetCode 문제 풀이
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/critical-connections-in-a-network/description/"
+    title = "Critical Connections in a Network" tags = "dfs, BCC"
+/>
+
+- 난이도 : Hard
+
+**단절선을 구하여라.**
+
+```cpp showLineNumbers
+class Solution {
+public:
+struct Bridge { // must be no multi-edge
+	int n, dfs_cnt;
+	vector<int> dfs_order;
+	vector<pair<int, int>> bridge;
+	vector<vector<int>> adj;
+
+	Bridge(int n = 0) :
+		n(n), adj(n + 1),
+		dfs_order(n + 1),
+		dfs_cnt(0) {}
+
+	void AddEdge(int a, int b) {
+		adj[a].push_back(b);
+		adj[b].push_back(a);
+	}
+
+	int DFS(int cur, int prv = -1) {
+		int ret = dfs_order[cur] = ++dfs_cnt;
+		for (const auto& nxt : adj[cur]) {
+			if (nxt == prv) continue;
+			if (!dfs_order[nxt]) {
+				const int t = DFS(nxt, cur);
+				if (t > dfs_order[cur]) bridge.push_back({ cur, nxt });
+				ret = min(ret, t);
+			}
+			else ret = min(ret, dfs_order[nxt]);
+		}
+		return ret;
+	}
+
+	void GetBridge() {
+		for (int i = 1; i <= n; i++)
+			if (!dfs_order[i]) DFS(i);
+		for (auto& [a, b] : bridge) if (a > b) swap(a, b);
+		sort(bridge.begin(), bridge.end());
+	}
+};
+    vector<vector<int>> criticalConnections(int n, vector<vector<int>>& connections) {
+        Bridge g(n);
+        for(const auto& e : connections){
+            auto a = e[0], b = e[1];
+            g.AddEdge(a, b);
+        }      
+        g.GetBridge();
+        vector<vector<int>> res;
+        for(const auto& [a, b] : g.bridge){
+            res.push_back({a, b});
+        }
+        return res;
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/check-if-all-characters-have-equal-number-of-occurrences/description/"
+    title = "Check if All Characters Have Equal Number of Occurrences" tags = "set"
+/>
+
+- 난이도 : Easy
+
+map이나 set을 이용하면 쉽다.
+
+```cpp showLineNumbers
+class Solution {
+public:
+    bool areOccurrencesEqual(string s) {
+        set<int> st;
+        int cnt[128];
+        for(const auto& i : s) cnt[i]++;
+        for(const auto& i : s) st.insert(cnt[i]);
+        return st.size() == 1;
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/find-if-path-exists-in-graph/description/?envType=problem-list-v2&envId=depth-first-search"
+    title = "Find if Path Exists in Graph" tags = "dfs, bfs"
+/>
+
+- 난이도 : Easy
+
+bfs or dfs를 돌리자
+
+```cpp showLineNumbers
+class Solution {
+public:
+    bool validPath(int n, vector<vector<int>>& edges, int source, int destination) {
+        vector<vector<int>> g(n + 1);
+        for(const auto& i : edges){
+            auto a = i[0], b = i[1];
+            g[a].push_back(b); g[b].push_back(a);
+        }
+        vector<int> dist(n + 1, -1);
+        queue<int> q;
+        dist[source] = 0; q.push(source);
+        while(q.size()){
+            auto cur = q.front(); q.pop();
+            if(cur == destination) return 1;
+            for(const auto& nxt : g[cur]){
+                if(dist[nxt] != -1) continue;
+                dist[nxt] = dist[cur] + 1; q.push(nxt);
+            }
+        }
+        return 0;
+    }
+};
+```
+
+<ProblemMeta platform = "LeetCode" link = "https://leetcode.com/problems/maximum-product-of-two-elements-in-an-array/description/"
+    title = "Maximum Product of Two Elements in an Array" tags = "sorting"
+/>
+
+- 난이도 : Easy
+
+sorting...
+
+```cpp showLineNumbers
+class Solution {
+public:
+    int maxProduct(vector<int>& nums) {
+        sort(nums.rbegin(), nums.rend());
+        int n = nums.size();
+        return ((nums[0] - 1) * (nums[1] - 1));
+    }
+};
+```

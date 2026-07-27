@@ -88,6 +88,9 @@ const ko = {
   "about.heroLine2": "여기엔 그 과정에서 푼 문제와 새로 배운 것들을 남깁니다.",
   "about.summaryAria": "핵심 요약",
   "about.solvedacAria": "solved.ac 프로필 보기",
+  "about.avatarAlt": "{author} 아바타",
+  "about.projectPreviewAlt": "{name} 미리보기",
+  "about.tocSpyAria": "현재 위치 목차",
 } as const;
 
 export type MessageId = keyof typeof ko;
@@ -173,6 +176,9 @@ const en: Record<MessageId, string> = {
   "about.heroLine2": "This is where I keep the problems I solved and the things I learned along the way.",
   "about.summaryAria": "Summary",
   "about.solvedacAria": "View solved.ac profile",
+  "about.avatarAlt": "{author} avatar",
+  "about.projectPreviewAlt": "{name} preview",
+  "about.tocSpyAria": "Current section",
 };
 
 export const messages: Record<Locale, Record<MessageId, string>> = { ko, en };

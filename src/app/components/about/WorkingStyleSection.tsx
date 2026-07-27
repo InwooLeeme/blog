@@ -1,7 +1,7 @@
 "use client";
 
 import { ListChecks } from "lucide-react";
-import { SectionHeading } from "./Timeline";
+import { SectionHeading } from "./SectionHeading";
 import { useT } from "../LocaleProvider";
 import { useAboutData } from "./useAboutData";
 

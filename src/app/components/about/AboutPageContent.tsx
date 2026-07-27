@@ -1,19 +1,40 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Trophy, Medal, PenTool, BadgeCheck, GraduationCap } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 import Reveal from "../Reveal";
 import AboutSummary from "./AboutSummary";
 import AboutHero from "./AboutHero";
-import AnimatedTimeline from "./AnimatedTimeline";
+import AnimatedTimeline, { type TimelineItem } from "./AnimatedTimeline";
 import ProjectsSection from "./ProjectsSection";
 import TechStackSection from "./TechStackSection";
 import TocSpy from "./TocSpy";
-import { SectionHeading } from "./Timeline";
+import { SectionHeading } from "./SectionHeading";
 import { ChatbotLauncher } from "../ChatbotLauncher";
 import WorkingStyleSection from "./WorkingStyleSection";
 import { useT } from "../LocaleProvider";
 import { useAboutData } from "./useAboutData";
+
+/** 학력·수상·대회·출제·자격증 공용 — Reveal로 감싸지 않음(AnimatedTimeline이 자체 스크롤 등장 애니메이션을 가짐) */
+function TimelineSection({
+  id,
+  label,
+  icon,
+  items,
+}: {
+  id: string;
+  label: string;
+  icon: ReactNode;
+  items: TimelineItem[];
+}) {
+  return (
+    <section id={id} className="scroll-mt-24">
+      <SectionHeading icon={icon}>{label}</SectionHeading>
+      <AnimatedTimeline items={items} />
+    </section>
+  );
+}
 
 /** About 본문 — 언어 컨텍스트를 읽어 ko/en 데이터 번들과 섹션 라벨을 전환 */
 export default function AboutPageContent() {
@@ -81,74 +102,60 @@ export default function AboutPageContent() {
       </nav>
 
       <div className="space-y-14">
-        {/* 1. 기술 스택 */}
-        <Reveal>
-          <TechStackSection />
-        </Reveal>
+        {/* 1. 기술 스택 — 자체 스크롤 등장 애니메이션을 가짐 */}
+        <TechStackSection />
 
         {/* 2. 학력·활동 */}
-        <Reveal>
-          <section id="education" className="scroll-mt-24">
-            <SectionHeading icon={<GraduationCap className="h-5 w-5" />}>
-              {t("about.education")}
-            </SectionHeading>
-            <AnimatedTimeline
-              items={education.map((e) => ({
-                date: e.date,
-                title: e.title,
-                detail: e.detail,
-                link: e.link,
-              }))}
-            />
-          </section>
-        </Reveal>
+        <TimelineSection
+          id="education"
+          label={t("about.education")}
+          icon={<GraduationCap className="h-5 w-5" />}
+          items={education.map((e) => ({
+            date: e.date,
+            title: e.title,
+            detail: e.detail,
+            link: e.link,
+          }))}
+        />
 
         {/* 3. 수상 이력 */}
-        <Reveal>
-          <section id="awards" className="scroll-mt-24">
-            <SectionHeading icon={<Trophy className="h-5 w-5" />}>{t("about.awards")}</SectionHeading>
-            <AnimatedTimeline
-              items={awards.map((a) => ({
-                date: a.date,
-                title: a.title,
-                detail: a.detail,
-                link: a.link,
-              }))}
-            />
-          </section>
-        </Reveal>
+        <TimelineSection
+          id="awards"
+          label={t("about.awards")}
+          icon={<Trophy className="h-5 w-5" />}
+          items={awards.map((a) => ({
+            date: a.date,
+            title: a.title,
+            detail: a.detail,
+            link: a.link,
+          }))}
+        />
 
         {/* 4. 대회 참가 이력 */}
-        <Reveal>
-          <section id="competitions" className="scroll-mt-24">
-            <SectionHeading icon={<Medal className="h-5 w-5" />}>{t("about.competitions")}</SectionHeading>
-            <AnimatedTimeline
-              items={competitions.map((c) => ({
-                date: c.date,
-                title: c.name,
-                detail: c.result,
-                link: c.link,
-              }))}
-            />
-          </section>
-        </Reveal>
+        <TimelineSection
+          id="competitions"
+          label={t("about.competitions")}
+          icon={<Medal className="h-5 w-5" />}
+          items={competitions.map((c) => ({
+            date: c.date,
+            title: c.name,
+            detail: c.result,
+            link: c.link,
+          }))}
+        />
 
         {/* 5. 알고리즘 대회 출제 및 운영 */}
-        <Reveal>
-          <section id="contest-works" className="scroll-mt-24">
-            <SectionHeading icon={<PenTool className="h-5 w-5" />}>
-              {t("about.contestWorks")}
-            </SectionHeading>
-            <AnimatedTimeline
-              items={contestWorks.map((c) => ({
-                date: c.date,
-                title: c.title,
-                detail: c.detail,
-                link: c.link,
-              }))}
-            />
-          </section>
-        </Reveal>
+        <TimelineSection
+          id="contest-works"
+          label={t("about.contestWorks")}
+          icon={<PenTool className="h-5 w-5" />}
+          items={contestWorks.map((c) => ({
+            date: c.date,
+            title: c.title,
+            detail: c.detail,
+            link: c.link,
+          }))}
+        />
 
         {/* 6. 프로젝트 */}
         <ProjectsSection />
@@ -159,19 +166,17 @@ export default function AboutPageContent() {
         </Reveal>
 
         {/* 8. 자격증 */}
-        <Reveal>
-          <section id="certifications" className="scroll-mt-24">
-            <SectionHeading icon={<BadgeCheck className="h-5 w-5" />}>{t("about.certifications")}</SectionHeading>
-            <AnimatedTimeline
-              items={certifications.map((c) => ({
-                date: c.date,
-                title: c.name,
-                detail: [c.nameEn, c.issuer].filter(Boolean).join(" · "),
-                link: c.link,
-              }))}
-            />
-          </section>
-        </Reveal>
+        <TimelineSection
+          id="certifications"
+          label={t("about.certifications")}
+          icon={<BadgeCheck className="h-5 w-5" />}
+          items={certifications.map((c) => ({
+            date: c.date,
+            title: c.name,
+            detail: [c.nameEn, c.issuer].filter(Boolean).join(" · "),
+            link: c.link,
+          }))}
+        />
       </div>
 
       <ChatbotLauncher host="https://portfolio-chatbot-six-theta.vercel.app" />

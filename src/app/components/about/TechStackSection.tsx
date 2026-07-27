@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { techChipStyle } from "@/lib/tech";
 import { techStack, type TechLevel } from "@/lib/about";
 import BrandIcon from "../icon/BrandIcon";
-import { SectionHeading } from "./Timeline";
+import { SectionHeading } from "./SectionHeading";
 import { useT } from "../LocaleProvider";
 import { useAboutData } from "./useAboutData";
 

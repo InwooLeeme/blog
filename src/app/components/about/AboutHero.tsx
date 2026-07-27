@@ -20,9 +20,10 @@ export default function AboutHero() {
         />
         <Image
           src="/avatar.png"
-          alt={`${siteConfig.author} 아바타`}
+          alt={t("about.avatarAlt", { author: siteConfig.author })}
           width={112}
           height={112}
+          priority
           className="relative h-28 w-28 rounded-full ring-1 ring-accent-brand/70 shadow-lg shadow-accent-brand/20"
         />
       </div>

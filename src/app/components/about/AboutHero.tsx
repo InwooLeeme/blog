@@ -5,9 +5,11 @@ import { siteConfig } from "@/lib/site";
 import IconGithub from "../icon/IconGithub";
 import ShootingStars from "../ShootingStars";
 import { useT } from "../LocaleProvider";
+import { useAboutData } from "./useAboutData";
 
 export default function AboutHero() {
   const t = useT();
+  const { currentStatus } = useAboutData();
   return (
     <header className="relative isolate mb-10 flex flex-col items-center overflow-hidden py-12 text-center">
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
@@ -55,6 +57,7 @@ export default function AboutHero() {
           solved.ac
         </a>
       </div>
+      <p className="mt-4 text-xs text-muted-foreground">{currentStatus}</p>
     </header>
   );
 }

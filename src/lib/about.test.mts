@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import * as ko from "./about.ts";
 import * as en from "./about.en.ts";
+import { getPostSlugs } from "./posts.ts";
 
 const BUNDLES = [
   ["ko", ko],
@@ -65,4 +66,35 @@ test("projects: ko/en 구조가 1:1로 대응한다", () => {
     assert.equal(k.accent, e.accent, `${k.name}: accent 불일치`);
     assert.equal(k.image, e.image, `${k.name}: image 불일치`);
   });
+});
+
+test("projects: 내부 링크는 type이 post이고 실제 글 파일을 가리킨다", () => {
+  const slugs = new Set(getPostSlugs().map((f) => f.replace(/\.mdx$/, "")));
+
+  const internal = ko.projects.flatMap((p) =>
+    (p.links ?? []).filter((l) => !/^https?:\/\//.test(l.href)),
+  );
+  assert.ok(internal.length > 0, "내부 블로그 링크가 하나도 없음");
+
+  for (const l of internal) {
+    assert.equal(l.type, "post", `${l.href}: 내부 링크는 type이 "post"여야 함`);
+    assert.ok(l.href.startsWith("/blog/"), `${l.href}: /blog/ 로 시작해야 함`);
+    const slug = l.href.slice("/blog/".length);
+    assert.ok(slugs.has(slug), `${l.href}: content/posts/${slug}.mdx 가 없음`);
+  }
+});
+
+test("projects: 예상한 블로그 글 링크가 모두 연결돼 있다", () => {
+  const postHrefs = ko.projects
+    .flatMap((p) => p.links ?? [])
+    .filter((l) => l.type === "post")
+    .map((l) => l.href)
+    .sort();
+
+  assert.deepEqual(postHrefs, [
+    "/blog/lighthouse_mobile_performance",
+    "/blog/mcp_assistant",
+    "/blog/nasdaq_pattern_chart",
+    "/blog/nextjs_dynamic_params_decoding",
+  ]);
 });

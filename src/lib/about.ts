@@ -158,7 +158,7 @@ export const contestWorks: ContestWork[] = [
 export type ProjectLink = {
   label: string;
   href: string;
-  type?: "github" | "external";
+  type?: "github" | "external" | "post"; // post = 사이트 내부 블로그 글
 };
 
 export type Project = {
@@ -196,6 +196,7 @@ export const projects: Project[] = [
         href: "https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12288718",
         type: "external",
       },
+      { label: "구현 기록", href: "/blog/mcp_assistant", type: "post" },
     ],
     image: "https://inwooleeme.github.io/assets/projects/mcp_assistant_demo.png",
     accent: "#0891b2",
@@ -222,7 +223,8 @@ export const projects: Project[] = [
         label: "Page",
         href: "https://database-nasdaq-dyb7.vercel.app/",
         type: "external"
-      }
+      },
+      { label: "개선 기록", href: "/blog/nasdaq_pattern_chart", type: "post" },
     ],
     image: "https://inwooleeme.github.io/assets/projects/database-nasdaq-page.png",
     accent: "#059669",
@@ -287,6 +289,8 @@ export const projects: Project[] = [
     links: [
       { label: "GitHub", href: "https://github.com/InwooLeeme/blog", type: "github" },
       { label: "Page", href: "https://inwooleeme.vercel.app", type: "external" },
+      { label: "성능 개선 기록", href: "/blog/lighthouse_mobile_performance", type: "post" },
+      { label: "404 디버깅 기록", href: "/blog/nextjs_dynamic_params_decoding", type: "post" },
     ],
     image: "https://inwooleeme.github.io/assets/projects/BlogThumbnail.png",
     accent: "#f43f5e",

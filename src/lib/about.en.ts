@@ -19,8 +19,6 @@ export const aboutSummary = [
   "I care about performance, automation, and writing down what I learn.",
 ] as const;
 
-export const currentStatus = "B.S. in Software Engineering, JBNU (Aug 2026)";
-
 export const techLevelLabels: Record<TechLevel, string> = {
   main: "Primary",
   used: "Hands-on",

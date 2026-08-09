@@ -8,9 +8,6 @@ export const aboutSummary = [
   "성능 개선, 자동화, 지식 기록에 관심이 많습니다.",
 ] as const;
 
-/** 히어로 하단에 노출하는 현재 상태 한 줄 */
-export const currentStatus = "2026.08 전북대학교 소프트웨어공학과 졸업";
-
 /** 기술 스택 — 카테고리별 묶음 */
 export type TechLevel = "main" | "used" | "learning";
 export type TechItem = { name: string; level: TechLevel };

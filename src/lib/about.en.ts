@@ -99,64 +99,31 @@ export const contestWorks: ContestWork[] = [
 
 export const projects: Project[] = [
   {
-    name: "Personal Algorithm & Dev Blog",
-    meta: "2025–present",
+    name: "MCP Assistant",
+    meta: "2025–2026 · Capstone → personal upgrade",
     highlights: [
-      "Built an algorithm/dev blog with Next.js + MDX",
-      "Interactions like dark mode, scroll reveals, and page transitions",
-      "Static site hosting on Vercel",
+      "An MCP-based PC voice assistant from my 2025 capstone project, rebuilt as text-based in 2026",
+      "Say things like “open KakaoTalk” or “play café music” and the LLM understands and actually operates the PC",
+      "Separates the LLM decision layer (Agent) from the OS layer (MCP servers) — the servers are reusable from other clients as-is",
+      "Tools like app launch, URL/YouTube playback, media control, and folder open extend via mcp_servers.json registration alone; progress streams in real time over SSE",
+      "2026: simplified to a single planner run, cutting Gemini calls from 3 to 1 per command; cached server connections with McpPool to reduce latency · added prompt-injection safeguards",
+      "2026: added multi-conversation memory managed from a sidebar, and packaged as a desktop app with Tauri + PyInstaller",
     ],
-    tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "MDX"],
-    links: [
-      { label: "GitHub", href: "https://github.com/InwooLeeme/blog", type: "github" },
-      { label: "Page", href: "https://inwooleeme.vercel.app", type: "external" },
-    ],
-    image: "https://inwooleeme.github.io/assets/projects/BlogThumbnail.png",
-    accent: "#f43f5e",
-  },
-  {
-    name: "AI Portfolio Chatbot",
-    meta: "2026",
-    highlights: [
-      "Started from wanting a chatbot that introduces my portfolio conversationally",
-      "RAG setup: portfolio content pre-embedded as vectors, relevant chunks retrieved and answered by Google Gemini (built with LangChain.js)",
-      "Remembers previous turns to answer follow-ups in context; answers stream in with a typing effect along with cited sources",
-      "Shows suggested questions for when you're not sure what to ask",
-      "Built as a first-party loader embeddable on other sites — a site-wide floating button opens it in a modal, as on this blog",
-      "Matches the parent page's dark/light theme in real time via postMessage, no reload needed",
-    ],
-    tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "LangChain.js", "Google Gemini"],
+    tech: ["Next.js", "TypeScript", "Tauri", "Rust", "FastAPI", "Python", "AutoGen", "Google Gemini", "yt-dlp"],
     links: [
       {
         label: "GitHub",
-        href: "https://github.com/InwooLeeme/portfolio-chatbot",
+        href: "https://github.com/InwooLeeme/mcp-assistant",
         type: "github",
       },
       {
-        label: "Page",
-        href: "https://portfolio-chatbot-six-theta.vercel.app",
+        label: "View paper",
+        href: "https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12288718",
         type: "external",
       },
     ],
-    accent: "#7c3aed",
-  },
-  {
-    name: "Daum News Crawler",
-    meta: "2024",
-    highlights: [
-      "A web scraper collecting article data from the Daum news portal",
-      "Extracts title, body, timestamp, outlet, and reporter name",
-      "BeautifulSoup + requests; structures collected data as JSON",
-    ],
-    tech: ["Python", "BeautifulSoup", "requests"],
-    links: [
-      {
-        label: "GitHub",
-        href: "https://github.com/InwooLeeme/daum_news_crawling",
-        type: "github",
-      },
-    ],
-    accent: "#d97706",
+    image: "https://inwooleeme.github.io/assets/projects/mcp_assistant_demo.png",
+    accent: "#0891b2",
   },
   {
     name: "NASDAQ Stock Data Visualization",
@@ -186,33 +153,6 @@ export const projects: Project[] = [
     accent: "#059669",
   },
   {
-    name: "MCP Assistant",
-    meta: "2025–2026 · Capstone → personal upgrade",
-    highlights: [
-      "An MCP-based PC voice assistant from my 2025 capstone project, rebuilt as text-based in 2026",
-      "Say things like “open KakaoTalk” or “play café music” and the LLM understands and actually operates the PC",
-      "Separates the LLM decision layer (Agent) from the OS layer (MCP servers) — the servers are reusable from other clients as-is",
-      "Tools like app launch, URL/YouTube playback, media control, and folder open extend via mcp_servers.json registration alone; progress streams in real time over SSE",
-      "2026: simplified to a single planner run, cutting Gemini calls from 3 to 1 per command; cached server connections with McpPool to reduce latency · added prompt-injection safeguards",
-      "2026: added multi-conversation memory managed from a sidebar, and packaged as a desktop app with Tauri + PyInstaller",
-    ],
-    tech: ["Next.js", "TypeScript", "Tauri", "Rust", "FastAPI", "Python", "AutoGen", "Google Gemini", "yt-dlp"],
-    links: [
-      {
-        label: "GitHub",
-        href: "https://github.com/InwooLeeme/mcp-assistant",
-        type: "github",
-      },
-      {
-        label: "View paper",
-        href: "https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12288718",
-        type: "external",
-      },
-    ],
-    image: "https://inwooleeme.github.io/assets/projects/mcp_assistant_demo.png",
-    accent: "#0891b2",
-  },
-  {
     name: "Developer Income Analysis Pipeline",
     meta: "2026 · 6-person team project",
     highlights: [
@@ -231,6 +171,66 @@ export const projects: Project[] = [
       },
     ],
     accent: "#2563eb",
+  },
+  {
+    name: "AI Portfolio Chatbot",
+    meta: "2026",
+    highlights: [
+      "Started from wanting a chatbot that introduces my portfolio conversationally",
+      "RAG setup: portfolio content pre-embedded as vectors, relevant chunks retrieved and answered by Google Gemini (built with LangChain.js)",
+      "Remembers previous turns to answer follow-ups in context; answers stream in with a typing effect along with cited sources",
+      "Shows suggested questions for when you're not sure what to ask",
+      "Built as a first-party loader embeddable on other sites — a site-wide floating button opens it in a modal, as on this blog",
+      "Matches the parent page's dark/light theme in real time via postMessage, no reload needed",
+    ],
+    tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "LangChain.js", "Google Gemini"],
+    links: [
+      {
+        label: "GitHub",
+        href: "https://github.com/InwooLeeme/portfolio-chatbot",
+        type: "github",
+      },
+      {
+        label: "Page",
+        href: "https://portfolio-chatbot-six-theta.vercel.app",
+        type: "external",
+      },
+    ],
+    accent: "#7c3aed",
+  },
+  {
+    name: "Personal Algorithm & Dev Blog",
+    meta: "2025–present",
+    highlights: [
+      "Built an algorithm/dev blog with Next.js + MDX",
+      "Interactions like dark mode, scroll reveals, and page transitions",
+      "Static site hosting on Vercel",
+    ],
+    tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "MDX"],
+    links: [
+      { label: "GitHub", href: "https://github.com/InwooLeeme/blog", type: "github" },
+      { label: "Page", href: "https://inwooleeme.vercel.app", type: "external" },
+    ],
+    image: "https://inwooleeme.github.io/assets/projects/BlogThumbnail.png",
+    accent: "#f43f5e",
+  },
+  {
+    name: "Daum News Crawler",
+    meta: "2024",
+    highlights: [
+      "A web scraper collecting article data from the Daum news portal",
+      "Extracts title, body, timestamp, outlet, and reporter name",
+      "BeautifulSoup + requests; structures collected data as JSON",
+    ],
+    tech: ["Python", "BeautifulSoup", "requests"],
+    links: [
+      {
+        label: "GitHub",
+        href: "https://github.com/InwooLeeme/daum_news_crawling",
+        type: "github",
+      },
+    ],
+    accent: "#d97706",
   },
 ];
 

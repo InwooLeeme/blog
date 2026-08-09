@@ -173,64 +173,31 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    name: "개인 알고리즘·기술 블로그",
-    meta: "2025–현재",
+    name: "MCP Assistant",
+    meta: "2025–2026 · 캡스톤 → 개인 업그레이드",
     highlights: [
-      "Next.js + MDX를 활용한 알고리즘·개발 블로그 구축",
-      "다크모드·스크롤 등장·페이지 전환 등 인터랙션 적용",
-      "Vercel을 통한 정적 사이트 호스팅"
+      "2025년 캡스톤 프로젝트로 시작한 MCP 기반 PC 음성 비서를 2026년에 텍스트 기반으로 재구축한 프로젝트",
+      "\"카카오톡 실행해 줘\", \"카페 음악 재생해 줘\" 같은 말을 하면 LLM이 알아듣고 실제로 PC를 조작해 준다",
+      "LLM이 판단하는 부분(Agent)과 OS를 직접 건드리는 부분(MCP 서버)을 분리 — MCP 서버는 다른 클라이언트에서도 그대로 재사용할 수 있다",
+      "프로그램 실행·URL/유튜브 재생·미디어 제어·폴더 열기 같은 도구를 mcp_servers.json 등록만으로 확장할 수 있고, 처리 과정은 SSE로 실시간 스트리밍된다",
+      "2026: planner 단독 실행으로 구조를 단순화해 명령당 Gemini 호출을 3회→1회로 줄이고, `McpPool`로 서버 접속을 캐싱해 응답 지연을 줄였다 · 프롬프트 인젝션 안전장치도 추가",
+      "2026: 사이드바에서 여러 대화를 관리하며 맥락을 이어가는 대화 기억 기능 추가, Tauri + PyInstaller로 데스크톱 앱 패키징",
     ],
-    tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "MDX"],
-    links: [
-      { label: "GitHub", href: "https://github.com/InwooLeeme/blog", type: "github" },
-      { label: "Page", href: "https://inwooleeme.vercel.app", type: "external" },
-    ],
-    image: "https://inwooleeme.github.io/assets/projects/BlogThumbnail.png",
-    accent: "#f43f5e",
-  },
-  {
-    name: "AI 포트폴리오 챗봇",
-    meta: "2026",
-    highlights: [
-      "내 포트폴리오를 대화형으로 소개해 주는 챗봇을 만들어 보고 싶어서 시작한 프로젝트",
-      "포트폴리오 내용을 미리 벡터로 저장해 두고, 질문이 들어오면 관련 부분을 찾아 Google Gemini가 답하도록 RAG로 구성했다 (LangChain.js 사용)",
-      "이전 대화를 기억해서 후속 질문도 맥락을 이어 답하고, 답변은 한 글자씩 타이핑되듯 나오며 근거가 된 출처도 함께 보여준다",
-      "물어볼 게 마땅치 않을 때를 위해 추천 질문도 띄워 둔다",
-      "다른 사이트에 붙일 수 있는 first-party 로더로 만들었고, 사이트 전역에 떠 있는 플로팅 버튼을 누르면 모달로 열린다 — 지금 이 블로그에도 그렇게 들어가 있다",
-      "부모 페이지의 다크/라이트 테마를 postMessage로 받아 새로고침 없이 실시간으로 맞춘다",
-    ],
-    tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "LangChain.js", "Google Gemini"],
+    tech: ["Next.js", "TypeScript", "Tauri", "Rust", "FastAPI", "Python", "AutoGen", "Google Gemini", "yt-dlp"],
     links: [
       {
         label: "GitHub",
-        href: "https://github.com/InwooLeeme/portfolio-chatbot",
+        href: "https://github.com/InwooLeeme/mcp-assistant",
         type: "github",
       },
       {
-        label: "Page",
-        href: "https://portfolio-chatbot-six-theta.vercel.app",
+        label: "논문 보기",
+        href: "https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12288718",
         type: "external",
       },
     ],
-    accent: "#7c3aed",
-  },
-  {
-    name: "Daum 뉴스 크롤러",
-    meta: "2024",
-    highlights: [
-      "Daum 뉴스 포털에서 기사 데이터를 수집하는 웹 스크래퍼",
-      "기사 제목·본문·작성 시각·언론사·기자명 등 추출",
-      "BeautifulSoup + requests 기반, 수집 데이터를 JSON으로 구조화",
-    ],
-    tech: ["Python", "BeautifulSoup", "requests"],
-    links: [
-      {
-        label: "GitHub",
-        href: "https://github.com/InwooLeeme/daum_news_crawling",
-        type: "github",
-      },
-    ],
-    accent: "#d97706",
+    image: "https://inwooleeme.github.io/assets/projects/mcp_assistant_demo.png",
+    accent: "#0891b2",
   },
   {
     name: "NASDAQ 주가 데이터 시각화",
@@ -260,33 +227,6 @@ export const projects: Project[] = [
     accent: "#059669",
   },
   {
-    name: "MCP Assistant",
-    meta: "2025–2026 · 캡스톤 → 개인 업그레이드",
-    highlights: [
-      "2025년 캡스톤 프로젝트로 시작한 MCP 기반 PC 음성 비서를 2026년에 텍스트 기반으로 재구축한 프로젝트",
-      "\"카카오톡 실행해 줘\", \"카페 음악 재생해 줘\" 같은 말을 하면 LLM이 알아듣고 실제로 PC를 조작해 준다",
-      "LLM이 판단하는 부분(Agent)과 OS를 직접 건드리는 부분(MCP 서버)을 분리 — MCP 서버는 다른 클라이언트에서도 그대로 재사용할 수 있다",
-      "프로그램 실행·URL/유튜브 재생·미디어 제어·폴더 열기 같은 도구를 mcp_servers.json 등록만으로 확장할 수 있고, 처리 과정은 SSE로 실시간 스트리밍된다",
-      "2026: planner 단독 실행으로 구조를 단순화해 명령당 Gemini 호출을 3회→1회로 줄이고, `McpPool`로 서버 접속을 캐싱해 응답 지연을 줄였다 · 프롬프트 인젝션 안전장치도 추가",
-      "2026: 사이드바에서 여러 대화를 관리하며 맥락을 이어가는 대화 기억 기능 추가, Tauri + PyInstaller로 데스크톱 앱 패키징",
-    ],
-    tech: ["Next.js", "TypeScript", "Tauri", "Rust", "FastAPI", "Python", "AutoGen", "Google Gemini", "yt-dlp"],
-    links: [
-      {
-        label: "GitHub",
-        href: "https://github.com/InwooLeeme/mcp-assistant",
-        type: "github",
-      },
-      {
-        label: "논문 보기",
-        href: "https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12288718",
-        type: "external",
-      },
-    ],
-    image: "https://inwooleeme.github.io/assets/projects/mcp_assistant_demo.png",
-    accent: "#0891b2",
-  },
-  {
     name: "개발자 소득 분석 파이프라인",
     meta: "2026 · 6인 팀 프로젝트",
     highlights: [
@@ -306,7 +246,66 @@ export const projects: Project[] = [
     ],
     accent: "#2563eb",
   },
-  // TODO: 다른 프로젝트 추가
+  {
+    name: "AI 포트폴리오 챗봇",
+    meta: "2026",
+    highlights: [
+      "내 포트폴리오를 대화형으로 소개해 주는 챗봇을 만들어 보고 싶어서 시작한 프로젝트",
+      "포트폴리오 내용을 미리 벡터로 저장해 두고, 질문이 들어오면 관련 부분을 찾아 Google Gemini가 답하도록 RAG로 구성했다 (LangChain.js 사용)",
+      "이전 대화를 기억해서 후속 질문도 맥락을 이어 답하고, 답변은 한 글자씩 타이핑되듯 나오며 근거가 된 출처도 함께 보여준다",
+      "물어볼 게 마땅치 않을 때를 위해 추천 질문도 띄워 둔다",
+      "다른 사이트에 붙일 수 있는 first-party 로더로 만들었고, 사이트 전역에 떠 있는 플로팅 버튼을 누르면 모달로 열린다 — 지금 이 블로그에도 그렇게 들어가 있다",
+      "부모 페이지의 다크/라이트 테마를 postMessage로 받아 새로고침 없이 실시간으로 맞춘다",
+    ],
+    tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "LangChain.js", "Google Gemini"],
+    links: [
+      {
+        label: "GitHub",
+        href: "https://github.com/InwooLeeme/portfolio-chatbot",
+        type: "github",
+      },
+      {
+        label: "Page",
+        href: "https://portfolio-chatbot-six-theta.vercel.app",
+        type: "external",
+      },
+    ],
+    accent: "#7c3aed",
+  },
+  {
+    name: "개인 알고리즘·기술 블로그",
+    meta: "2025–현재",
+    highlights: [
+      "Next.js + MDX를 활용한 알고리즘·개발 블로그 구축",
+      "다크모드·스크롤 등장·페이지 전환 등 인터랙션 적용",
+      "Vercel을 통한 정적 사이트 호스팅"
+    ],
+    tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "MDX"],
+    links: [
+      { label: "GitHub", href: "https://github.com/InwooLeeme/blog", type: "github" },
+      { label: "Page", href: "https://inwooleeme.vercel.app", type: "external" },
+    ],
+    image: "https://inwooleeme.github.io/assets/projects/BlogThumbnail.png",
+    accent: "#f43f5e",
+  },
+  {
+    name: "Daum 뉴스 크롤러",
+    meta: "2024",
+    highlights: [
+      "Daum 뉴스 포털에서 기사 데이터를 수집하는 웹 스크래퍼",
+      "기사 제목·본문·작성 시각·언론사·기자명 등 추출",
+      "BeautifulSoup + requests 기반, 수집 데이터를 JSON으로 구조화",
+    ],
+    tech: ["Python", "BeautifulSoup", "requests"],
+    links: [
+      {
+        label: "GitHub",
+        href: "https://github.com/InwooLeeme/daum_news_crawling",
+        type: "github",
+      },
+    ],
+    accent: "#d97706",
+  },
 ];
 
 export type WorkingStyle = {

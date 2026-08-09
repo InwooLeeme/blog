@@ -155,7 +155,7 @@ export const contestWorks: ContestWork[] = [
 export type ProjectLink = {
   label: string;
   href: string;
-  type?: "github" | "external";
+  type?: "github" | "external" | "post"; // post = 사이트 내부 블로그 글
 };
 
 export type Project = {
@@ -170,31 +170,92 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    name: "개인 알고리즘·기술 블로그",
-    meta: "2025–현재",
+    name: "MCP Assistant",
+    meta: "2025–2026 · 캡스톤 → 개인 업그레이드",
     highlights: [
-      "Next.js + MDX를 활용한 알고리즘·개발 블로그 구축",
-      "다크모드·스크롤 등장·페이지 전환 등 인터랙션 적용",
-      "Vercel을 통한 정적 사이트 호스팅"
+      "MCP 기반 PC 제어 에이전트 — 자연어 명령을 LLM이 해석해 실제 OS 조작 수행",
+      "판단(Agent)과 실행(MCP 서버) 분리 — 서버는 다른 클라이언트에서도 재사용 가능",
+      "프로그램 실행·URL/유튜브 재생·미디어 제어·폴더 열기를 mcp_servers.json 등록만으로 확장, 처리 과정은 SSE로 실시간 스트리밍",
+      "planner·executor·selector 3단계에서 planner 단독 실행으로 단순화 — 순서가 고정된 구간에 매번 LLM을 물을 필요가 없다고 판단, 명령당 Gemini 호출 3회→1회 감소",
+      "McpPool 도입으로 서버 접속·도구 라우팅을 앱 기동 시 1회만 수행하도록 캐싱",
+      "도구 응답이 대화 기록에 누적돼 다음 계획에 지시처럼 오인될 수 있음을 확인, planner 프롬프트에 프롬프트 인젝션 방어 추가",
+      "Tauri + PyInstaller 데스크톱 패키징, 사이드바 기반 대화 기억 기능 추가",
     ],
-    tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "MDX"],
+    tech: ["Next.js", "TypeScript", "Tauri", "Rust", "FastAPI", "Python", "AutoGen", "Google Gemini", "yt-dlp"],
     links: [
-      { label: "GitHub", href: "https://github.com/InwooLeeme/blog", type: "github" },
-      { label: "Page", href: "https://inwooleeme.vercel.app", type: "external" },
+      {
+        label: "GitHub",
+        href: "https://github.com/InwooLeeme/mcp-assistant",
+        type: "github",
+      },
+      {
+        label: "논문 보기",
+        href: "https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12288718",
+        type: "external",
+      },
+      { label: "구현 기록", href: "/blog/mcp_assistant", type: "post" },
     ],
-    image: "https://inwooleeme.github.io/assets/projects/BlogThumbnail.png",
-    accent: "#f43f5e",
+    image: "https://inwooleeme.github.io/assets/projects/mcp_assistant_demo.png",
+    accent: "#0891b2",
+  },
+  {
+    name: "NASDAQ 주가 데이터 시각화",
+    meta: "2024–2026 · 팀 프로젝트",
+    highlights: [
+      "나스닥 일봉 11,125개를 캔들스틱으로 시각화하는 웹 서비스 — 데이터베이스 수업 실습으로 시작, React 기반 프론트엔드 담당",
+      "데이터 절단 대신 gzip 압축을 선택 — 핵심 기능을 유지하면서 API 응답 1.99MB→263KB, 응답 시간 약 2초→0.15~0.49초로 개선",
+      "서버리스 콜드 스타트가 남는 메모리 캐시 대신 CDN 엣지 캐싱을 선택, 첫 요청 이후 백엔드를 거치지 않도록 구성",
+      "ApexCharts는 캔들마다 SVG 엘리먼트를 생성해 1만 개 이상에서 구조적으로 느림 → 캔버스 기반 lightweight-charts로 교체, JS 번들 183KB→99KB(gzip) 동반 감소",
+      "코사인·피어슨 유사도로 기준 구간과 닮은 과거 구간을 찾는 패턴 분석 추가",
+      "백엔드를 API 전용으로 분리하고 프론트엔드를 Vercel에 배포",
+    ],
+    tech: ["React", "JavaScript", "lightweight-charts", "FastAPI", "SQLite", "Vercel"],
+    links: [
+      {
+        label: "GitHub",
+        href: "https://github.com/InwooLeeme/database-nasdaq",
+        type: "github",
+      },
+      {
+        label: "Page",
+        href: "https://database-nasdaq-dyb7.vercel.app/",
+        type: "external"
+      },
+      { label: "개선 기록", href: "/blog/nasdaq_pattern_chart", type: "post" },
+    ],
+    image: "https://inwooleeme.github.io/assets/projects/database-nasdaq-page.png",
+    accent: "#059669",
+  },
+  {
+    name: "개발자 소득 분석 파이프라인",
+    meta: "2026 · 6인 팀 프로젝트",
+    highlights: [
+      "Stack Overflow 2024 개발자 설문으로 \"AI 도구에 우호적인 개발자는 연봉이 다른가\"를 검증한 End-to-End 데이터 분석 파이프라인",
+      "데이터 로딩·전처리·기술통계·시각화·가설검정·회귀·교차검증·리포트 생성 8단계 스크립트 자동화",
+      "Welch's t-test(α=0.05)와 Cohen's d로 집단 간 연봉 차이 검정, RidgeCV 다변량 회귀로 국가·경력·직군·학력·조직 규모·재택·나이를 통제해 AI 태도의 효과 분리",
+      "0단계에서 Pandas·Polars 로딩/필터링/집계 성능 벤치마크, 1단계에서 두 라이브러리 결과 일치 검증(shape·결측치)",
+      "Seaborn 정적 차트, Plotly 인터랙티브 차트, 학습 모델(.joblib), 분석 리포트(report.md) 자동 생성",
+    ],
+    tech: ["Python", "Pandas", "Polars", "scikit-learn", "SciPy", "Seaborn", "Plotly", "pytest", "Ruff"],
+    links: [
+      {
+        label: "GitHub",
+        href: "https://github.com/InwooLeeme/adult-income-analysis-pipeline",
+        type: "github",
+      },
+    ],
+    accent: "#2563eb",
   },
   {
     name: "AI 포트폴리오 챗봇",
     meta: "2026",
     highlights: [
-      "내 포트폴리오를 대화형으로 소개해 주는 챗봇을 만들어 보고 싶어서 시작한 프로젝트",
-      "포트폴리오 내용을 미리 벡터로 저장해 두고, 질문이 들어오면 관련 부분을 찾아 Google Gemini가 답하도록 RAG로 구성했다 (LangChain.js 사용)",
-      "이전 대화를 기억해서 후속 질문도 맥락을 이어 답하고, 답변은 한 글자씩 타이핑되듯 나오며 근거가 된 출처도 함께 보여준다",
-      "물어볼 게 마땅치 않을 때를 위해 추천 질문도 띄워 둔다",
-      "다른 사이트에 붙일 수 있는 first-party 로더로 만들었고, 사이트 전역에 떠 있는 플로팅 버튼을 누르면 모달로 열린다 — 지금 이 블로그에도 그렇게 들어가 있다",
-      "부모 페이지의 다크/라이트 테마를 postMessage로 받아 새로고침 없이 실시간으로 맞춘다",
+      "포트폴리오를 대화형으로 소개하는 RAG 챗봇 (LangChain.js + Google Gemini)",
+      "포트폴리오 내용을 벡터로 사전 저장하고, 질문과 관련된 부분을 검색해 답변 생성",
+      "이전 대화를 기억해 후속 질문의 맥락 유지, 답변 스트리밍 및 근거 출처 표시",
+      "질문거리가 없을 때를 위한 추천 질문 제공",
+      "다른 사이트에 임베드 가능한 first-party 로더로 구현 — 사이트 전역 플로팅 버튼으로 모달 오픈",
+      "부모 페이지의 다크/라이트 테마를 postMessage로 수신해 새로고침 없이 실시간 동기화",
     ],
     tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "LangChain.js", "Google Gemini"],
     links: [
@@ -210,6 +271,26 @@ export const projects: Project[] = [
       },
     ],
     accent: "#7c3aed",
+  },
+  {
+    name: "개인 알고리즘·기술 블로그",
+    meta: "2025–현재",
+    highlights: [
+      "Next.js + MDX 기반 알고리즘·개발 블로그 구축",
+      "Lighthouse 모바일 Performance 74→95점 개선 (LCP 12.2초→2.9초, 전송량 1.95MB→361KB)",
+      "캔버스 애니메이션을 병목으로 오진했으나 실제 트레이스 측정으로 전역 폰트 preload가 원인임을 확인해 수정",
+      "다크모드·스크롤 등장·페이지 전환 인터랙션 적용",
+      "Vercel 정적 호스팅",
+    ],
+    tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "MDX"],
+    links: [
+      { label: "GitHub", href: "https://github.com/InwooLeeme/blog", type: "github" },
+      { label: "Page", href: "https://inwooleeme.vercel.app", type: "external" },
+      { label: "성능 개선 기록", href: "/blog/lighthouse_mobile_performance", type: "post" },
+      { label: "404 디버깅 기록", href: "/blog/nextjs_dynamic_params_decoding", type: "post" },
+    ],
+    image: "https://inwooleeme.github.io/assets/projects/BlogThumbnail.png",
+    accent: "#f43f5e",
   },
   {
     name: "Daum 뉴스 크롤러",
@@ -229,81 +310,6 @@ export const projects: Project[] = [
     ],
     accent: "#d97706",
   },
-  {
-    name: "NASDAQ 주가 데이터 시각화",
-    meta: "2024–2026 · 팀 프로젝트",
-    highlights: [
-      "데이터 베이스 수업 실습 프로젝트",
-      "프론트엔드 개발을 주도적으로 담당 (React 기반 UI 구현)",
-      "캔들스틱 차트로 NASDAQ 주가 데이터 시각화 — 2026년 ApexCharts→lightweight-charts(캔버스)로 교체, gzip·CDN 엣지 캐싱으로 응답 약 87% 감소",
-      "입력한 기간·비율에 따라 FastAPI 백엔드와 연동해 차트 렌더링",
-      "2026: 개인 작업으로 백엔드를 API 전용으로 분리하고 프론트엔드를 Vercel에 배포",
-      "2026: 코사인·피어슨 유사도로 기준 구간과 닮은 과거 구간을 찾는 유사 패턴 분석 추가",
-    ],
-    tech: ["React", "JavaScript", "lightweight-charts", "FastAPI", "SQLite", "Vercel"],
-    links: [
-      {
-        label: "GitHub",
-        href: "https://github.com/InwooLeeme/database-nasdaq",
-        type: "github",
-      },
-      {
-        label: "Page",
-        href: "https://database-nasdaq-dyb7.vercel.app/",
-        type: "external"
-      }
-    ],
-    image: "https://inwooleeme.github.io/assets/projects/database-nasdaq-page.png",
-    accent: "#059669",
-  },
-  {
-    name: "MCP Assistant",
-    meta: "2025–2026 · 캡스톤 → 개인 업그레이드",
-    highlights: [
-      "2025년 캡스톤 프로젝트로 시작한 MCP 기반 PC 음성 비서를 2026년에 텍스트 기반으로 재구축한 프로젝트",
-      "\"카카오톡 실행해 줘\", \"카페 음악 재생해 줘\" 같은 말을 하면 LLM이 알아듣고 실제로 PC를 조작해 준다",
-      "LLM이 판단하는 부분(Agent)과 OS를 직접 건드리는 부분(MCP 서버)을 분리 — MCP 서버는 다른 클라이언트에서도 그대로 재사용할 수 있다",
-      "프로그램 실행·URL/유튜브 재생·미디어 제어·폴더 열기 같은 도구를 mcp_servers.json 등록만으로 확장할 수 있고, 처리 과정은 SSE로 실시간 스트리밍된다",
-      "2026: planner 단독 실행으로 구조를 단순화해 명령당 Gemini 호출을 3회→1회로 줄이고, `McpPool`로 서버 접속을 캐싱해 응답 지연을 줄였다 · 프롬프트 인젝션 안전장치도 추가",
-      "2026: 사이드바에서 여러 대화를 관리하며 맥락을 이어가는 대화 기억 기능 추가, Tauri + PyInstaller로 데스크톱 앱 패키징",
-    ],
-    tech: ["Next.js", "TypeScript", "Tauri", "Rust", "FastAPI", "Python", "AutoGen", "Google Gemini", "yt-dlp"],
-    links: [
-      {
-        label: "GitHub",
-        href: "https://github.com/InwooLeeme/mcp-assistant",
-        type: "github",
-      },
-      {
-        label: "논문 보기",
-        href: "https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12288718",
-        type: "external",
-      },
-    ],
-    image: "https://inwooleeme.github.io/assets/projects/mcp_assistant_demo.png",
-    accent: "#0891b2",
-  },
-  {
-    name: "개발자 소득 분석 파이프라인",
-    meta: "2026 · 6인 팀 프로젝트",
-    highlights: [
-      "Stack Overflow 2024 개발자 설문 데이터로 \"AI 도구에 우호적인 개발자는 연봉이 다른가\"를 검증한 End-to-End 데이터 분석 파이프라인",
-      "데이터 로딩·전처리·기술통계·시각화·가설검정·회귀·교차검증·리포트 생성까지 8단계를 스크립트로 자동화했다",
-      "Welch's t-test(α=0.05)와 Cohen's d로 두 집단의 연봉 차이를 검정하고, RidgeCV 다변량 회귀로 국가·경력·직군·학력·조직 규모·재택 여부·나이를 통제해 AI 태도 자체의 효과를 분리했다",
-      "0단계에서 Pandas와 Polars의 로딩·필터링·집계 성능을 벤치마크하고, 1단계에서 두 라이브러리의 결과가 일치하는지(shape·결측치) 검증한다",
-      "Seaborn 정적 차트와 Plotly 인터랙티브 차트, 학습된 모델(.joblib), 분석 리포트(report.md)를 산출물로 자동 생성한다",
-    ],
-    tech: ["Python", "Pandas", "Polars", "scikit-learn", "SciPy", "Seaborn", "Plotly", "pytest", "Ruff"],
-    links: [
-      {
-        label: "GitHub",
-        href: "https://github.com/InwooLeeme/adult-income-analysis-pipeline",
-        type: "github",
-      },
-    ],
-    accent: "#2563eb",
-  },
-  // TODO: 다른 프로젝트 추가
 ];
 
 export type WorkingStyle = {

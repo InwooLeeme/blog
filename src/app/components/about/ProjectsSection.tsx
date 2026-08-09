@@ -3,7 +3,7 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
-import { FolderGit2, ExternalLink } from "lucide-react";
+import { FolderGit2, ExternalLink, BookOpen } from "lucide-react";
 import { techChipStyle, TECH_COLOR_FALLBACK } from "@/lib/tech";
 import BrandIcon from "../icon/BrandIcon";
 import IconGithub from "../icon/IconGithub";
@@ -101,22 +101,27 @@ export default function ProjectsSection() {
 
                 {p.links && p.links.length > 0 ? (
                   <div className="mt-4 flex flex-wrap items-center gap-4 border-t pt-3 text-sm">
-                    {p.links.map((l) => (
-                      <a
-                        key={l.href}
-                        href={l.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 text-muted-foreground transition hover:[color:var(--proj-accent)]"
-                      >
-                        {l.type === "github" ? (
-                          <IconGithub width={16} height={16} />
-                        ) : (
-                          <ExternalLink className="h-4 w-4" />
-                        )}
-                        {l.label}
-                      </a>
-                    ))}
+                    {p.links.map((l) => {
+                      const external = /^https?:\/\//.test(l.href);
+                      return (
+                        <a
+                          key={l.href}
+                          href={l.href}
+                          target={external ? "_blank" : undefined}
+                          rel={external ? "noreferrer" : undefined}
+                          className="inline-flex items-center gap-1.5 text-muted-foreground transition hover:[color:var(--proj-accent)]"
+                        >
+                          {l.type === "github" ? (
+                            <IconGithub width={16} height={16} />
+                          ) : l.type === "post" ? (
+                            <BookOpen className="h-4 w-4" />
+                          ) : (
+                            <ExternalLink className="h-4 w-4" />
+                          )}
+                          {l.label}
+                        </a>
+                      );
+                    })}
                   </div>
                 ) : null}
               </div>

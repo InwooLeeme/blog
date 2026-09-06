@@ -2,7 +2,8 @@
 
 import type { CSSProperties } from "react";
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
+import * as m from "framer-motion/m";
 import { FolderGit2, ExternalLink, BookOpen } from "lucide-react";
 import { techChipStyle, TECH_COLOR_FALLBACK } from "@/lib/tech";
 import BrandIcon from "../icon/BrandIcon";
@@ -48,7 +49,7 @@ export default function ProjectsSection() {
 
               <div className="p-5">
                 <h3 className="text-lg font-bold tracking-tight">{p.name}</h3>
-                <motion.span
+                <m.span
                   aria-hidden
                   className="mb-2.5 mt-1.5 block h-0.5 w-11 origin-left rounded-full"
                   style={{ backgroundColor: accent }}

@@ -4,6 +4,8 @@ import * as React from "react";
 import { ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useT } from "./LocaleProvider";
+import { subscribeToScroll } from "./scroll-subscriber";
+import { isScrollTopVisible } from "./scroll-visibility";
 
 /** 스크롤이 일정 이상 내려가면 나타나는 "맨 위로" 버튼 */
 export default function ScrollToTop({ threshold = 400 }: { threshold?: number }) {
@@ -11,10 +13,9 @@ export default function ScrollToTop({ threshold = 400 }: { threshold?: number })
   const [visible, setVisible] = React.useState(false);
 
   React.useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > threshold);
+    const onScroll = () => setVisible(isScrollTopVisible(window.scrollY, threshold));
     onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return subscribeToScroll(onScroll);
   }, [threshold]);
 
   const scrollToTop = React.useCallback(() => {

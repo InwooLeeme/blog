@@ -13,6 +13,7 @@ import { useTransitionRouter } from "next-view-transitions";
 import { readAccent } from "@/app/playground/_components/effects/canvas";
 import type { GraphData, GraphNode, GraphEdge } from "@/lib/graph";
 import { useT } from "@/app/components/LocaleProvider";
+import { createFrameLoop } from "./frame-loop";
 
 type SimNode = GraphNode &
   SimulationNodeDatum & { degree: number; phase: number; color: string; rgb: { r: number; g: number; b: number } };
@@ -266,17 +267,37 @@ export default function PostGraph({ data }: { data: GraphData }) {
     window.addEventListener("resize", resize);
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let rafId = 0;
     let lastTime = 0;
-    const loop = (time: number) => {
-      const dt = lastTime ? Math.min((time - lastTime) / 1000, 0.05) : 0;
-      lastTime = time;
-      updateGlow(dt);
-      draw(time);
-      rafId = requestAnimationFrame(loop);
+    const frameLoop = createFrameLoop({
+      requestFrame: requestAnimationFrame,
+      cancelFrame: cancelAnimationFrame,
+      onFrame: (time) => {
+        const dt = lastTime ? Math.min((time - lastTime) / 1000, 0.05) : 0;
+        lastTime = time;
+        updateGlow(dt);
+        draw(time);
+      },
+    });
+
+    // IntersectionObserver가 실제 노출 상태를 알려주기 전에는 루프를 시작하지 않는다.
+    let isIntersecting = false;
+    const syncFrameLoop = () => {
+      if (!reduced && isIntersecting && document.visibilityState === "visible") {
+        frameLoop.start();
+        return;
+      }
+
+      frameLoop.stop();
+      lastTime = 0;
     };
-    if (reduced) draw();
-    else rafId = requestAnimationFrame(loop);
+
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      isIntersecting = entry.isIntersecting;
+      syncFrameLoop();
+    });
+    visibilityObserver.observe(canvas);
+    document.addEventListener("visibilitychange", syncFrameLoop);
+    syncFrameLoop();
 
     const nodeAt = (x: number, y: number) =>
       nodes.find((n) => Math.hypot((n.x ?? 0) - x, (n.y ?? 0) - y) <= nodeRadius(n) + HIT_PADDING) ?? null;
@@ -369,7 +390,9 @@ export default function PostGraph({ data }: { data: GraphData }) {
 
     return () => {
       simulation.stop();
-      cancelAnimationFrame(rafId);
+      frameLoop.destroy();
+      visibilityObserver.disconnect();
+      document.removeEventListener("visibilitychange", syncFrameLoop);
       window.removeEventListener("resize", resize);
       canvas.removeEventListener("pointermove", onPointerMove);
       canvas.removeEventListener("pointerdown", onPointerDown);

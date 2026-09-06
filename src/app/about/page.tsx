@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { siteConfig } from "@/lib/site";
 import AboutPageContent from "../components/about/AboutPageContent";
 import JsonLd from "../components/JsonLd";
+import MotionProvider from "../components/MotionProvider";
 import { buildPersonJsonLd } from "@/lib/jsonLd";
 
 const title = "About";
@@ -28,7 +29,9 @@ export default function AboutPage() {
   return (
     <>
       <JsonLd data={buildPersonJsonLd()} />
-      <AboutPageContent />
+      <MotionProvider>
+        <AboutPageContent />
+      </MotionProvider>
     </>
   );
 }

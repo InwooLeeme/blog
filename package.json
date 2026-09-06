@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test": "node --test",
+    "test:bundle": "node scripts/check-about-bundle.mjs",
     "new:atcoder": "node scripts/new-atcoder-post.mjs",
     "publish": "node scripts/publish-post.mjs"
   },

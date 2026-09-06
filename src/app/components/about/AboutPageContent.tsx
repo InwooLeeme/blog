@@ -76,6 +76,8 @@ export default function AboutPageContent() {
               alt={`${siteConfig.author} solved.ac profile card`}
               width={626}
               height={422}
+              loading="lazy"
+              fetchPriority="low"
               className="h-auto w-full"
             />
           </a>

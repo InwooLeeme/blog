@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
+import * as m from "framer-motion/m";
 import { cn } from "@/lib/utils";
 import { tintColor } from "@/lib/tech";
 
@@ -27,7 +28,7 @@ export default function SpotlightCard({ children, className, style }: SpotlightC
   }, []);
 
   return (
-    <motion.div
+    <m.div
       className={cn(
         "group relative transition duration-200 ease-out hover:-translate-y-[3px] motion-reduce:transition-none",
         className,
@@ -49,6 +50,6 @@ export default function SpotlightCard({ children, className, style }: SpotlightC
         />
       ) : null}
       {children}
-    </motion.div>
+    </m.div>
   );
 }

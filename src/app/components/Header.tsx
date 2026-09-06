@@ -19,6 +19,8 @@ import ReadingProgressBar from "./ReadingProgressBar";
 import { SearchProvider, SearchTrigger } from "./SearchDialog";
 import { cn } from "@/lib/utils";
 import { navLinks, siteConfig, isActivePath } from "@/lib/site";
+import { subscribeToScroll } from "./scroll-subscriber";
+import { nextHeaderScrolled } from "./scroll-visibility";
 
 interface IHeader {
   title: string | undefined;
@@ -28,15 +30,11 @@ function useScrolled(onPx = 40, offPx = 16) {
   const [scrolled, setScrolled] = React.useState(false);
   React.useEffect(() => {
     const read = () =>
-      setScrolled((prev) => {
-        const y = window.scrollY;
-        if (!prev && y > onPx) return true;
-        if (prev && y < offPx) return false;
-        return prev;
-      });
-    window.addEventListener("scroll", read, { passive: true });
+      setScrolled((previous) =>
+        nextHeaderScrolled(previous, window.scrollY, onPx, offPx),
+      );
     read();
-    return () => window.removeEventListener("scroll", read);
+    return subscribeToScroll(read);
   }, [onPx, offPx]);
   return scrolled;
 }

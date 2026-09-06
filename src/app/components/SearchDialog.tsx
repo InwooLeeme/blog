@@ -1,47 +1,62 @@
 "use client";
 
 import {
+  Component,
   createContext,
+  lazy,
+  Suspense,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
+  type ComponentType,
   type ReactNode,
 } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import type Fuse from "fuse.js";
-import type { IFuseOptions } from "fuse.js";
-import { Search, X } from "lucide-react";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useT } from "./LocaleProvider";
+import { createRetryableLoader } from "./retryable-loader";
 
-type Item = {
-  type: "post" | "note";
-  slug: string;
-  title: string;
-  summary: string;
-  tags: string[];
-  body: string;
+const searchDialogLoader = createRetryableLoader(() =>
+  import("./SearchDialogContent"),
+);
+
+type DialogContentProps = {
+  open: boolean;
+  setOpen: (open: boolean) => void;
 };
 
-const FUSE_OPTIONS: IFuseOptions<Item> = {
-  threshold: 0.4,
-  ignoreLocation: true,
-  minMatchCharLength: 2,
-  keys: [
-    { name: "title", weight: 0.5 },
-    { name: "tags", weight: 0.25 },
-    { name: "summary", weight: 0.15 },
-    { name: "body", weight: 0.1 },
-  ],
+function createLazySearchDialogContent() {
+  return lazy(searchDialogLoader.load);
+}
+
+type ErrorBoundaryProps = {
+  children: ReactNode;
+  fallback: ReactNode;
+  resetKey: number;
 };
 
-function itemHref(item: Item) {
-  return item.type === "note" ? `/notes/${item.slug}` : `/blog/${item.slug}`;
+class SearchDialogErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  { failed: boolean }
+> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidUpdate(previous: ErrorBoundaryProps) {
+    if (this.state.failed && previous.resetKey !== this.props.resetKey) {
+      this.setState({ failed: false });
+    }
+  }
+
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
 }
 
 type SearchContextValue = { open: boolean; setOpen: (open: boolean) => void };
@@ -55,27 +70,60 @@ function useSearchDialog() {
 
 // 검색 다이얼로그는 헤더 안에서 데스크톱/모바일 두 곳에 트리거 버튼이 필요하지만
 // 실제 다이얼로그(Root/Portal)는 한 번만 마운트해야 Ctrl/Cmd+K로 두 개가 동시에 열리지 않는다.
-// 그래서 Provider가 다이얼로그 콘텐츠를 직접 렌더링해 단일 마운트를 구조적으로 보장한다.
+// Provider는 가벼운 상태와 단축키만 초기 로드하고, 실제 콘텐츠는 첫 사용 시 가져온다.
 export function SearchProvider({ children }: { children: ReactNode }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpenState] = useState(false);
+  const [activated, setActivated] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
+  const [LazySearchDialogContent, setLazySearchDialogContent] = useState<
+    ComponentType<DialogContentProps>
+  >(() => createLazySearchDialogContent());
+
+  const setOpen = useCallback((next: boolean) => {
+    if (next) setActivated(true);
+    setOpenState(next);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        setOpen((prev) => !prev);
+        setActivated(true);
+        setOpenState((previous) => !previous);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const value = useMemo(() => ({ open, setOpen }), [open]);
+  const value = useMemo(() => ({ open, setOpen }), [open, setOpen]);
+  const retryLoad = useCallback(() => {
+    setLazySearchDialogContent(() => createLazySearchDialogContent());
+    setRetryKey((key) => key + 1);
+  }, []);
 
   return (
     <SearchContext.Provider value={value}>
       {children}
-      <SearchDialogContent />
+      {activated ? (
+        <SearchDialogErrorBoundary
+          resetKey={retryKey}
+          fallback={
+            <SearchDialogFallback
+              open={open}
+              setOpen={setOpen}
+              failed
+              onRetry={retryLoad}
+            />
+          }
+        >
+          <Suspense
+            fallback={<SearchDialogFallback open={open} setOpen={setOpen} />}
+          >
+            <LazySearchDialogContent open={open} setOpen={setOpen} />
+          </Suspense>
+        </SearchDialogErrorBoundary>
+      ) : null}
     </SearchContext.Provider>
   );
 }
@@ -90,6 +138,8 @@ export function SearchTrigger() {
         variant="ghost"
         size="icon"
         aria-label={t("search.open")}
+        onPointerEnter={() => void searchDialogLoader.warm()}
+        onFocus={() => void searchDialogLoader.warm()}
         onClick={() => setOpen(true)}
         className="relative before:absolute before:-inset-1 before:content-['']"
       >
@@ -102,177 +152,47 @@ export function SearchTrigger() {
   );
 }
 
-function SearchDialogContent() {
+function SearchDialogFallback({
+  open,
+  setOpen,
+  failed = false,
+  onRetry,
+}: DialogContentProps & { failed?: boolean; onRetry?: () => void }) {
   const t = useT();
-  const router = useRouter();
-  const { open, setOpen } = useSearchDialog();
-  const [items, setItems] = useState<Item[] | null>(null);
-  const [fuse, setFuse] = useState<Fuse<Item> | null>(null);
-  const [query, setQuery] = useState("");
-  const [activeIndex, setActiveIndex] = useState(0);
-  const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
-
-  useEffect(() => {
-    if (!open || items) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const [data, fuseModule] = await Promise.all([
-          fetch("/search-index.json").then((r) => r.json() as Promise<Item[]>),
-          import("fuse.js"),
-        ]);
-        if (cancelled) return;
-        setItems(data);
-        setFuse(new fuseModule.default(data, FUSE_OPTIONS));
-      } catch {
-        if (!cancelled) setItems([]);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [open, items]);
-
-  const handleOpenChange = (next: boolean) => {
-    setOpen(next);
-    if (!next) setQuery("");
-    setActiveIndex(0);
-  };
-
-  const results = useMemo<Item[]>(() => {
-    if (!items) return [];
-    const q = query.trim();
-    if (!q) return items.slice(0, 10);
-    if (!fuse) return [];
-    return fuse.search(q, { limit: 20 }).map((r) => r.item);
-  }, [items, fuse, query]);
-
-  useEffect(() => {
-    itemRefs.current[activeIndex]?.scrollIntoView({ block: "nearest" });
-  }, [activeIndex]);
-
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (results.length === 0) return;
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setActiveIndex((i) => Math.min(i + 1, results.length - 1));
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setActiveIndex((i) => Math.max(i - 1, 0));
-    } else if (e.key === "Enter") {
-      const item = results[activeIndex];
-      if (!item) return;
-      e.preventDefault();
-      setOpen(false);
-      router.push(itemHref(item));
-    }
-  };
 
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange}>
+    <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay
-          className="fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
-        />
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50" />
         <DialogPrimitive.Content
-          className="fixed left-1/2 top-[20%] z-50 w-[min(92vw,560px)] -translate-x-1/2 rounded-xl border bg-background p-4 shadow-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
+          id="search-dialog-loading"
+          className="fixed left-1/2 top-[20%] z-50 w-[min(92vw,560px)] -translate-x-1/2 rounded-xl border bg-background p-4 shadow-2xl outline-none"
         >
           <DialogPrimitive.Title className="sr-only">
             {t("search.title")}
           </DialogPrimitive.Title>
-          <DialogPrimitive.Description className="sr-only">
-            {t("search.desc")}
+          <DialogPrimitive.Description
+            role={failed ? "alert" : "status"}
+            aria-live={failed ? "assertive" : "polite"}
+            className="py-6 text-center text-sm text-muted-foreground"
+          >
+            {t(failed ? "search.loadError" : "search.loading")}
           </DialogPrimitive.Description>
-
-          <div className="relative">
-            <Search
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-              aria-hidden
-            />
-            <input
-              autoFocus
-              type="search"
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setActiveIndex(0);
-              }}
-              onKeyDown={handleInputKeyDown}
-              placeholder={t("search.placeholder")}
-              aria-label={t("search.inputAria")}
-              role="combobox"
-              aria-expanded={results.length > 0}
-              aria-controls="search-results-listbox"
-              aria-activedescendant={
-                results[activeIndex]
-                  ? `search-result-${results[activeIndex].type}-${results[activeIndex].slug}`
-                  : undefined
-              }
-              className="w-full rounded-lg border bg-background pl-9 pr-10 py-2 text-sm outline-none focus:ring-2 focus:ring-accent-brand"
-            />
-            <DialogPrimitive.Close
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground transition hover:text-foreground"
-              aria-label={t("search.close")}
-            >
-              <X className="h-4 w-4" />
+          <div className="flex justify-center gap-2">
+            {failed && onRetry ? (
+              <Button type="button" variant="outline" onClick={onRetry}>
+                {t("search.retry")}
+              </Button>
+            ) : null}
+            <DialogPrimitive.Close asChild>
+              <Button
+                id="search-dialog-fallback-close"
+                type="button"
+                variant="ghost"
+              >
+                {t("search.close")}
+              </Button>
             </DialogPrimitive.Close>
-          </div>
-
-          <div className="mt-3 max-h-[60vh] overflow-y-auto">
-            {!items ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                {t("search.loading")}
-              </p>
-            ) : results.length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                {query.trim()
-                  ? t("search.noResultsFor", { q: query.trim() })
-                  : t("search.empty")}
-              </p>
-            ) : (
-              <ul className="space-y-1" role="listbox" id="search-results-listbox">
-                {results.map((item, index) => (
-                  <li key={`${item.type}-${item.slug}`} role="presentation">
-                    <Link
-                      id={`search-result-${item.type}-${item.slug}`}
-                      ref={(el) => {
-                        itemRefs.current[index] = el;
-                      }}
-                      href={itemHref(item)}
-                      role="option"
-                      aria-selected={index === activeIndex}
-                      onClick={() => setOpen(false)}
-                      onMouseEnter={() => setActiveIndex(index)}
-                      className={`block rounded-md px-3 py-2 transition hover:bg-muted ${
-                        index === activeIndex ? "bg-muted" : ""
-                      }`}
-                    >
-                      <div className="font-medium line-clamp-1">
-                        {item.title}
-                      </div>
-                      {item.summary ? (
-                        <div className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
-                          {item.summary}
-                        </div>
-                      ) : null}
-                      {item.tags.length > 0 ? (
-                        <div className="mt-1 flex flex-wrap gap-1">
-                          {item.tags.slice(0, 3).map((tag) => (
-                            <Badge
-                              key={tag}
-                              variant="secondary"
-                              className="rounded-full text-xs"
-                            >
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      ) : null}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>

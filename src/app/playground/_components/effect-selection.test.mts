@@ -26,6 +26,71 @@ function historyFixture(initial: string) {
   return { target, go(delta: number) { index += delta; location.href = entries[index]; events.dispatchEvent(new Event("popstate")); } };
 }
 
+test("effect history handler: Header처럼 외부 push하면 Back 전에 선택과 새로고침 URL이 일치한다", async () => {
+  const { target, go } = historyFixture("https://example.com/playground?effect=warp");
+  let selected: string | null = "warp";
+  let notifications = 0;
+  const stop = selection.subscribeEffectHistory(target, () => {
+    notifications++;
+    const candidate = getEffectIdFromSearch(new URL(target.location.href).search);
+    selected = resolveEffectId(candidate, ids);
+    if (selected && candidate !== selected) target.history.replaceState({}, "", withEffectId(target.location.href, selected));
+  });
+  target.history.pushState({}, "", "/playground");
+  assert.equal(selected, "warp", "Next insertion-effect 호출 스택에서는 선택을 업데이트하지 않는다");
+  await Promise.resolve();
+  assert.equal(selected, "cluster", "Back을 누르기 전에 외부 URL에 맞게 선택을 복원한다");
+  assert.equal(target.location.href, "https://example.com/playground?effect=cluster");
+  assert.equal(resolveEffectId(getEffectIdFromSearch(new URL(target.location.href).search), ids), selected, "새로고침 시 같은 효과를 선택한다");
+  await Promise.resolve();
+  assert.equal(notifications, 1, "정규화 replaceState가 알림을 재귀 예약하지 않는다");
+  go(-1);
+  assert.equal(selected, "warp", "정규화는 새 히스토리 항목을 만들지 않는다");
+  go(1);
+  assert.equal(selected, "cluster");
+  stop();
+});
+
+test("effect history handler: 외부 replace를 반영하고 같은 URL 재선택은 알림을 반복하지 않는다", async () => {
+  const { target } = historyFixture("https://example.com/playground?effect=warp");
+  let selected = "warp";
+  let notifications = 0;
+  const stop = selection.subscribeEffectHistory(target, () => {
+    notifications++;
+    selected = new URL(target.location.href).searchParams.get("effect")!;
+  });
+  target.history.replaceState({}, "", "?effect=cluster");
+  await Promise.resolve();
+  assert.equal(selected, "cluster");
+  target.history.pushState({}, "", "?effect=warp");
+  await Promise.resolve();
+  assert.equal(selected, "warp");
+  target.history.replaceState({}, "", "?effect=warp");
+  await Promise.resolve();
+  assert.equal(notifications, 2);
+  stop();
+});
+
+test("effect history handler: 해제하면 대기 중인 외부 write와 hash 알림도 취소한다", async () => {
+  const { target } = historyFixture("https://example.com/playground?effect=warp#stage");
+  const originalPush = target.history.pushState;
+  const originalReplace = target.history.replaceState;
+  let notifications = 0;
+  let hashNotifications = 0;
+  const stop = selection.subscribeEffectHistory(target, () => notifications++);
+  target.addEventListener("hashchange", () => hashNotifications++);
+  target.history.pushState({}, "", "/playground");
+  stop();
+  await Promise.resolve();
+  assert.equal(notifications, 0);
+  assert.equal(hashNotifications, 0);
+  assert.equal(target.history.pushState, originalPush);
+  assert.equal(target.history.replaceState, originalReplace);
+  target.history.pushState({}, "", "?effect=cluster");
+  await Promise.resolve();
+  assert.equal(notifications, 0);
+});
+
 test("effect history handler: 외부 같은 경로 push 후 Back의 효과 전환을 처리한다", () => {
   assert.equal(typeof selection.subscribeEffectHistory, "function");
   const { target, go } = historyFixture("https://example.com/playground?effect=warp");

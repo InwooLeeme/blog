@@ -216,6 +216,15 @@ html.language-transitioning::view-transition-new(language-toggle-icon) {
 
 article :is(h2,h3,h4){ scroll-margin-top: 6rem; }
 
+@theme {
+  --animate-stage-enter: stage-enter 200ms ease-out;
+
+  @keyframes stage-enter {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
 /* Profile 내비 항목 — 마우스오버/포커스 시 한 번 대각선으로 흔들림 (상시 반복 애니메이션은 시선을 계속 뺏어 제거) */
 @keyframes diagonal-shake {
   0%, 100% { transform: translate(0, 0) rotate(0deg); }

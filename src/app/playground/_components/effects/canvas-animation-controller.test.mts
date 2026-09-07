@@ -7,6 +7,7 @@ test("createCanvasAnimationController: 정리 뒤 전달된 교차 콜백은 프
   let nextFrameId = 0;
   const controller = createCanvasAnimationController({
     getVisibilityState: () => "visible",
+    reducedMotion: false,
     onFrame: () => {},
     requestFrame: (callback) => {
       const id = ++nextFrameId;

@@ -28,11 +28,31 @@ type EffectHistoryTarget = {
 
 export function subscribeEffectHistory(target: EffectHistoryTarget, onLocationChange: () => void) {
   let subscribed = true;
+  let notifying = false;
+  let notificationQueued = false;
   let previousHref = target.location.href;
   const originalPush = target.history.pushState;
   const originalReplace = target.history.replaceState;
+  const notifyLocationChange = () => {
+    notifying = true;
+    try {
+      onLocationChange();
+    } finally {
+      notifying = false;
+      previousHref = target.location.href;
+    }
+  };
   const recordWrite = (beforeHref: string) => {
     previousHref = target.location.href;
+    if (beforeHref !== previousHref && !notifying && !notificationQueued) {
+      notificationQueued = true;
+      // Next writes in an insertion effect. Sync from the latest location after its
+      // commit stack; normalization performed by the subscriber must not recurse.
+      queueMicrotask(() => {
+        notificationQueued = false;
+        if (subscribed) notifyLocationChange();
+      });
+    }
     if (new URL(beforeHref).hash !== new URL(previousHref).hash) {
       // push/replaceState do not notify the global route transition's hash subscription.
       // Next may write history in an insertion effect; notify only after that commit stack.
@@ -57,8 +77,7 @@ export function subscribeEffectHistory(target: EffectHistoryTarget, onLocationCh
   const onPopState = (event: Event) => {
     if (isEffectOnlyHistoryChange(previousHref, target.location.href)) event.stopImmediatePropagation();
     previousHref = target.location.href;
-    onLocationChange();
-    previousHref = target.location.href;
+    notifyLocationChange();
   };
   target.addEventListener("popstate", onPopState, { capture: true });
   return () => {

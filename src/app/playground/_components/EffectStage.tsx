@@ -18,7 +18,7 @@ export default function EffectStage({ effectId, fullscreen = false }: { effectId
   }, [loader, retryKey]);
 
   return (
-    <div data-effect-stage={effectId} className={`relative isolate w-full overflow-hidden bg-[#05060a] ${fullscreen ? "h-full" : "aspect-[16/10]"}`}>
+    <div key={effectId} data-effect-stage={effectId} className={`relative isolate w-full overflow-hidden bg-[#05060a] animate-stage-enter motion-reduce:animate-none ${fullscreen ? "h-full" : "aspect-[16/10]"}`}>
       <EffectErrorBoundary key={`${effectId}:${retryKey}`} onRetry={() => setRetryKey((key) => key + 1)}>
         <Suspense fallback={<StageLoading />}>
           {/* The memoized lazy type changes only on loader selection or an explicit retry. */}

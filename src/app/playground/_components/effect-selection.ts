@@ -8,6 +8,16 @@ export function withEffectId(href: string, effectId: string) {
   return url.toString();
 }
 
+export function isEffectOnlyHistoryChange(previousHref: string, nextHref: string) {
+  const previous = new URL(previousHref);
+  const next = new URL(nextHref);
+  if (previous.origin !== next.origin || previous.pathname !== next.pathname || previous.hash !== next.hash) return false;
+  if (JSON.stringify(previous.searchParams.getAll("effect")) === JSON.stringify(next.searchParams.getAll("effect"))) return false;
+  previous.searchParams.delete("effect");
+  next.searchParams.delete("effect");
+  return previous.searchParams.toString() === next.searchParams.toString();
+}
+
 export function resolveEffectId(candidate: string | null, ids: readonly string[]) {
   if (ids.length === 0) return null;
   return candidate && ids.includes(candidate) ? candidate : ids[0];

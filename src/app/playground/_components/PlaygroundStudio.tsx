@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { ArrowLeft, ArrowRight, Maximize2, X } from "lucide-react";
 import { EFFECT_CATALOG } from "./effect-catalog";
-import { getEffectIdFromSearch, resolveEffectId, stepEffectId, withEffectId } from "./effect-selection";
+import { getEffectIdFromSearch, isEffectOnlyHistoryChange, resolveEffectId, stepEffectId, withEffectId } from "./effect-selection";
 import EffectRail from "./EffectRail";
 import EffectStage, { StageLoading } from "./EffectStage";
 
@@ -15,10 +15,12 @@ export default function PlaygroundStudio() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const previousHrefRef = useRef<string | null>(null);
   const selected = EFFECT_CATALOG.find((effect) => effect.id === activeId) ?? EFFECT_CATALOG[0];
   const index = EFFECT_CATALOG.findIndex((effect) => effect.id === selected.id);
 
   useEffect(() => {
+    const studioPathname = window.location.pathname;
     const syncFromLocation = () => {
       const candidate = getEffectIdFromSearch(window.location.search);
       const resolved = resolveEffectId(candidate, ids);
@@ -26,16 +28,27 @@ export default function PlaygroundStudio() {
       if (resolved && candidate !== resolved) {
         window.history.replaceState(window.history.state, "", withEffectId(window.location.href, resolved));
       }
+      previousHrefRef.current = window.location.href;
+    };
+    const onPopState = (event: PopStateEvent) => {
+      const previousHref = previousHrefRef.current;
+      if (previousHref && isEffectOnlyHistoryChange(previousHref, window.location.href)) {
+        // The global route transition waits for pathname/hash changes; scene queries have neither.
+        event.stopImmediatePropagation();
+      }
+      previousHrefRef.current = window.location.href;
+      if (window.location.pathname === studioPathname) syncFromLocation();
     };
     syncFromLocation();
-    window.addEventListener("popstate", syncFromLocation);
-    return () => window.removeEventListener("popstate", syncFromLocation);
+    window.addEventListener("popstate", onPopState, true);
+    return () => window.removeEventListener("popstate", onPopState, true);
   }, []);
 
   const selectEffect = (candidate: string) => {
     const id = resolveEffectId(candidate, ids);
     if (!id || id === activeId) return;
     window.history.pushState(window.history.state, "", withEffectId(window.location.href, id));
+    previousHrefRef.current = window.location.href;
     setActiveId(id);
   };
 

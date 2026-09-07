@@ -2,6 +2,7 @@ import { shouldAnimateCanvas } from "./canvas-policy.ts";
 
 type CanvasAnimationControllerOptions = {
   getVisibilityState: () => DocumentVisibilityState;
+  reducedMotion: boolean;
   onFrame: (dt: number, time: number) => void;
   requestFrame: (callback: FrameRequestCallback) => number;
   cancelFrame: (id: number) => void;
@@ -9,13 +10,14 @@ type CanvasAnimationControllerOptions = {
 
 export function createCanvasAnimationController({
   getVisibilityState,
+  reducedMotion: initialReducedMotion,
   onFrame,
   requestFrame,
   cancelFrame,
 }: CanvasAnimationControllerOptions) {
   let disposed = false;
   let intersecting = false;
-  let reducedMotion = false;
+  let reducedMotion = initialReducedMotion;
   let rafId: number | null = null;
   let lastTime = 0;
 

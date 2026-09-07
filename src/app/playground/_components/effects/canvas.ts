@@ -65,6 +65,7 @@ export function useCanvasScene(
 
     const animation = createCanvasAnimationController({
       getVisibilityState: () => document.visibilityState,
+      reducedMotion: reduced,
       onFrame: scene.frame,
       requestFrame: requestAnimationFrame,
       cancelFrame: cancelAnimationFrame,

@@ -3,7 +3,7 @@
  * - 카드/리스트 컴포넌트들이 공유 (PostCard, LatestHero, RelatedPosts 등)
  * - fs를 import하지 않아 클라이언트/서버 어디서든 사용 가능
  */
-import type { PostMeta } from "./posts";
+import type { CoverFit, PostMeta } from "./posts";
 
 const DATE_FORMATTER = new Intl.DateTimeFormat("ko-KR", {
   year: "numeric",
@@ -27,6 +27,19 @@ const SHARED_PLACEHOLDER_COVERS = new Set(["/Atcoder_Thumbnail.png"]);
 export function getCardCoverSrc(meta: PostMeta): string | null {
   if (meta.cover && !SHARED_PLACEHOLDER_COVERS.has(meta.cover)) return meta.cover;
   return null;
+}
+
+/** 카드 묶음에서 실제 네트워크 이미지를 쓰는 첫 항목을 찾아 LCP 우선순위를 정한다. */
+export function getFirstCardCoverIndex(metas: PostMeta[]): number {
+  return metas.findIndex((meta) => getCardCoverSrc(meta) !== null);
+}
+
+/** 글 상세 커버의 맞춤 방식. 공용 로고 이미지는 기본적으로 잘리지 않게 표시한다. */
+export function getPostCoverFit(meta: PostMeta): CoverFit {
+  if (meta.coverFit) return meta.coverFit;
+  return meta.cover && SHARED_PLACEHOLDER_COVERS.has(meta.cover)
+    ? "contain"
+    : "cover";
 }
 
 /** 플레이스홀더 커버에 표시할 라벨 — 첫 태그 우선, 없으면 시리즈명 */

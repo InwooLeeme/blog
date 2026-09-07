@@ -167,7 +167,7 @@ export default function SeriesNavigation({ nav }: { nav: SeriesNav }) {
 
       <div className="flex items-baseline justify-between gap-3">
         <span className="text-xs font-semibold tracking-wider text-accent-brand">
-          SERIES
+          {t("series.label")}
         </span>
         <span className="text-xs tabular-nums text-muted-foreground">
           {t("seriesNav.position", { a: position, b: total })}

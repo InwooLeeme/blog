@@ -41,7 +41,7 @@ export default async function SeriesDetailPage({
     <div className="w-full max-w-3xl mx-auto mt-6 px-4 md:px-6 lg:px-8">
       <header className="mb-8">
         <p className="text-xs font-semibold uppercase tracking-wider text-accent-brand">
-          Series
+          <Tr id="series.label" />
         </p>
         <h1 className="mt-2 font-display text-3xl font-bold tracking-tight md:text-4xl">
           {name}
@@ -87,7 +87,7 @@ export default async function SeriesDetailPage({
                   {p.meta.readingTime ? (
                     <>
                       <span aria-hidden>·</span>
-                      <span>{p.meta.readingTime} min read</span>
+                      <Tr id="post.readingTime" params={{ n: p.meta.readingTime }} />
                     </>
                   ) : null}
                 </div>

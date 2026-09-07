@@ -29,6 +29,9 @@ import { Steps, Step } from "@/app/components/mdx/Steps";
 import { Definition } from "@/app/components/mdx/Definition";
 import JsonLd from "@/app/components/JsonLd";
 import { buildBlogPostingJsonLd, buildBreadcrumbJsonLd } from "@/lib/jsonLd";
+import { getPostCoverFit } from "@/lib/post-display";
+import NormalizedMdxH1 from "@/app/components/mdx/NormalizedMdxH1";
+import { stripRedundantLeadHeading } from "@/lib/mdx-heading";
 
 
 interface PageProps {
@@ -79,6 +82,7 @@ const components = {
   Steps,
   Step,
   Definition,
+  h1: NormalizedMdxH1,
 };
 
 export default async function PostPage({ params }: PageProps) {
@@ -90,6 +94,8 @@ export default async function PostPage({ params }: PageProps) {
   const { prev, next } = getAdjacentPosts(slug);
   const related = getRelatedPosts(slug, 3);
   const seriesNav = getSeriesNavigation(slug);
+  const coverFit = getPostCoverFit(meta);
+  const displayContent = stripRedundantLeadHeading(content, meta);
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 md:px-6 lg:px-8">
@@ -101,13 +107,20 @@ export default async function PostPage({ params }: PageProps) {
       />
       {meta.cover ? (
         <div
-          className="relative aspect-[1200/630] mb-8"
+          className={`relative mb-8 h-[clamp(14rem,42vw,26rem)] overflow-hidden rounded-2xl border ${
+            coverFit === "contain" ? "bg-white" : "bg-card"
+          }`}
           style={{ viewTransitionName: `post-cover-${slug}` }}
         >
           <MdxImage
             src={meta.cover}
             alt={meta.title}
-            className="rounded-xl object-cover border"
+            className={`h-full w-full border-0 ${
+              coverFit === "contain"
+                ? "object-contain p-8 sm:p-12"
+                : "object-cover"
+            }`}
+            wrapperClassName="h-full"
             sizes="(min-width:1024px) 768px, 100vw"
             priority
           />
@@ -125,7 +138,7 @@ export default async function PostPage({ params }: PageProps) {
           {/* MDX 본문 */}
           <div className="prose prose-zinc dark:prose-invert prose-main lg:prose-xl">
             <MDXRemote
-              source={content}
+              source={displayContent}
               options={{ mdxOptions }}
               components={components}
             />

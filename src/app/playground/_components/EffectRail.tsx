@@ -1,7 +1,35 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { EFFECT_CATALOG } from "./effect-catalog";
+import { useEffect, useRef, type Ref } from "react";
+import { EFFECT_CATALOG, type EffectMeta } from "./effect-catalog";
+
+type RailItemProps = {
+  active: boolean;
+  buttonRef?: Ref<HTMLButtonElement>;
+  effect: EffectMeta;
+  index: number;
+  onSelect: (id: string) => void;
+};
+
+function EffectRailItem({ active, buttonRef, effect, index, onSelect }: RailItemProps) {
+  return (
+    <li className="snap-start">
+      <button
+        ref={buttonRef}
+        type="button"
+        aria-current={active ? "true" : undefined}
+        aria-controls="playground-stage"
+        title={effect.description}
+        onClick={() => onSelect(effect.id)}
+        className={`group relative flex min-h-11 w-full items-center gap-3 overflow-hidden rounded-xl border px-3 py-3 text-left text-sm outline-none transition-[color,background-color,border-color] duration-200 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-300 motion-reduce:transition-none ${active ? "border-white/10 bg-white/[0.07] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]" : "border-transparent text-zinc-500 hover:bg-white/[0.035] hover:text-zinc-200"}`}
+      >
+        <span aria-hidden="true" className={`absolute inset-y-2 left-0 w-0.5 rounded-r-full bg-sky-300 transition-opacity duration-200 motion-reduce:transition-none ${active ? "opacity-100" : "opacity-0"}`} />
+        <span aria-hidden="true" className={`font-mono text-[10px] tabular-nums transition-colors duration-200 motion-reduce:transition-none ${active ? "text-sky-300" : "text-zinc-600 group-hover:text-zinc-500"}`}>{String(index + 1).padStart(2, "0")}</span>
+        <span className="whitespace-nowrap font-medium tracking-[-0.01em]">{effect.title}</span>
+      </button>
+    </li>
+  );
+}
 
 export default function EffectRail({ activeId, onSelect }: { activeId: string | null; onSelect: (id: string) => void }) {
   const activeButton = useRef<HTMLButtonElement>(null);
@@ -17,23 +45,10 @@ export default function EffectRail({ activeId, onSelect }: { activeId: string | 
         <span className="font-mono text-[10px] tabular-nums text-zinc-600">{String(EFFECT_CATALOG.length).padStart(2, "0")}</span>
       </div>
       <ol className="flex w-max gap-1.5 p-3 lg:w-auto lg:flex-col lg:gap-1 lg:px-3 lg:pb-4 lg:pt-0">
-        {EFFECT_CATALOG.map((effect, index) => (
-          <li key={effect.id} className="snap-start">
-            <button
-              ref={activeId === effect.id ? activeButton : undefined}
-              type="button"
-              aria-current={activeId === effect.id ? "true" : undefined}
-              aria-controls="playground-stage"
-              title={effect.description}
-              onClick={() => onSelect(effect.id)}
-              className={`group relative flex min-h-11 w-full items-center gap-3 overflow-hidden rounded-xl border px-3 py-3 text-left text-sm outline-none transition-[color,background-color,border-color] duration-200 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-300 motion-reduce:transition-none ${activeId === effect.id ? "border-white/10 bg-white/[0.07] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]" : "border-transparent text-zinc-500 hover:bg-white/[0.035] hover:text-zinc-200"}`}
-            >
-              <span aria-hidden="true" className={`absolute inset-y-2 left-0 w-0.5 rounded-r-full bg-sky-300 transition-opacity duration-200 motion-reduce:transition-none ${activeId === effect.id ? "opacity-100" : "opacity-0"}`} />
-              <span aria-hidden="true" className={`font-mono text-[10px] tabular-nums transition-colors duration-200 motion-reduce:transition-none ${activeId === effect.id ? "text-sky-300" : "text-zinc-600 group-hover:text-zinc-500"}`}>{String(index + 1).padStart(2, "0")}</span>
-              <span className="whitespace-nowrap font-medium tracking-[-0.01em]">{effect.title}</span>
-            </button>
-          </li>
-        ))}
+        {EFFECT_CATALOG.map((effect, index) => {
+          const active = activeId === effect.id;
+          return <EffectRailItem key={effect.id} active={active} buttonRef={active ? activeButton : undefined} effect={effect} index={index} onSelect={onSelect} />;
+        })}
       </ol>
     </nav>
   );

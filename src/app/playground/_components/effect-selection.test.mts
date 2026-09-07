@@ -1,9 +1,21 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import * as selection from "./effect-selection.ts";
-import { getEffectIdFromSearch, resolveEffectId, stepEffectId, withEffectId } from "./effect-selection.ts";
+import { getEffectIdFromSearch, resolveEffectId, resolveEffectSelection, stepEffectId, withEffectId } from "./effect-selection.ts";
 
 const ids = ["cluster", "meteor-sky", "warp"];
+
+test("resolveEffectSelection: 현재 장면과 카탈로그 위치를 함께 반환한다", () => {
+  const catalog = [
+    { id: "cluster", title: "구상성단" },
+    { id: "meteor-sky", title: "별똥별 밤하늘" },
+    { id: "warp", title: "하이퍼스페이스" },
+  ];
+  assert.deepEqual(resolveEffectSelection("warp", catalog), { selected: catalog[2], index: 2 });
+  assert.deepEqual(resolveEffectSelection(null, catalog), { selected: catalog[0], index: 0 });
+  assert.deepEqual(resolveEffectSelection("missing", catalog), { selected: catalog[0], index: 0 });
+  assert.deepEqual(resolveEffectSelection("cluster", []), { selected: null, index: -1 });
+});
 
 function historyFixture(initial: string) {
   const events = new EventTarget();

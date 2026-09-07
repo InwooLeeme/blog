@@ -93,6 +93,11 @@ export function resolveEffectId(candidate: string | null, ids: readonly string[]
   return candidate && ids.includes(candidate) ? candidate : ids[0];
 }
 
+export function resolveEffectSelection<T extends { id: string }>(activeId: string | null, catalog: readonly T[]) {
+  const selected = catalog.find((effect) => effect.id === activeId) ?? catalog[0] ?? null;
+  return { selected, index: selected ? catalog.indexOf(selected) : -1 };
+}
+
 export function stepEffectId(current: string | null, delta: -1 | 1, ids: readonly string[]) {
   const resolved = resolveEffectId(current, ids);
   if (!resolved) return null;

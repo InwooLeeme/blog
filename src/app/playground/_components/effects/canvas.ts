@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type RefObject } from "react";
-import { shouldAnimateCanvas } from "./canvas-policy";
+import { createCanvasAnimationController } from "./canvas-animation-controller";
 
 /** 캔버스 기준 커서 위치(없으면 inside=false) */
 export type Pointer = { x: number; y: number; inside: boolean };
@@ -63,37 +63,12 @@ export function useCanvasScene(
       if (reduced) scene.drawStatic?.();
     };
 
-    let rafId: number | null = null;
-    let lastTime = 0;
-    let intersecting = false;
-    const tick = (time: number) => {
-      rafId = null;
-      const dt = lastTime ? Math.min((time - lastTime) / 1000, 0.05) : 0;
-      lastTime = time;
-      scene.frame(dt, time);
-      if (shouldAnimateCanvas({ intersecting, visibilityState: document.visibilityState, reducedMotion: reduced })) {
-        rafId = requestAnimationFrame(tick);
-      }
-    };
-    const start = () => {
-      if (rafId !== null) return;
-      lastTime = 0;
-      rafId = requestAnimationFrame(tick);
-    };
-    const stop = () => {
-      if (rafId !== null) cancelAnimationFrame(rafId);
-      rafId = null;
-      lastTime = 0;
-    };
-    const syncAnimation = () => {
-      const runnable = shouldAnimateCanvas({
-        intersecting,
-        visibilityState: document.visibilityState,
-        reducedMotion: reduced,
-      });
-      if (runnable) start();
-      else stop();
-    };
+    const animation = createCanvasAnimationController({
+      getVisibilityState: () => document.visibilityState,
+      onFrame: scene.frame,
+      requestFrame: requestAnimationFrame,
+      cancelFrame: cancelAnimationFrame,
+    });
 
     resize();
 
@@ -119,25 +94,24 @@ export function useCanvasScene(
 
     const io = new IntersectionObserver(
       ([entry]) => {
-        intersecting = entry.isIntersecting;
-        syncAnimation();
+        animation.setIntersecting(entry.isIntersecting);
       },
       { threshold: 0 },
     );
     io.observe(canvas);
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(parent);
-    const onVisibilityChange = () => syncAnimation();
+    const onVisibilityChange = () => animation.sync();
     const onMotionChange = (event: MediaQueryListEvent) => {
       reduced = event.matches;
       if (reduced) scene.drawStatic?.();
-      syncAnimation();
+      animation.setReducedMotion(reduced);
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
     motionQuery.addEventListener("change", onMotionChange);
 
     return () => {
-      stop();
+      animation.dispose();
       io.disconnect();
       resizeObserver.disconnect();
       document.removeEventListener("visibilitychange", onVisibilityChange);

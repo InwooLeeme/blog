@@ -1,5 +1,6 @@
-import { lazy, Suspense, type ComponentType } from "react";
+import { lazy, Suspense, useState, type ComponentType } from "react";
 import { createRetryableLoader } from "@/app/components/retryable-loader";
+import { createEffectLoaderRegistry, createLazyComponentFactory } from "@/app/components/effects/effect-loader-utils";
 import { EFFECT_CATALOG, type EffectId, type EffectMeta } from "@/app/playground/_components/effect-catalog";
 
 export type EffectModule = { default: ComponentType };
@@ -26,15 +27,18 @@ const loaders: Record<EffectId, EffectLoader> = {
   "color-bubbles": effectLoader(() => import("@/app/playground/_components/effects/ColorBubbles")),
 };
 
+const loaderRegistry = createEffectLoaderRegistry(loaders);
+
 export function getEffectLoader(id: string) {
-  return loaders[id as keyof typeof loaders] ?? null;
+  return loaderRegistry.getEffectLoader(id);
 }
 
 export type Effect = EffectMeta & { Component: ComponentType };
 
 function effectComponent(id: EffectId): ComponentType {
-  const LazyEffect = lazy(loaders[id].load);
+  const createLazyEffect = createLazyComponentFactory(lazy, loaders[id]);
   return function EffectComponent() {
+    const [LazyEffect] = useState(createLazyEffect);
     return (
       <Suspense fallback={null}>
         <LazyEffect />

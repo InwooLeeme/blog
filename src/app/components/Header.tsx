@@ -18,7 +18,7 @@ import { Menu } from "lucide-react";
 import ReadingProgressBar from "./ReadingProgressBar";
 import { SearchProvider, SearchTrigger } from "./SearchDialog";
 import { cn } from "@/lib/utils";
-import { navLinks, siteConfig, isActivePath } from "@/lib/site";
+import { navLinks, siteConfig, isActivePath, resolveNavLabel } from "@/lib/site";
 import { subscribeToScroll } from "./scroll-subscriber";
 import { nextHeaderScrolled } from "./scroll-visibility";
 
@@ -52,21 +52,23 @@ function Wordmark({ title }: { title: string | undefined }) {
 }
 
 // 데스크톱/모바일 공용 컨트롤
-function Controls() {
+function Controls({ compact = false }: { compact?: boolean }) {
   return (
     <>
       <SearchTrigger />
-      <Button
-        asChild
-        variant="ghost"
-        size="icon"
-        aria-label="GitHub"
-        className="relative before:absolute before:-inset-1 before:content-['']"
-      >
-        <Link href={siteConfig.githubUrl} target="_blank" rel="noreferrer">
-          <IconGithub width={20} height={20} />
-        </Link>
-      </Button>
+      <span className={cn(compact && "max-[420px]:hidden")}>
+        <Button
+          asChild
+          variant="ghost"
+          size="icon"
+          aria-label="GitHub"
+          className="relative before:absolute before:-inset-1 before:content-['']"
+        >
+          <Link href={siteConfig.githubUrl} target="_blank" rel="noreferrer">
+            <IconGithub width={20} height={20} />
+          </Link>
+        </Button>
+      </span>
       <LanguageToggle />
       <ModeToggle />
     </>
@@ -120,32 +122,33 @@ function DesktopNav({ pathname }: { pathname: string }) {
           transform: `translateX(${pill.left}px) translateY(-50%)`,
         }}
       />
-      {navLinks.map((link, i) => (
-        <Link
-          key={link.href}
-          href={link.href}
-          ref={(el) => {
-            itemsRef.current[i] = el;
-          }}
-          onMouseEnter={() => setHovered(i)}
-          onFocus={() => setHovered(i)}
-          aria-current={i === activeIndex ? "page" : undefined}
-          className={cn(
-            "group/navitem relative rounded-full px-3 py-1.5 font-medium transition-colors",
-            i === target
-              ? "text-accent-brand"
-              : "text-foreground/80 hover:text-foreground",
-          )}
-        >
-          {link.href === "/about" ? (
-            <span className="hover-diagonal-shake">{link.label}</span>
-          ) : link.messageId ? (
-            t(link.messageId)
-          ) : (
-            link.label
-          )}
-        </Link>
-      ))}
+      {navLinks.map((link, i) => {
+        const label = resolveNavLabel(link, t);
+        return (
+          <Link
+            key={link.href}
+            href={link.href}
+            ref={(el) => {
+              itemsRef.current[i] = el;
+            }}
+            onMouseEnter={() => setHovered(i)}
+            onFocus={() => setHovered(i)}
+            aria-current={i === activeIndex ? "page" : undefined}
+            className={cn(
+              "group/navitem relative rounded-full px-3 py-1.5 font-medium transition-colors",
+              i === target
+                ? "text-accent-brand"
+                : "text-foreground/80 hover:text-foreground",
+            )}
+          >
+            {link.href === "/about" ? (
+              <span className="hover-diagonal-shake">{label}</span>
+            ) : (
+              label
+            )}
+          </Link>
+        );
+      })}
       <div className="flex items-center gap-1 pl-2">
         <Controls />
       </div>
@@ -157,7 +160,7 @@ function MobileNav({ pathname }: { pathname: string }) {
   const t = useT();
   return (
     <div className="flex items-center gap-2 md:hidden">
-      <Controls />
+      <Controls compact />
       <Sheet>
         <SheetTrigger asChild>
           <Button
@@ -185,11 +188,20 @@ function MobileNav({ pathname }: { pathname: string }) {
                         : "text-foreground hover:bg-muted/70",
                     )}
                   >
-                    {n.messageId ? t(n.messageId) : n.label}
+                    {resolveNavLabel(n, t)}
                   </Link>
                 </SheetClose>
               );
             })}
+            <a
+              href={siteConfig.githubUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 flex items-center gap-2 border-t px-3 pt-4 text-sm text-muted-foreground transition-colors hover:text-accent-brand"
+            >
+              <IconGithub width={17} height={17} />
+              GitHub
+            </a>
           </nav>
         </SheetContent>
       </Sheet>

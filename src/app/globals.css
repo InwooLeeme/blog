@@ -154,6 +154,13 @@ body { word-break: keep-all; }
 
 html { scrollbar-gutter: stable; scroll-behavior: smooth; }
 
+/* 터치·키보드 스크롤은 유지하면서 보조 가로 목록의 브라우저 스크롤바만 숨긴다. */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
 /* TOC 앵커 등 CSS 기반 스크롤 점프가 전정 장애 사용자에게 노출되지 않도록 */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

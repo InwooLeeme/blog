@@ -4,6 +4,8 @@ import matter from "gray-matter";
 import rt from "reading-time"
 import { cache } from "react"
 
+export type CoverFit = "cover" | "contain"
+
 export type PostMeta = {
   title: string
   date: string
@@ -11,6 +13,7 @@ export type PostMeta = {
   tags?: string[]
   draft?: boolean
   cover?: string
+  coverFit?: CoverFit
   readingTime?: number
   series?: string
 }

@@ -57,8 +57,12 @@ export default function TagSidebar({
   return (
     <>
       {/* 모바일: 수평 스크롤 태그 스트립 */}
-      <div className="lg:hidden mb-4 overflow-x-auto pb-2 -mx-1 px-1">
-        <div className="flex gap-2 min-w-max">
+      <div className="relative mb-4 lg:hidden">
+        <div
+          className="scrollbar-none -mx-1 overflow-x-auto px-1 pb-2 pr-12"
+          aria-label={t("sidebar.categories")}
+        >
+          <div className="flex min-w-max gap-2">
           <Link href={basePath}>
             <Badge
               variant="outline"
@@ -83,7 +87,12 @@ export default function TagSidebar({
               </Badge>
             </Link>
           ))}
+          </div>
         </div>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-background via-background/85 to-transparent"
+        />
       </div>
 
       {/* 데스크톱: 사이드바 */}

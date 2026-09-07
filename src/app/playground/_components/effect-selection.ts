@@ -1,3 +1,13 @@
+export function getEffectIdFromSearch(search: string) {
+  return new URLSearchParams(search).get("effect");
+}
+
+export function withEffectId(href: string, effectId: string) {
+  const url = new URL(href);
+  url.searchParams.set("effect", effectId);
+  return url.toString();
+}
+
 export function resolveEffectId(candidate: string | null, ids: readonly string[]) {
   if (ids.length === 0) return null;
   return candidate && ids.includes(candidate) ? candidate : ids[0];

@@ -1,8 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { resolveEffectId, stepEffectId } from "./effect-selection.ts";
+import { getEffectIdFromSearch, resolveEffectId, stepEffectId, withEffectId } from "./effect-selection.ts";
 
 const ids = ["cluster", "meteor-sky", "warp"];
+
+test("effect query: 다른 쿼리와 해시를 보존하면서 효과 ID만 읽고 쓴다", () => {
+  assert.equal(getEffectIdFromSearch("?effect=warp&lang=ko"), "warp");
+  assert.equal(getEffectIdFromSearch("?lang=ko"), null);
+  assert.equal(withEffectId("https://example.com/playground?lang=ko#stage", "warp"), "https://example.com/playground?lang=ko&effect=warp#stage");
+  assert.equal(withEffectId("https://example.com/playground?effect=cluster&lang=ko#stage", "warp"), "https://example.com/playground?effect=warp&lang=ko#stage");
+});
 
 test("resolveEffectId: 유효한 URL ID를 유지한다", () => {
   assert.equal(resolveEffectId("meteor-sky", ids), "meteor-sky");

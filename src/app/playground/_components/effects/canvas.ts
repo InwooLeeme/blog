@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type RefObject } from "react";
+import { shouldAnimateCanvas } from "./canvas-policy";
 
 /** 캔버스 기준 커서 위치(없으면 inside=false) */
 export type Pointer = { x: number; y: number; inside: boolean };
@@ -29,7 +30,7 @@ export const readAccent = (fallback = "#31CED2") =>
 export function useCanvasScene(
   ref: RefObject<HTMLCanvasElement | null>,
   create: (api: SceneApi) => Scene,
-  maxDpr = 2,
+  maxDpr = 1.5,
 ) {
   const createRef = useRef(create);
   useEffect(() => {
@@ -42,7 +43,8 @@ export function useCanvasScene(
     const parent = canvas?.parentElement;
     if (!canvas || !ctx || !parent) return;
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let reduced = motionQuery.matches;
     const pointer: Pointer = { x: 0, y: 0, inside: false };
     const scene = createRef.current({ ctx, reduced, pointer });
 
@@ -61,50 +63,88 @@ export function useCanvasScene(
       if (reduced) scene.drawStatic?.();
     };
 
-    let rafId = 0;
+    let rafId: number | null = null;
     let lastTime = 0;
-    let running = false;
+    let intersecting = false;
     const tick = (time: number) => {
+      rafId = null;
       const dt = lastTime ? Math.min((time - lastTime) / 1000, 0.05) : 0;
       lastTime = time;
       scene.frame(dt, time);
-      rafId = requestAnimationFrame(tick);
+      if (shouldAnimateCanvas({ intersecting, visibilityState: document.visibilityState, reducedMotion: reduced })) {
+        rafId = requestAnimationFrame(tick);
+      }
     };
     const start = () => {
-      if (running || reduced) return;
-      running = true;
+      if (rafId !== null) return;
       lastTime = 0;
       rafId = requestAnimationFrame(tick);
     };
     const stop = () => {
-      running = false;
-      cancelAnimationFrame(rafId);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = null;
+      lastTime = 0;
+    };
+    const syncAnimation = () => {
+      const runnable = shouldAnimateCanvas({
+        intersecting,
+        visibilityState: document.visibilityState,
+        reducedMotion: reduced,
+      });
+      if (runnable) start();
+      else stop();
     };
 
     resize();
-    if (reduced) scene.drawStatic?.();
-    else start();
 
-    const onMove = (e: MouseEvent) => {
+    const updatePointer = (e: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
       pointer.x = e.clientX - rect.left;
       pointer.y = e.clientY - rect.top;
-      pointer.inside = pointer.x >= 0 && pointer.x <= width && pointer.y >= 0 && pointer.y <= height;
     };
-    if (!reduced) window.addEventListener("mousemove", onMove);
+    const onPointerMove = (e: PointerEvent) => {
+      updatePointer(e);
+      pointer.inside = true;
+    };
+    const onPointerEnter = (e: PointerEvent) => {
+      updatePointer(e);
+      pointer.inside = true;
+    };
+    const onPointerLeave = () => {
+      pointer.inside = false;
+    };
+    canvas.addEventListener("pointermove", onPointerMove);
+    canvas.addEventListener("pointerenter", onPointerEnter);
+    canvas.addEventListener("pointerleave", onPointerLeave);
 
     const io = new IntersectionObserver(
-      ([entry]) => (entry.isIntersecting ? start() : stop()),
+      ([entry]) => {
+        intersecting = entry.isIntersecting;
+        syncAnimation();
+      },
       { threshold: 0 },
     );
     io.observe(canvas);
-    window.addEventListener("resize", resize);
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(parent);
+    const onVisibilityChange = () => syncAnimation();
+    const onMotionChange = (event: MediaQueryListEvent) => {
+      reduced = event.matches;
+      if (reduced) scene.drawStatic?.();
+      syncAnimation();
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    motionQuery.addEventListener("change", onMotionChange);
 
     return () => {
       stop();
       io.disconnect();
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("resize", resize);
+      resizeObserver.disconnect();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      motionQuery.removeEventListener("change", onMotionChange);
+      canvas.removeEventListener("pointermove", onPointerMove);
+      canvas.removeEventListener("pointerenter", onPointerEnter);
+      canvas.removeEventListener("pointerleave", onPointerLeave);
     };
   }, [ref, maxDpr]);
 }

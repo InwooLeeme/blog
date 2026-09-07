@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Calendar } from "lucide-react";
 import CoverPlaceholder from "./CoverPlaceholder";
+import Tr from "./Tr";
 
 export default function PostCard({
     slug,
@@ -87,7 +88,7 @@ export default function PostCard({
                         {meta.readingTime ? (
                             <>
                                 <span aria-hidden>·</span>
-                                <span>{meta.readingTime} min read</span>
+                                <Tr id="post.readingTime" params={{ n: meta.readingTime }} />
                             </>
                         ) : null}
                     </div>

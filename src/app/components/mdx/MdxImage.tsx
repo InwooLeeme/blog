@@ -10,6 +10,7 @@ type MdxImageProps = Omit<ImageProps, "src" | "alt" | "width" | "height"> & {
     alt?: string
     width?: number | string
     height?: number | string
+    wrapperClassName?: string
 }
 
 const fade =
@@ -21,6 +22,7 @@ export default function MdxImage({
     width,
     height,
     className,
+    wrapperClassName,
     ...rest
 }: MdxImageProps) {
     const base = {
@@ -29,13 +31,13 @@ export default function MdxImage({
         height: height ? Number(height) : 675,
     }
     return (
-        <span className="block my-8">
+        <span className={`block ${wrapperClassName ?? "my-8"}`}>
             <Dialog.Root>
                 <Dialog.Trigger asChild>
                     <button
                         type="button"
                         aria-label={alt ? `${alt} 확대 보기` : "이미지 확대 보기"}
-                        className="block w-full cursor-zoom-in"
+                        className="block h-full w-full cursor-zoom-in"
                     >
                         <Image
                             {...base}

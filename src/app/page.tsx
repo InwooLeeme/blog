@@ -6,6 +6,7 @@ import JsonLd from "./components/JsonLd";
 import { buildWebSiteJsonLd, buildPersonJsonLd } from "@/lib/jsonLd";
 import Tr from "./components/Tr";
 import type { Metadata } from "next";
+import { getFirstCardCoverIndex } from "@/lib/post-display";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
   const latest = getAllPosts().slice(0, 3);
+  const priorityCoverIndex = getFirstCardCoverIndex(latest.map((post) => post.meta));
 
   return (
     <>
@@ -24,7 +26,13 @@ export default function Home() {
 
         <div className="grid gap-5 lg:grid-cols-3">
           {latest.map((p, i) => (
-            <PostCard key={p.slug} slug={p.slug} meta={p.meta} priority={i === 0} index={i} />
+            <PostCard
+              key={p.slug}
+              slug={p.slug}
+              meta={p.meta}
+              priority={i === priorityCoverIndex}
+              index={i}
+            />
           ))}
         </div>
 

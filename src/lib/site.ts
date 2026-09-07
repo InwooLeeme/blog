@@ -22,20 +22,27 @@ import type { MessageId } from "@/lib/i18n";
 
 export type NavLink = { href: string; label: string; messageId?: MessageId };
 
+export function resolveNavLabel(
+  link: NavLink,
+  translate: (id: MessageId) => string,
+): string {
+  return link.messageId ? translate(link.messageId) : link.label;
+}
+
 /** 헤더 내비게이션 */
 export const navLinks: NavLink[] = [
   { href: "/blog", label: "블로그", messageId: "footer.blog" },
-  { href: "/about", label: "Profile" },
-  { href: "/notes", label: "Notes" },
-  { href: "/playground", label: "Playground" },
-  { href: "/graph", label: "Graph" },
+  { href: "/about", label: "Profile", messageId: "nav.profile" },
+  { href: "/notes", label: "Notes", messageId: "nav.notes" },
+  { href: "/playground", label: "Playground", messageId: "nav.playground" },
+  { href: "/graph", label: "Graph", messageId: "nav.graph" },
 ];
 
 /** 푸터 */
 export const footerLinks: NavLink[] = [
   { href: "/blog", label: "블로그", messageId: "footer.blog" },
-  { href: "/notes", label: "Notes" },
-  { href: "/about", label: "Profile" },
+  { href: "/notes", label: "Notes", messageId: "nav.notes" },
+  { href: "/about", label: "Profile", messageId: "nav.profile" },
 ];
 
 

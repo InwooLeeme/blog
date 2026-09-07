@@ -161,6 +161,26 @@ html { scrollbar-gutter: stable; scroll-behavior: smooth; }
 }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 
+/* Playground 장면 레일 — 캔버스보다 조용하게 보이는 얇은 스크롤바 */
+.playground-rail {
+  scrollbar-color: rgb(125 211 252 / 0.32) #0b0c10;
+  scrollbar-width: thin;
+}
+.playground-rail::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.playground-rail::-webkit-scrollbar-track {
+  background: #0b0c10;
+}
+.playground-rail::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background-color: rgb(125 211 252 / 0.32);
+}
+.playground-rail::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(125 211 252 / 0.58);
+}
+
 /* TOC 앵커 등 CSS 기반 스크롤 점프가 전정 장애 사용자에게 노출되지 않도록 */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

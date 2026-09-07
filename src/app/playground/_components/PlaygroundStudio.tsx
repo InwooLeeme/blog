@@ -73,7 +73,7 @@ export default function PlaygroundStudio() {
           </Dialog.Trigger>
         </div>
 
-        <div className="grid min-w-0 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <div className="grid min-w-0 lg:grid-cols-[232px_minmax(0,1fr)]">
           <div id="playground-stage" role="region" aria-label={`${selected.title} 감상 화면`} tabIndex={0} className="relative min-w-0 overflow-hidden bg-[#05060a] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-300 lg:col-start-2 lg:row-start-1">
             {!fullscreen && (activeId ? <EffectStage effectId={activeId} /> : <div className="relative aspect-[16/10]"><StageLoading /></div>)}
             {fullscreen && <div className="grid aspect-[16/10] place-items-center text-sm text-zinc-500">전체 화면에서 감상 중</div>}

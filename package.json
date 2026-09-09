@@ -23,6 +23,7 @@
     "@shikijs/transformers": "^4.1.0",
     "@tailwindcss/typography": "^0.5.16",
     "@types/d3-force": "^3.0.10",
+    "@types/three": "^0.185.4",
     "@vercel/analytics": "^1.6.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -51,6 +52,7 @@
     "remark-rehype": "^11.1.2",
     "simple-icons": "^16.23.0",
     "tailwind-merge": "^3.3.1",
+    "three": "^0.186.0",
     "tocbot": "^4.36.4",
     "unified": "^11.0.5"
   },

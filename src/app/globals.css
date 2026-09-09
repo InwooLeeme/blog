@@ -188,6 +188,58 @@ html { scrollbar-gutter: stable; scroll-behavior: smooth; }
 
 body{ margin: 0; }
 
+/* 홈의 별 소용돌이 — CSS 별무리는 WebGL 초기화 실패 시 남는다. */
+.particle-vortex {
+  --vortex-center-x: 54%;
+  background: transparent;
+}
+.particle-vortex-canvas {
+  cursor: crosshair;
+  opacity: 0;
+  touch-action: pan-y;
+  transition: opacity 500ms ease;
+}
+.particle-vortex[data-canvas-ready="true"] .particle-vortex-canvas {
+  opacity: 1;
+}
+.particle-vortex-fallback {
+  background:
+    radial-gradient(
+      circle clamp(7px, 1vw, 10px) at var(--vortex-center-x) 46%,
+      rgb(242 255 255) 0 30%,
+      rgb(119 232 236) 62%,
+      rgb(136 169 255 / 88%) 84%,
+      transparent 100%
+    ),
+    radial-gradient(circle at 52% 43%, rgb(119 232 236 / 82%) 0 1px, transparent 2px),
+    radial-gradient(circle at 43% 39%, rgb(242 255 255 / 75%) 0 1px, transparent 2px),
+    radial-gradient(circle at 61% 52%, rgb(136 169 255 / 75%) 0 1.2px, transparent 2.3px),
+    radial-gradient(circle at 37% 55%, rgb(119 232 236 / 65%) 0 1px, transparent 2px),
+    radial-gradient(circle at 67% 35%, rgb(242 255 255 / 62%) 0 1px, transparent 2px),
+    radial-gradient(circle at 31% 45%, rgb(136 169 255 / 55%) 0 1px, transparent 2px);
+  opacity: 1;
+  transition: opacity 300ms ease;
+}
+.particle-vortex[data-canvas-ready="true"] .particle-vortex-fallback {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .particle-vortex-canvas {
+    cursor: default;
+    transition: none;
+  }
+  .particle-vortex-fallback {
+    transition: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .particle-vortex {
+    --vortex-center-x: 50%;
+  }
+}
+
 /* ===== 테마 토글 원형 리플 (View Transitions) ===== */
 /* 기본 크로스페이드 제거 → clip-path 리플만 보이도록 */
 ::view-transition-old(root),

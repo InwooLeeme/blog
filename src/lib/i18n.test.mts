@@ -9,6 +9,9 @@ const requiredKeys = [
   "nav.graph",
   "landing.blogCta",
   "landing.notesCta",
+  "landing.scrollCue",
+  "landing.recentEyebrow",
+  "landing.recentIntro",
   "series.label",
 ] as const;
 

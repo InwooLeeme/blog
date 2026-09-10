@@ -7,9 +7,19 @@ const requiredKeys = [
   "nav.notes",
   "nav.playground",
   "nav.graph",
+  "nav.til",
   "landing.blogCta",
   "landing.notesCta",
+  "landing.scrollCue",
+  "landing.recentEyebrow",
+  "landing.recentIntro",
   "series.label",
+  "til.titleLine1",
+  "til.assignmentsTitle",
+  "til.projectsTitle",
+  "til.dailyTitle",
+  "til.statusCompleted",
+  "til.reflection",
 ] as const;
 
 test("navigation, CTA, and series labels exist in both locales", () => {

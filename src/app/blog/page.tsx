@@ -1,3 +1,5 @@
+import { sectionHeadingClass } from "@/lib/ui-styles";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { getAllPosts, getTagCounts, groupPostsBySeries, getAllSeries } from "@/lib/posts"
 import TagSidebar from "../components/TagSidebar";
@@ -58,7 +60,7 @@ export default function BlogIndexPage() {
 
             {articles.length > 0 ? (
               <section className="space-y-2">
-                <h2 className="text-2xl md:text-3xl font-bold mt-2 mb-2">
+                <h2 className={cn(sectionHeadingClass, "mt-2 mb-2")}>
                   <Tr id="blog.articles" />
                 </h2>
                 <PostGrid posts={articles} featureFirst={false} />
@@ -67,7 +69,7 @@ export default function BlogIndexPage() {
 
             {logGroups.length > 0 ? (
               <section className="space-y-2">
-                <h2 className="text-2xl md:text-3xl font-bold mt-2 mb-2">
+                <h2 className={cn(sectionHeadingClass, "mt-2 mb-2")}>
                   <Tr id="blog.solveLogs" />
                 </h2>
                 <SeriesLogList groups={logGroups} />

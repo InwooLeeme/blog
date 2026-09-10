@@ -1,3 +1,5 @@
+import { contentCardClass, contentCardInteractionClass } from "@/lib/ui-styles";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { PostItem } from "@/lib/posts";
@@ -19,10 +21,10 @@ export default function PostNavigation({ prev, next }: IPostNavigationProps) {
             {prev ? (
                 <Link
                     href={`/blog/${prev.slug}`}
-                    className="group flex flex-col gap-1 rounded-md border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent-brand hover:shadow-md"
+                    className={cn(contentCardClass, contentCardInteractionClass, "group flex flex-col gap-1 p-4")}
                 >
                     <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
+                        <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5 motion-reduce:transform-none" />
                         <Tr id="post.prev" />
                     </span>
                     <span className="font-bold leading-snug line-clamp-2 group-hover:text-accent-brand">
@@ -35,11 +37,11 @@ export default function PostNavigation({ prev, next }: IPostNavigationProps) {
             {next ? (
                 <Link
                     href={`/blog/${next.slug}`}
-                    className="group flex flex-col gap-1 rounded-md border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent-brand hover:shadow-md sm:items-end sm:text-right"
+                    className={cn(contentCardClass, contentCardInteractionClass, "group flex flex-col gap-1 p-4 sm:items-end sm:text-right")}
                 >
                     <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                         <Tr id="post.next" />
-                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" />
                     </span>
                     <span className="font-bold leading-snug line-clamp-2 group-hover:text-accent-brand">
                         {next.meta.title}

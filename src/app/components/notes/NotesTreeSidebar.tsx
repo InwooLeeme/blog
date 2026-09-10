@@ -1,5 +1,6 @@
 "use client";
 
+import { contentCardClass } from "@/lib/ui-styles";
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -93,7 +94,7 @@ export default function NotesTreeSidebar({ tree }: Props) {
             {totalCount}
           </span>
         </summary>
-        <Card className="mt-2">
+        <Card className={cn(contentCardClass, "mt-2")}>
           <CardContent className="p-3">
             {header}
             <ScrollArea className="max-h-[60vh] pr-1">{body}</ScrollArea>
@@ -103,7 +104,7 @@ export default function NotesTreeSidebar({ tree }: Props) {
 
       {/* 데스크톱: sticky 사이드바 */}
       <aside className="sticky top-24 hidden lg:block w-72 shrink-0 self-start">
-        <Card className="overflow-hidden">
+        <Card className={cn(contentCardClass, "overflow-hidden")}>
           <CardContent className="p-4">
             {header}
             <ScrollArea className="max-h-[calc(100vh-12rem)] pr-1">

@@ -12,7 +12,7 @@ interface IHeaderProps {
 }
 export default function PostHeader({title, date, readingTime, summary, series}: IHeaderProps){
     return (
-        <header className="mt-14 text-left">
+        <header className="mt-8 text-left sm:mt-10">
             {series ? (
                 <Link
                     href={`/blog/series/${encodeURIComponent(series)}`}
@@ -25,7 +25,7 @@ export default function PostHeader({title, date, readingTime, summary, series}: 
             {summary ? (
                 <p className="mt-2 mb-4 text-base text-muted-foreground">{summary}</p>
             ) : null}
-            <p className="mt-0 mb-8 text-sm text-muted-foreground flex items-center gap-1.5"><Calendar className="h-4 w-4" />{formatPostDate(date)}{readingTime ? <> · <Tr id="post.readingTime" params={{ n: readingTime }} /></> : null}</p>
+            <p className="mt-0 mb-8 text-sm text-muted-foreground flex flex-wrap items-center gap-1.5"><Calendar className="h-4 w-4" />{formatPostDate(date)}{readingTime ? <> · <Tr id="post.readingTime" params={{ n: readingTime }} /></> : null}</p>
             <hr className="my-6" />
         </header>
     )

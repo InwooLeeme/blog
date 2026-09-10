@@ -12,6 +12,13 @@ test("resolveNavLabel localizes the Profile navigation item", () => {
   );
 });
 
+test("TIL navigation item is available in both locales", () => {
+  const til = navLinks.find((link) => link.href === "/til");
+  assert.ok(til);
+  assert.equal(resolveNavLabel(til, (id) => messages.ko[id]), "배움 기록");
+  assert.equal(resolveNavLabel(til, (id) => messages.en[id]), "TIL");
+});
+
 test("resolveNavLabel falls back to the static label", () => {
   assert.equal(
     resolveNavLabel({ href: "/custom", label: "Custom" }, () => "번역"),

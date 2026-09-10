@@ -1,11 +1,10 @@
 import { PostMeta } from "@/lib/posts";
-import { formatPostDate, getCardCoverSrc, getCoverLabel } from "@/lib/post-display";
+import { formatPostDate, getCardCoverSrc } from "@/lib/post-display";
 import { Link } from "next-view-transitions";
 import Image from "next/image";
-import { Card, CardContent } from "@/components/ui/card";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { cn } from "@/lib/utils";
+import { contentCardClass, contentCardInteractionClass } from "@/lib/ui-styles";
 import { Calendar } from "lucide-react";
-import CoverPlaceholder from "./CoverPlaceholder";
 import Tr from "./Tr";
 
 export default function PostCard({
@@ -13,54 +12,30 @@ export default function PostCard({
     meta,
     featured = false,
     priority = featured,
-    index,
 }: {
     slug: string;
     meta: PostMeta;
     featured?: boolean;
     priority?: boolean;
-    /** 그리드에서의 렌더 순서 — 커버 플레이스홀더 색이 이웃 카드와 겹치지 않도록 전달 */
-    index: number;
 }) {
     const formatted = formatPostDate(meta.date);
     const coverSrc = getCardCoverSrc(meta);
     const tags = meta.tags?.slice(0, 3) ?? [];
 
     return (
-        <Link href={`/blog/${slug}`} className="group block h-full" aria-label={meta.title}>
-            <Card className="overflow-hidden h-full py-0 gap-0 transition duration-300 hover:border-accent-brand hover:shadow-xl hover:shadow-accent-brand/15">
-                <div
-                    className="relative overflow-hidden"
-                    style={{ viewTransitionName: `post-cover-${slug}` }}
-                >
-                    <AspectRatio ratio={16 / 9}>
-                        {coverSrc ? (
-                            <Image
-                                src={coverSrc}
-                                alt={meta.title}
-                                fill
-                                className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                                sizes={
-                                    featured
-                                        ? "(min-width:768px) 66vw, 100vw"
-                                        : "(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
-                                }
-                                priority={priority}
-                            />
-                        ) : (
-                            <CoverPlaceholder label={getCoverLabel(meta)} seed={index} />
-                        )}
-                    </AspectRatio>
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                </div>
-
-                <CardContent className="flex flex-1 flex-col p-4">
+        <Link
+            href={`/blog/${slug}`}
+            className={cn(contentCardClass, contentCardInteractionClass, "group flex h-full flex-col p-5 sm:p-6")}
+            aria-label={meta.title}
+        >
+            <div className="flex items-start gap-4">
+                <div className="min-w-0 flex-1">
                     {tags.length > 0 ? (
-                        <div className="mb-2 flex flex-wrap gap-1.5">
+                        <div className="mb-2 flex flex-wrap gap-x-3 gap-y-1">
                             {tags.map((tag) => (
                                 <span
                                     key={tag}
-                                    className="rounded-full bg-accent-brand/10 px-2 py-0.5 text-xs font-medium text-accent-brand"
+                                    className="text-xs font-medium text-accent-brand"
                                 >
                                     {tag}
                                 </span>
@@ -70,30 +45,45 @@ export default function PostCard({
 
                     <h3
                         className={`font-bold leading-snug line-clamp-2 transition-colors group-hover:text-accent-brand ${
-                            featured ? "text-xl md:text-2xl" : "text-base"
+                            featured ? "text-xl md:text-2xl" : "text-lg"
                         }`}
                     >
                         {meta.title}
                     </h3>
-
-                    {meta.summary ? (
-                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-2">
-                            {meta.summary}
-                        </p>
-                    ) : null}
-
-                    <div className="mt-auto pt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Calendar className="h-3 w-3" aria-hidden />
-                        <time dateTime={meta.date}>{formatted}</time>
-                        {meta.readingTime ? (
-                            <>
-                                <span aria-hidden>·</span>
-                                <Tr id="post.readingTime" params={{ n: meta.readingTime }} />
-                            </>
-                        ) : null}
+                </div>
+                {coverSrc ? (
+                    <div
+                        className="relative h-14 w-20 shrink-0 overflow-hidden rounded-lg border bg-muted sm:h-16 sm:w-24"
+                        style={{ viewTransitionName: `post-cover-${slug}` }}
+                    >
+                        <Image
+                            src={coverSrc}
+                            alt=""
+                            fill
+                            className="object-cover"
+                            sizes="(min-width:640px) 96px, 80px"
+                            priority={priority}
+                        />
                     </div>
-                </CardContent>
-            </Card>
+                ) : null}
+            </div>
+
+            {meta.summary ? (
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-2">
+                    {meta.summary}
+                </p>
+            ) : null}
+
+            <div className="mt-auto pt-4 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                <Calendar className="h-3 w-3" aria-hidden />
+                <time dateTime={meta.date}>{formatted}</time>
+                {meta.readingTime ? (
+                    <>
+                        <span aria-hidden>·</span>
+                        <Tr id="post.readingTime" params={{ n: meta.readingTime }} />
+                    </>
+                ) : null}
+            </div>
         </Link>
     );
 }

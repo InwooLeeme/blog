@@ -1,3 +1,5 @@
+import { sectionHeadingClass } from "@/lib/ui-styles";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
@@ -12,7 +14,7 @@ export default function LatestHero({ posts }: { posts: PostItem[] }) {
 
   return (
     <section className="mb-10" aria-labelledby="latest-posts-title">
-      <h2 id="latest-posts-title" className="mb-4 text-2xl font-semibold tracking-tight">
+      <h2 id="latest-posts-title" className={cn(sectionHeadingClass, "mb-4")}>
         <Tr id="blog.latest" />
       </h2>
       <ol className="divide-y border-y">

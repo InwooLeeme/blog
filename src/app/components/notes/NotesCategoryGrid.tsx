@@ -1,6 +1,7 @@
+import { contentCardClass, contentCardInteractionClass } from "@/lib/ui-styles";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Folder } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { countNotes, firstNoteSlug, noteHref, type NotesTreeNode } from "@/lib/notes";
 
 /** Notes 인덱스 페이지의 카테고리 카드 그리드 — 트리 최상위 폴더를 카드로 보여주고,
@@ -21,18 +22,14 @@ export default function NotesCategoryGrid({ tree }: { tree: NotesTreeNode[] }) {
         const count = countNotes(category.children);
 
         return (
-          <Link key={category.path} href={href} className="group block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
-            <Card className="h-full rounded-xl shadow-none transition-colors duration-200 group-hover:border-accent-brand/40">
-              <CardContent className="flex items-center gap-3 p-4">
-                <Folder className="h-5 w-5 shrink-0 text-accent-brand" />
-                <span className="flex-1 truncate font-semibold transition-colors group-hover:text-accent-brand">
-                  {category.name}
-                </span>
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground tabular-nums">
-                  {count}
-                </span>
-              </CardContent>
-            </Card>
+          <Link key={category.path} href={href} className={cn(contentCardClass, contentCardInteractionClass, "group flex h-full items-center gap-3 p-5 sm:p-6")}>
+            <Folder className="h-5 w-5 shrink-0 text-accent-brand" />
+            <span className="flex-1 truncate font-semibold transition-colors group-hover:text-accent-brand">
+              {category.name}
+            </span>
+            <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground tabular-nums">
+              {count}
+            </span>
           </Link>
         );
       })}

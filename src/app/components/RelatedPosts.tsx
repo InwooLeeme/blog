@@ -1,3 +1,5 @@
+import { contentCardClass, contentCardInteractionClass } from "@/lib/ui-styles";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Calendar } from "lucide-react";
 import type { PostItem } from "@/lib/posts";
@@ -19,7 +21,7 @@ export default function RelatedPosts({ posts }: IRelatedPostsProps) {
                     <li key={p.slug}>
                         <Link
                             href={`/blog/${p.slug}`}
-                            className="group flex h-full flex-col gap-2 rounded-xl border bg-card p-4 transition-colors hover:border-accent-brand/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-brand"
+                            className={cn(contentCardClass, contentCardInteractionClass, "group flex h-full flex-col gap-2 p-4")}
                         >
                             <h3 className="font-bold leading-snug line-clamp-2 group-hover:text-accent-brand">
                                 {p.meta.title}

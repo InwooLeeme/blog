@@ -1,5 +1,7 @@
 "use client";
 
+import { contentCardClass } from "@/lib/ui-styles";
+import { cn } from "@/lib/utils";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   BookOpen,
@@ -281,7 +283,7 @@ export default function TilWriter({ initialDate }: { initialDate: string }) {
         </div>
       ) : (
         <div className="space-y-10">
-          <section className="rounded-2xl border bg-card/60 p-5 sm:p-7">
+          <section className={cn(contentCardClass, "p-5 sm:p-7")}>
             <Field label="오늘의 한 줄 요약" hint="목록 카드와 상세 제목에 사용됩니다.">
               <input
                 className={inputClass}
@@ -304,7 +306,7 @@ export default function TilWriter({ initialDate }: { initialDate: string }) {
             </div>
 
             {record.lessons.map((lesson, lessonIndex) => (
-              <article key={lesson.id} className="rounded-2xl border bg-card/60 p-5 shadow-sm sm:p-7">
+              <article key={lesson.id} className={cn(contentCardClass, "p-5 sm:p-7")}>
                 <div className="flex items-start gap-3">
                   <div className="min-w-0 flex-1">
                     <Field label={`수업 ${lessonIndex + 1} 이름`}>
@@ -539,7 +541,7 @@ export default function TilWriter({ initialDate }: { initialDate: string }) {
               </Button>
             </div>
             {record.projectUpdates.map((update, updateIndex) => (
-              <article key={update.id} className="rounded-2xl border bg-card/60 p-5 shadow-sm sm:p-7">
+              <article key={update.id} className={cn(contentCardClass, "p-5 sm:p-7")}>
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="font-semibold">프로젝트 진행 {updateIndex + 1}</h3>
                   <RemoveButton label={`프로젝트 진행 ${updateIndex + 1} 삭제`} onClick={() => updateRecord(removeProjectUpdate(record, update.id))} />
@@ -581,11 +583,11 @@ export default function TilWriter({ initialDate }: { initialDate: string }) {
               </article>
             ))}
             {record.projectUpdates.length === 0 ? (
-              <p className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">팀 프로젝트 활동이 있는 날에만 진행 기록을 추가하세요.</p>
+              <p className={cn(contentCardClass, "border-dashed p-8 text-center text-sm text-muted-foreground")}>팀 프로젝트 활동이 있는 날에만 진행 기록을 추가하세요.</p>
             ) : null}
           </section>
 
-          <section className="rounded-2xl border bg-card/60 p-5 sm:p-7">
+          <section className={cn(contentCardClass, "p-5 sm:p-7")}>
             <Field label="오늘의 회고" hint="선택 사항">
               <textarea
                 className={textareaClass}

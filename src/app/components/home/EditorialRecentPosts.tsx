@@ -4,6 +4,8 @@ import { formatPostDate } from "@/lib/post-display";
 import type { PostItem } from "@/lib/posts";
 import Tr from "../Tr";
 import { getEditorialPosts } from "./editorial-posts";
+import { sectionHeadingClass } from "@/lib/ui-styles";
+import { cn } from "@/lib/utils";
 
 export default function EditorialRecentPosts({ posts }: { posts: PostItem[] }) {
   const recent = getEditorialPosts(posts);
@@ -24,7 +26,7 @@ export default function EditorialRecentPosts({ posts }: { posts: PostItem[] }) {
             </p>
             <h2
               id="recent-posts-title"
-              className="mt-3 text-[clamp(1.75rem,3vw,2.5rem)] font-semibold leading-none tracking-[-0.045em]"
+              className={cn(sectionHeadingClass, "mt-3")}
             >
               <Tr id="landing.recent" />
             </h2>
@@ -41,9 +43,13 @@ export default function EditorialRecentPosts({ posts }: { posts: PostItem[] }) {
             return (
               <li
                 key={slug}
-                className="group border-b py-6 sm:py-8"
+                className="border-b"
               >
-                <article className="grid gap-x-6 gap-y-4 sm:grid-cols-[3rem_minmax(0,1fr)] lg:grid-cols-[3rem_minmax(0,1fr)_11rem]">
+                <Link
+                  href={`/blog/${slug}`}
+                  aria-label={meta.title}
+                  className="group grid gap-x-6 gap-y-4 py-6 transition-colors focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background sm:grid-cols-[3rem_minmax(0,1fr)] sm:py-8 lg:grid-cols-[3rem_minmax(0,1fr)_11rem]"
+                >
                   <span className="font-mono text-xs text-muted-foreground">
                     {String(index + 1).padStart(2, "0")}
                   </span>
@@ -55,18 +61,13 @@ export default function EditorialRecentPosts({ posts }: { posts: PostItem[] }) {
                       </p>
                     ) : null}
                     <h3
-                      className="max-w-3xl text-xl font-semibold leading-snug tracking-[-0.025em] sm:text-2xl"
+                      className="flex max-w-3xl items-start gap-2 text-xl font-semibold leading-snug tracking-[-0.025em] transition-colors group-hover:text-accent-brand group-focus-visible:text-accent-brand sm:text-2xl"
                     >
-                      <Link
-                        href={`/blog/${slug}`}
-                        className="inline-flex items-start gap-2 transition-colors hover:text-accent-brand focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-brand focus-visible:ring-offset-4 focus-visible:ring-offset-background"
-                      >
-                        <span>{meta.title}</span>
-                        <ArrowUpRight
-                          className="mt-1 h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent-brand motion-reduce:transform-none motion-reduce:transition-none"
-                          aria-hidden
-                        />
-                      </Link>
+                      <span>{meta.title}</span>
+                      <ArrowUpRight
+                        className="mt-1 h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent-brand motion-reduce:transform-none motion-reduce:transition-none"
+                        aria-hidden
+                      />
                     </h3>
                     {meta.summary ? (
                       <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
@@ -84,7 +85,7 @@ export default function EditorialRecentPosts({ posts }: { posts: PostItem[] }) {
                       </>
                     ) : null}
                   </div>
-                </article>
+                </Link>
               </li>
             );
           })}

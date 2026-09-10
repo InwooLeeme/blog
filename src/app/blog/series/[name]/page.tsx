@@ -6,6 +6,7 @@ import { getAllSeries, getPostsBySeries } from "@/lib/posts";
 import { formatPostDate } from "@/lib/post-display";
 import { cn } from "@/lib/utils";
 import Tr from "@/app/components/Tr";
+import { contentCardClass, contentCardInteractionClass } from "@/lib/ui-styles";
 
 export function generateStaticParams() {
   return getAllSeries().map(({ series }) => ({ name: series }));
@@ -71,7 +72,7 @@ export default async function SeriesDetailPage({
 
               <Link
                 href={`/blog/${p.slug}`}
-                className="group min-w-0 flex-1 rounded-md border bg-card p-4 transition hover:-translate-y-0.5 hover:border-accent-brand hover:shadow-md"
+                className={cn(contentCardClass, contentCardInteractionClass, "group min-w-0 flex-1 p-4")}
               >
                 <div className="flex items-baseline gap-2">
                   <span className="shrink-0 text-sm tabular-nums text-muted-foreground">

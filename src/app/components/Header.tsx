@@ -106,7 +106,7 @@ function DesktopNav({ pathname }: { pathname: string }) {
   return (
     <nav
       ref={navRef}
-      className="relative hidden items-center gap-1 text-sm md:flex"
+      className="relative hidden items-center gap-1 text-sm lg:flex"
       onMouseLeave={() => setHovered(null)}
       onBlur={(e) => {
         if (!navRef.current?.contains(e.relatedTarget as Node | null)) {
@@ -160,7 +160,7 @@ function DesktopNav({ pathname }: { pathname: string }) {
 function MobileNav({ pathname }: { pathname: string }) {
   const t = useT();
   return (
-    <div className="flex items-center gap-2 md:hidden">
+    <div className="flex items-center gap-2 lg:hidden">
       <SearchTrigger />
       <Sheet>
         <SheetTrigger asChild>

@@ -1,5 +1,6 @@
 "use client";
 
+import { contentCardClass, contentCardInteractionClass, sectionHeadingClass } from "@/lib/ui-styles";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
@@ -46,7 +47,7 @@ export default function TilHub({ overview }: { overview: TilOverview }) {
 
   if (overview.days === 0) {
     return (
-      <div className="rounded-3xl border border-dashed bg-card/50 px-6 py-16 text-center">
+      <div className={cn(contentCardClass, "border-dashed px-6 py-16 text-center")}>
         <BookOpen className="mx-auto size-9 text-accent-brand" />
         <h2 className="mt-5 text-xl font-bold">{t("til.emptyTitle")}</h2>
         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
@@ -69,7 +70,7 @@ export default function TilHub({ overview }: { overview: TilOverview }) {
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <div key={stat.label} className="rounded-2xl border bg-card/70 p-4 shadow-sm sm:p-5">
+            <div key={stat.label} className={cn(contentCardClass, "p-4 sm:p-5")}>
               <div className="flex items-center justify-between gap-3 text-muted-foreground">
                 <span className="text-xs font-semibold uppercase tracking-wider">{stat.label}</span>
                 <Icon className="size-4 text-accent-brand" />
@@ -118,7 +119,7 @@ export default function TilHub({ overview }: { overview: TilOverview }) {
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-brand">{t("til.assignmentsEyebrow")}</p>
-            <h2 id="assignments-title" className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+            <h2 id="assignments-title" className={cn(sectionHeadingClass, "mt-2")}>
               {t("til.assignmentsTitle")}
             </h2>
           </div>
@@ -128,7 +129,7 @@ export default function TilHub({ overview }: { overview: TilOverview }) {
         </div>
         <div className="mt-6 grid gap-5 lg:grid-cols-2">
           {filtered.assignmentsByCourse.map((group) => (
-            <article key={group.course} className="overflow-hidden rounded-2xl border bg-card/70 shadow-sm">
+            <article key={group.course} className={cn(contentCardClass, "overflow-hidden")}>
               <header className="flex items-center justify-between border-b px-5 py-4">
                 <div className="flex items-center gap-2">
                   <FolderKanban className="size-4 text-accent-brand" />
@@ -191,12 +192,12 @@ export default function TilHub({ overview }: { overview: TilOverview }) {
       {overview.projects.length > 0 ? (
         <section aria-labelledby="projects-title">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-brand">{t("til.projectsEyebrow")}</p>
-          <h2 id="projects-title" className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+          <h2 id="projects-title" className={cn(sectionHeadingClass, "mt-2")}>
             {t("til.projectsTitle")}
           </h2>
           <div className="mt-6 grid gap-5 lg:grid-cols-2">
             {overview.projects.map((project) => (
-              <details key={project.id} className="group rounded-2xl border bg-card/70 shadow-sm" open={overview.projects.length === 1}>
+              <details key={project.id} className={cn(contentCardClass, "group")} open={overview.projects.length === 1}>
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 [&::-webkit-details-marker]:hidden">
                   <div>
                     <h3 className="font-bold">{project.name}</h3>
@@ -226,7 +227,7 @@ export default function TilHub({ overview }: { overview: TilOverview }) {
 
       <section aria-labelledby="daily-title">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-brand">{t("til.dailyEyebrow")}</p>
-        <h2 id="daily-title" className="mt-2 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+        <h2 id="daily-title" className={cn(sectionHeadingClass, "mt-2")}>
           {t("til.dailyTitle")}
         </h2>
         <div className="mt-6 grid gap-5 md:grid-cols-2">
@@ -234,13 +235,13 @@ export default function TilHub({ overview }: { overview: TilOverview }) {
             <Link
               key={record.date}
               href={`/til/${record.date}`}
-              className="group rounded-2xl border bg-card/70 p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-accent-brand/40 hover:shadow-md sm:p-6"
+              className={cn(contentCardClass, contentCardInteractionClass, "group p-5 sm:p-6")}
             >
               <div className="flex items-center justify-between gap-3">
                 <time className="text-xs font-semibold tabular-nums text-accent-brand" dateTime={record.date}>
                   {formatTilDate(record.date, locale)}
                 </time>
-                <ArrowRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-accent-brand" />
+                <ArrowRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-accent-brand motion-reduce:transform-none" />
               </div>
               <h3 className="mt-4 text-lg font-bold leading-snug">{summarizeTilRecord(record)}</h3>
               <div className="mt-5 flex flex-wrap gap-2">

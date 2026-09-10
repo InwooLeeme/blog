@@ -1,5 +1,7 @@
 "use client";
 
+import { contentCardClass, sectionHeadingClass } from "@/lib/ui-styles";
+import { cn } from "@/lib/utils";
 import {
   AlertCircle,
   ArrowUpRight,
@@ -70,7 +72,7 @@ export default function TilRecordView({ record }: { record: TilRecord }) {
         <section key={lesson.id} className="space-y-6" aria-labelledby={`${lesson.id}-title`}>
           <div className="flex items-center gap-3">
             <span className="h-px w-8 bg-accent-brand" aria-hidden />
-            <h2 id={`${lesson.id}-title`} className="font-display text-2xl font-bold tracking-tight">
+            <h2 id={`${lesson.id}-title`} className={sectionHeadingClass}>
               {lesson.course}
             </h2>
           </div>
@@ -79,7 +81,7 @@ export default function TilRecordView({ record }: { record: TilRecord }) {
             {lesson.topics.map((topic, index) => (
               <article
                 key={topic.id}
-                className="rounded-2xl border bg-card/70 p-5 shadow-sm sm:p-7"
+                className={cn(contentCardClass, "p-5 sm:p-7")}
               >
                 <p className="text-xs font-semibold tabular-nums text-accent-brand">
                   {t("til.topicLabel", { n: String(index + 1).padStart(2, "0") })}
@@ -162,12 +164,12 @@ export default function TilRecordView({ record }: { record: TilRecord }) {
         <section className="space-y-4" aria-labelledby="project-updates-title">
           <div className="flex items-center gap-3">
             <Users className="size-5 text-accent-brand" />
-            <h2 id="project-updates-title" className="font-display text-2xl font-bold tracking-tight">
+            <h2 id="project-updates-title" className={sectionHeadingClass}>
               {t("til.projectSection")}
             </h2>
           </div>
           {record.projectUpdates.map((update) => (
-            <article key={update.id} className="rounded-2xl border bg-card/70 p-5 shadow-sm sm:p-7">
+            <article key={update.id} className={cn(contentCardClass, "p-5 sm:p-7")}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <h3 className="text-xl font-bold">{update.projectName}</h3>
                 {update.role?.trim() ? <Badge variant="secondary">{update.role}</Badge> : null}
@@ -199,7 +201,7 @@ export default function TilRecordView({ record }: { record: TilRecord }) {
       ) : null}
 
       {record.reflection.trim() ? (
-        <section className="rounded-2xl bg-accent-brand/8 p-5 sm:p-7">
+        <section className="rounded-xl bg-accent-brand/8 p-5 sm:p-7">
           <h2 className="text-sm font-semibold text-accent-brand">{t("til.reflection")}</h2>
           <p className="mt-3 whitespace-pre-wrap text-lg leading-8">{record.reflection}</p>
         </section>

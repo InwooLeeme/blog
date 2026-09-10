@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { getAllSeries } from "@/lib/posts";
 import { formatPostDate } from "@/lib/post-display";
 import Tr from "@/app/components/Tr";
+import { contentCardClass, contentCardInteractionClass } from "@/lib/ui-styles";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "시리즈",
@@ -31,7 +33,7 @@ export default function SeriesIndexPage() {
           <li key={name}>
             <Link
               href={`/blog/series/${encodeURIComponent(name)}`}
-              className="group flex h-full flex-col gap-2 rounded-md border bg-card p-5 transition hover:-translate-y-0.5 hover:border-accent-brand hover:shadow-md"
+              className={cn(contentCardClass, contentCardInteractionClass, "group flex h-full flex-col gap-2 p-5")}
             >
               <h2 className="font-display text-lg font-bold tracking-tight leading-snug group-hover:text-accent-brand">
                 {name}

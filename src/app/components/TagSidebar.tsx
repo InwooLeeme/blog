@@ -4,7 +4,6 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Hash, LayoutGrid, Layers } from "lucide-react";
@@ -63,28 +62,31 @@ export default function TagSidebar({
           aria-label={t("sidebar.categories")}
         >
           <div className="flex min-w-max gap-2">
-          <Link href={basePath}>
-            <Badge
-              variant="outline"
-              className={cn("rounded-full py-1", !activeTag && "border-accent-brand")}
-            >
-              {t("sidebar.all")} ({totalCount})
-            </Badge>
+          <Link
+            href={basePath}
+            aria-current={!activeTag ? "page" : undefined}
+            className={cn(
+              "inline-flex min-h-11 items-center rounded-full border px-4 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              !activeTag
+                ? "border-accent-brand bg-accent-brand/10 font-semibold text-accent-brand"
+                : "border-border bg-muted/40 text-muted-foreground hover:bg-muted",
+            )}
+          >
+            {t("sidebar.all")} ({totalCount})
           </Link>
           {sorted.map(({ tag, count }) => (
             <Link
               key={tag}
               href={`${tagBasePath}/${encodeURIComponent(tag)}`}
+              aria-current={activeTag === tag ? "page" : undefined}
+              className={cn(
+                "inline-flex min-h-11 items-center rounded-full border px-4 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                activeTag === tag
+                  ? "border-accent-brand bg-accent-brand/10 font-semibold text-accent-brand"
+                  : "border-border bg-muted/40 text-muted-foreground hover:bg-muted",
+              )}
             >
-              <Badge
-                variant={activeTag === tag ? "outline" : "secondary"}
-                className={cn(
-                  "rounded-full py-1",
-                  activeTag === tag && "border-accent-brand"
-                )}
-              >
-                {tag} ({count})
-              </Badge>
+              {tag} ({count})
             </Link>
           ))}
           </div>
@@ -101,11 +103,7 @@ export default function TagSidebar({
         <div className="flex flex-col items-center text-center pb-6">
           <Link href="/about" className="group flex flex-col items-center">
             <div className="relative">
-              <div
-                aria-hidden
-                className="absolute -inset-3 rounded-full opacity-60 blur-xl transition-opacity bg-[radial-gradient(circle,var(--accent-brand),transparent_70%)] group-hover:opacity-90"
-              />
-              <Avatar className="relative h-24 w-24 ring-1 ring-accent-brand/70 shadow-lg shadow-accent-brand/20">
+              <Avatar className="relative h-24 w-24 ring-1 ring-border">
                 <Image
                   src={avatarSrc}
                   alt={avatarAlt}

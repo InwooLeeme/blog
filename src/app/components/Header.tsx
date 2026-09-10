@@ -12,6 +12,7 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
@@ -51,12 +52,12 @@ function Wordmark({ title }: { title: string | undefined }) {
   );
 }
 
-// 데스크톱/모바일 공용 컨트롤
-function Controls({ compact = false }: { compact?: boolean }) {
+// 데스크톱 헤더 컨트롤
+function Controls() {
   return (
     <>
       <SearchTrigger />
-      <span className={cn(compact && "max-[420px]:hidden")}>
+      <span>
         <Button
           asChild
           variant="ghost"
@@ -160,7 +161,7 @@ function MobileNav({ pathname }: { pathname: string }) {
   const t = useT();
   return (
     <div className="flex items-center gap-2 md:hidden">
-      <Controls compact />
+      <SearchTrigger />
       <Sheet>
         <SheetTrigger asChild>
           <Button
@@ -172,8 +173,9 @@ function MobileNav({ pathname }: { pathname: string }) {
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="right" className="w-72">
-          <nav className="mt-4 flex flex-col gap-1">
+        <SheetContent side="right" className="w-72 overflow-y-auto p-4" aria-describedby={undefined}>
+          <SheetTitle className="pr-8">{t("header.menu")}</SheetTitle>
+          <nav className="flex flex-col gap-1">
             {navLinks.map((n) => {
               const active = isActivePath(pathname, n.href);
               return (
@@ -182,7 +184,7 @@ function MobileNav({ pathname }: { pathname: string }) {
                     href={n.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "rounded-md px-3 py-2 text-base transition-colors",
+                      "flex min-h-11 items-center rounded-md px-3 py-2 text-base transition-colors",
                       active
                         ? "bg-accent-brand/10 font-semibold text-accent-brand"
                         : "text-foreground hover:bg-muted/70",
@@ -203,6 +205,16 @@ function MobileNav({ pathname }: { pathname: string }) {
               GitHub
             </a>
           </nav>
+          <div className="mt-2 space-y-3 border-t px-3 pt-4">
+            <div className="flex min-h-11 items-center justify-between gap-4">
+              <span className="text-sm">{t("header.language")}</span>
+              <LanguageToggle />
+            </div>
+            <div className="flex min-h-11 items-center justify-between gap-4">
+              <span className="text-sm">{t("header.theme")}</span>
+              <ModeToggle />
+            </div>
+          </div>
         </SheetContent>
       </Sheet>
     </div>
@@ -229,7 +241,7 @@ export default function Header({ title }: IHeader) {
           className={cn(
             "backdrop-blur transition-[transform,border-radius,background-color,box-shadow,border-color] duration-300 ease-out [will-change:transform]",
             scrolled
-              ? "rounded-full border bg-background/85 shadow-lg"
+              ? "rounded-full border bg-background/95 shadow-sm"
               : "rounded-none border-b bg-background/70",
           )}
           style={{

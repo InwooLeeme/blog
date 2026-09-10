@@ -21,8 +21,8 @@ const SHARED_PLACEHOLDER_COVERS = new Set(["/Atcoder_Thumbnail.png"]);
 
 /**
  * 카드 그리드용 커버 소스. 실제 커버 이미지가 있으면 그대로 쓰고,
- * 없거나(빈 문자열) 공유 플레이스홀더면 null을 반환한다 — 호출부는 이때
- * OG 이미지(제목이 박혀 있어 카드 제목과 중복됨) 대신 CoverPlaceholder를 그린다.
+ * 없거나(빈 문자열) 공유 플레이스홀더면 null을 반환한다.
+ * 글 목록은 이때 이미지 영역 없이 제목과 요약을 표시한다.
  */
 export function getCardCoverSrc(meta: PostMeta): string | null {
   if (meta.cover && !SHARED_PLACEHOLDER_COVERS.has(meta.cover)) return meta.cover;

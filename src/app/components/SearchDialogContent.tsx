@@ -187,8 +187,13 @@ export default function SearchDialogContent({
                         index === activeIndex ? "bg-muted" : ""
                       }`}
                     >
-                      <div className="font-medium line-clamp-1">
-                        {item.title}
+                      <div className="flex items-start gap-2">
+                        <span className="mt-0.5 shrink-0 rounded border border-border px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
+                          {t(item.type === "post" ? "search.post" : "search.note")}
+                        </span>
+                        <div className="min-w-0 font-medium line-clamp-2 sm:line-clamp-1 [overflow-wrap:anywhere]">
+                          {item.title}
+                        </div>
                       </div>
                       {item.summary ? (
                         <div className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">

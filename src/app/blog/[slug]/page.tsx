@@ -127,7 +127,7 @@ export default async function PostPage({ params }: PageProps) {
         </div>
       ) : null}
       <div className="xl:flex xl:gap-8 xl:items-stretch">
-        <article id="post-article" className="w-full min-w-0 xl:flex-1">
+        <article id="post-article" className="mx-auto w-full min-w-0 max-w-[65ch] lg:text-xl xl:flex-1">
           <PostHeader
             title={meta.title}
             date={meta.date}

@@ -20,7 +20,6 @@ export default function PostGrid({ posts, featureFirst = true }: { posts: PostIt
             meta={meta}
             featured={featureFirst && i === 0}
             priority={i === priorityCoverIndex}
-            index={i}
           />
         </Reveal>
       ))}

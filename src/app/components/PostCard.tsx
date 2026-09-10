@@ -1,11 +1,10 @@
 import { PostMeta } from "@/lib/posts";
-import { formatPostDate, getCardCoverSrc, getCoverLabel } from "@/lib/post-display";
+import { formatPostDate, getCardCoverSrc } from "@/lib/post-display";
 import { Link } from "next-view-transitions";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Calendar } from "lucide-react";
-import CoverPlaceholder from "./CoverPlaceholder";
 import Tr from "./Tr";
 
 export default function PostCard({
@@ -13,33 +12,30 @@ export default function PostCard({
     meta,
     featured = false,
     priority = featured,
-    index,
 }: {
     slug: string;
     meta: PostMeta;
     featured?: boolean;
     priority?: boolean;
-    /** 그리드에서의 렌더 순서 — 커버 플레이스홀더 색이 이웃 카드와 겹치지 않도록 전달 */
-    index: number;
 }) {
     const formatted = formatPostDate(meta.date);
     const coverSrc = getCardCoverSrc(meta);
     const tags = meta.tags?.slice(0, 3) ?? [];
 
     return (
-        <Link href={`/blog/${slug}`} className="group block h-full" aria-label={meta.title}>
-            <Card className="overflow-hidden h-full py-0 gap-0 transition duration-300 hover:border-accent-brand hover:shadow-xl hover:shadow-accent-brand/15">
-                <div
-                    className="relative overflow-hidden"
-                    style={{ viewTransitionName: `post-cover-${slug}` }}
-                >
-                    <AspectRatio ratio={16 / 9}>
-                        {coverSrc ? (
+        <Link href={`/blog/${slug}`} className="group block h-full rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-brand focus-visible:ring-offset-4 focus-visible:ring-offset-background" aria-label={meta.title}>
+            <Card className="overflow-hidden h-full py-0 gap-0 shadow-none transition-colors duration-200 hover:border-accent-brand/60">
+                {coverSrc ? (
+                    <div
+                        className="relative overflow-hidden"
+                        style={{ viewTransitionName: `post-cover-${slug}` }}
+                    >
+                        <AspectRatio ratio={16 / 9}>
                             <Image
                                 src={coverSrc}
                                 alt={meta.title}
                                 fill
-                                className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                                className="object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none"
                                 sizes={
                                     featured
                                         ? "(min-width:768px) 66vw, 100vw"
@@ -47,20 +43,17 @@ export default function PostCard({
                                 }
                                 priority={priority}
                             />
-                        ) : (
-                            <CoverPlaceholder label={getCoverLabel(meta)} seed={index} />
-                        )}
-                    </AspectRatio>
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                </div>
+                        </AspectRatio>
+                    </div>
+                ) : null}
 
-                <CardContent className="flex flex-1 flex-col p-4">
+                <CardContent className="flex flex-1 flex-col p-5 sm:p-6">
                     {tags.length > 0 ? (
-                        <div className="mb-2 flex flex-wrap gap-1.5">
+                        <div className="mb-2 flex flex-wrap gap-x-3 gap-y-1">
                             {tags.map((tag) => (
                                 <span
                                     key={tag}
-                                    className="rounded-full bg-accent-brand/10 px-2 py-0.5 text-xs font-medium text-accent-brand"
+                                    className="text-xs font-medium text-accent-brand"
                                 >
                                     {tag}
                                 </span>
@@ -70,7 +63,7 @@ export default function PostCard({
 
                     <h3
                         className={`font-bold leading-snug line-clamp-2 transition-colors group-hover:text-accent-brand ${
-                            featured ? "text-xl md:text-2xl" : "text-base"
+                            featured ? "text-xl md:text-2xl" : "text-lg"
                         }`}
                     >
                         {meta.title}
@@ -82,7 +75,7 @@ export default function PostCard({
                         </p>
                     ) : null}
 
-                    <div className="mt-auto pt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <div className="mt-auto pt-4 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
                         <Calendar className="h-3 w-3" aria-hidden />
                         <time dateTime={meta.date}>{formatted}</time>
                         {meta.readingTime ? (

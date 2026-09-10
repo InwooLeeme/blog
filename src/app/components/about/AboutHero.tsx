@@ -14,17 +14,13 @@ export default function AboutHero() {
         <ShootingStars />
       </div>
       <div className="relative">
-        <div
-          aria-hidden
-          className="absolute -inset-4 rounded-full opacity-70 blur-2xl bg-[radial-gradient(circle,var(--accent-brand),transparent_70%)]"
-        />
         <Image
           src="/avatar.png"
           alt={t("about.avatarAlt", { author: siteConfig.author })}
           width={112}
           height={112}
           priority
-          className="relative h-28 w-28 rounded-full ring-1 ring-accent-brand/70 shadow-lg shadow-accent-brand/20"
+          className="relative h-28 w-28 rounded-full ring-1 ring-border"
         />
       </div>
       <h1 className="mt-5 text-3xl font-bold tracking-tight">{siteConfig.author}</h1>

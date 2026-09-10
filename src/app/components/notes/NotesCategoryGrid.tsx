@@ -21,8 +21,8 @@ export default function NotesCategoryGrid({ tree }: { tree: NotesTreeNode[] }) {
         const count = countNotes(category.children);
 
         return (
-          <Link key={category.path} href={href} className="group block">
-            <Card className="h-full transition duration-200 hover:border-accent-brand hover:shadow-md hover:shadow-accent-brand/10">
+          <Link key={category.path} href={href} className="group block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+            <Card className="h-full rounded-xl shadow-none transition-colors duration-200 group-hover:border-accent-brand/40">
               <CardContent className="flex items-center gap-3 p-4">
                 <Folder className="h-5 w-5 shrink-0 text-accent-brand" />
                 <span className="flex-1 truncate font-semibold transition-colors group-hover:text-accent-brand">

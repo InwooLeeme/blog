@@ -10,6 +10,7 @@
     "test": "node --test",
     "test:bundle": "node scripts/check-about-bundle.mjs && node scripts/check-header-bundle.mjs",
     "new:atcoder": "node scripts/new-atcoder-post.mjs",
+    "til:write": "node scripts/til-write.mjs",
     "publish": "node scripts/publish-post.mjs"
   },
   "dependencies": {

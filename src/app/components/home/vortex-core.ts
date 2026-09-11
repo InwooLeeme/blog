@@ -6,6 +6,13 @@ export type VortexCoreStyle = {
   clusterParticleCount: number;
   clusterDepth: number;
   clusterPointSize: number;
+  clusterPointScale: number;
+  clusterFlareScale: number;
+  coronaRenderScale: number;
+  coronaStrength: number;
+  coronaFalloff: number;
+  coronaCoreStrength: number;
+  coronaCoreFalloff: number;
   rotationSpeed: number;
 };
 
@@ -40,6 +47,13 @@ export function getVortexCoreStyle(maxRadius: number): VortexCoreStyle {
     clusterParticleCount: 64,
     clusterDepth: coreRadius * 1.2,
     clusterPointSize: coreRadius * 0.2,
+    clusterPointScale: 2.7,
+    clusterFlareScale: 1.85,
+    coronaRenderScale: 16,
+    coronaStrength: 0.3,
+    coronaFalloff: 3,
+    coronaCoreStrength: 0.52,
+    coronaCoreFalloff: 18,
     rotationSpeed: 0.075,
   };
 }

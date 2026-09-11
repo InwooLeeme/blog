@@ -1,11 +1,8 @@
 import * as THREE from "three";
 import {
-  getPointerForce,
-  writePointerRelease,
-  writePointerVelocity,
-  type Point,
-  type PointerInfluenceInput,
-} from "./particle-physics";
+  beginVortexDrag, createVortexRotation, dragVortex,
+  endVortexDrag, stepVortexFlowScale, stepVortexRotation,
+} from "./vortex-interaction";
 import {
   fitWebglDpr,
   getParticleFrameInterval,
@@ -15,44 +12,25 @@ import {
   shouldRenderParticleFrame,
 } from "./particle-policy";
 import {
-  advanceVortexOrbit,
   createVortexSeeds,
-  getFrameScale,
-  getPerspectiveScale,
+  getVortexFieldRadius,
+  getVortexHaloStyle,
   getVortexStarLightProfile,
   getVortexStarPointSize,
+  VORTEX_FLOW_INNER_RADIUS,
+  VORTEX_FLOW_OUTER_RADIUS,
+  VORTEX_PATTERN_SPEED,
+  VORTEX_STAR_DRIFT_SPAN,
   VORTEX_STAR_PERSPECTIVE_MAX,
   VORTEX_STAR_PERSPECTIVE_MIN,
-  writeVortexPosition3D,
-  type VortexPoint3D,
-  type VortexSeed,
-  type VortexStep,
 } from "./vortex-field";
 import { createVortexCoreParticles, getVortexCoreStyle } from "./vortex-core";
 
-type StarParticle = VortexSeed & {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-};
-
-type PointerState = {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  active: boolean;
-  dragging: boolean;
-  pointerId: number | null;
-  lastTime: number;
-};
-
 const CAMERA_DISTANCE = 800;
 const STAR_COLORS = [
-  [0.949, 1, 1],
-  [0.467, 0.91, 0.925],
-  [0.533, 0.663, 1],
+  [0.95, 0.98, 1],
+  [0.68, 0.82, 1],
+  [1, 0.72, 0.55],
 ] as const;
 
 const STAR_VERTEX_SHADER = /* glsl */ `
@@ -70,16 +48,100 @@ const STAR_VERTEX_SHADER = /* glsl */ `
 
   void main() {
     vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
-    float twinkle = 0.82 + sin(uTime * 1.35 + aPhase) * 0.18;
+    float twinkle = 0.9 + sin(uTime * (0.35 + fract(aPhase) * 0.5) + aPhase) * 0.1;
     float perspective = clamp(
       ${CAMERA_DISTANCE.toFixed(1)} / -viewPosition.z,
       ${VORTEX_STAR_PERSPECTIVE_MIN.toFixed(2)},
       ${VORTEX_STAR_PERSPECTIVE_MAX.toFixed(2)}
     );
-    gl_PointSize = max(2.0, aSize * uPixelRatio * perspective);
+    gl_PointSize = max(1.0, aSize * uPixelRatio * perspective);
     gl_Position = projectionMatrix * viewPosition;
     vColor = aColor;
     vAlpha = min(1.0, aBrightness * twinkle * uAlphaBoost);
+    vFlare = aFlare;
+  }
+`;
+
+const FLOW_STAR_VERTEX_SHADER = /* glsl */ `
+  attribute float aSize;
+  attribute float aBrightness;
+  attribute float aPhase;
+  attribute float aFlare;
+  attribute float aRadiusRatio;
+  attribute float aAngularSpeed;
+  attribute float aInwardSpeed;
+  attribute vec3 aColor;
+  uniform float uTime;
+  uniform float uFlowTime;
+  uniform float uPixelRatio;
+  uniform float uAlphaBoost;
+  varying vec3 vColor;
+  varying float vAlpha;
+  varying float vFlare;
+
+  void main() {
+    const float innerRadius = ${VORTEX_FLOW_INNER_RADIUS.toFixed(3)};
+    const float outerRadius = ${VORTEX_FLOW_OUTER_RADIUS.toFixed(3)};
+    const float radiusSpan = outerRadius - innerRadius;
+    float travelled = aInwardSpeed * uFlowTime;
+    float flowedRadius = innerRadius + mod(
+      aRadiusRatio - innerRadius - travelled + radiusSpan,
+      radiusSpan
+    );
+    float baseRadius = length(position.xy);
+    float baseAngle = atan(position.y, position.x);
+    float wavePhase = aRadiusRatio * 10.0 + baseAngle * 3.0;
+    float armWave =
+      (sin(uFlowTime * 0.19 + wavePhase) - sin(wavePhase)) * 0.022 +
+      (sin(uFlowTime * 0.11 - wavePhase * 0.53) + sin(wavePhase * 0.53)) * 0.012;
+    float orbitPhase = aPhase + uFlowTime * (0.23 + abs(aAngularSpeed) * 1.7);
+    float radialWobble = sin(orbitPhase + aRadiusRatio * 13.0)
+      * mix(0.006, 0.024, aRadiusRatio);
+    const float patternSpeed = ${VORTEX_PATTERN_SPEED.toFixed(6)};
+    const float driftSpan = ${VORTEX_STAR_DRIFT_SPAN.toFixed(6)};
+    float startProgress = fract(aPhase / 6.28318530718);
+    float driftProgress = fract(
+      startProgress - (aAngularSpeed - patternSpeed) * uFlowTime / driftSpan
+    );
+    float starDrift = (startProgress - driftProgress) * driftSpan;
+    float lifeFade = smoothstep(0.04, 0.1, driftProgress)
+      * (1.0 - smoothstep(0.9, 0.96, driftProgress));
+    float angleOffset =
+      ${(Math.PI * 2.8).toFixed(8)} * (flowedRadius - aRadiusRatio) +
+      patternSpeed * uFlowTime +
+      starDrift +
+      armWave +
+      cos(orbitPhase * 0.81 + aRadiusRatio * 7.0) * 0.025;
+    float cosine = cos(angleOffset);
+    float sine = sin(angleOffset);
+    float radiusScale = flowedRadius * (1.0 + radialWobble)
+      / max(aRadiusRatio, 0.001);
+    vec2 flowedPosition = vec2(
+      position.x * cosine - position.y * sine,
+      position.x * sine + position.y * cosine
+    ) * radiusScale;
+    float depthWave =
+      (sin(uFlowTime * 0.16 + wavePhase * 0.7) - sin(wavePhase * 0.7))
+        * baseRadius * 0.018 +
+      sin(orbitPhase * 0.67 + baseAngle) * baseRadius * 0.012;
+    vec4 viewPosition = modelViewMatrix * vec4(
+      flowedPosition,
+      position.z + depthWave,
+      1.0
+    );
+    float twinkle = 0.9 + sin(uTime * (0.35 + fract(aPhase) * 0.5) + aPhase) * 0.1;
+    float perspective = clamp(
+      ${CAMERA_DISTANCE.toFixed(1)} / -viewPosition.z,
+      ${VORTEX_STAR_PERSPECTIVE_MIN.toFixed(2)},
+      ${VORTEX_STAR_PERSPECTIVE_MAX.toFixed(2)}
+    );
+    float centerFade = smoothstep(innerRadius, 0.09, flowedRadius);
+    float edgeFade = 1.0 - smoothstep(0.94, outerRadius, flowedRadius);
+    gl_PointSize = max(1.0, aSize * uPixelRatio * perspective);
+    gl_Position = projectionMatrix * viewPosition;
+    vColor = aColor;
+    vAlpha = min(1.0, aBrightness * twinkle * uAlphaBoost)
+      * centerFade * edgeFade * lifeFade;
     vFlare = aFlare;
   }
 `;
@@ -126,6 +188,10 @@ const CORONA_VERTEX_SHADER = /* glsl */ `
 
 const CORONA_FRAGMENT_SHADER = /* glsl */ `
   uniform float uTime;
+  uniform float uFalloff;
+  uniform float uStrength;
+  uniform float uCoreFalloff;
+  uniform float uCoreStrength;
   uniform vec3 uColor;
   varying vec2 vUv;
 
@@ -134,24 +200,14 @@ const CORONA_FRAGMENT_SHADER = /* glsl */ `
     float radius = length(point);
     if (radius > 1.0) discard;
 
-    float narrowGlow = (1.0 - smoothstep(0.22, 0.82, radius)) * 0.2;
-    float horizontal = exp(-74.0 * point.y * point.y)
-      * (1.0 - smoothstep(0.16, 1.0, abs(point.x)));
-    float vertical = exp(-74.0 * point.x * point.x)
-      * (1.0 - smoothstep(0.16, 1.0, abs(point.y)));
-    vec2 diagonalPoint = mat2(0.707, -0.707, 0.707, 0.707) * point;
-    float diagonal = exp(-105.0 * diagonalPoint.y * diagonalPoint.y)
-      * (1.0 - smoothstep(0.2, 0.92, abs(diagonalPoint.x)));
-    float pulse = 0.92 + sin(uTime * 0.7) * 0.08;
-    float edgeFade = 1.0 - smoothstep(0.68, 1.0, radius);
-    float alpha = (narrowGlow + horizontal * 0.35 + vertical * 0.35 + diagonal * 0.12)
-      * edgeFade * pulse;
+    float glow = exp(-uFalloff * radius * radius) * uStrength;
+    float coreGlow = exp(-uCoreFalloff * radius * radius) * uCoreStrength;
+    float edgeFade = 1.0 - smoothstep(0.65, 1.0, radius);
+    float pulse = 0.96 + sin(uTime * 0.45) * 0.04;
+    float alpha = (glow + coreGlow) * edgeFade * pulse;
     gl_FragColor = vec4(uColor, alpha);
   }
 `;
-
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(Math.max(value, min), max);
 
 function configureCamera(camera: THREE.PerspectiveCamera, width: number, height: number) {
   camera.aspect = width / height;
@@ -170,18 +226,18 @@ export function mountThreeVortex(
   try {
     renderer = new THREE.WebGLRenderer({
       canvas,
-      alpha: true,
-      antialias: true,
-      depth: true,
+      alpha: false,
+      antialias: false,
+      depth: false,
       powerPreference: "high-performance",
-      premultipliedAlpha: false,
+      premultipliedAlpha: true,
     });
   } catch {
     wrapper.dataset.canvasReady = "false";
     return () => undefined;
   }
 
-  renderer.setClearColor(0x000000, 0);
+  renderer.setClearColor(0x08090b, 1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const scene = new THREE.Scene();
@@ -190,6 +246,7 @@ export function mountThreeVortex(
   const particleLightProfile = getVortexStarLightProfile("orbit");
   const particleUniforms = {
     uTime: { value: 0 },
+    uFlowTime: { value: 0 },
     uPixelRatio: { value: 1 },
     uAlphaBoost: { value: particleLightProfile.alphaBoost },
     uHotCoreRadius: { value: particleLightProfile.hotCoreRadius },
@@ -201,16 +258,49 @@ export function mountThreeVortex(
   };
   const particleMaterial = new THREE.ShaderMaterial({
     uniforms: particleUniforms,
-    vertexShader: STAR_VERTEX_SHADER,
+    vertexShader: FLOW_STAR_VERTEX_SHADER,
     fragmentShader: STAR_FRAGMENT_SHADER,
     transparent: true,
     depthWrite: false,
-    depthTest: true,
+    depthTest: false,
     blending: THREE.AdditiveBlending,
   });
   const particlePoints = new THREE.Points(particleGeometry, particleMaterial);
   particlePoints.frustumCulled = false;
-  scene.add(particlePoints);
+  const galaxy = new THREE.Group();
+  const orientation = new THREE.Group();
+  orientation.rotation.order = "ZXY";
+  orientation.rotation.z = -0.9;
+  galaxy.add(particlePoints);
+  orientation.add(galaxy);
+  scene.add(orientation);
+
+  // A second, sparse point layer gives only the brightest stars a soft halo.
+  const haloGeometry = new THREE.BufferGeometry();
+  const haloMaterial = particleMaterial.clone();
+  haloMaterial.fragmentShader = /* glsl */ `
+    varying vec3 vColor;
+    varying float vAlpha;
+    varying float vFlare;
+    void main() {
+      float radius = length((gl_PointCoord - 0.5) * 2.0);
+      float falloff = mix(7.5, 4.2, vFlare);
+      float glow = exp(-falloff * radius * radius)
+        * (1.0 - smoothstep(0.7, 1.0, radius));
+      float strength = mix(0.1, 0.22, vFlare);
+      gl_FragColor = vec4(vColor, glow * vAlpha * strength);
+    }
+  `;
+  const haloPoints = new THREE.Points(haloGeometry, haloMaterial);
+  haloPoints.frustumCulled = false;
+  galaxy.add(haloPoints);
+
+  const backgroundGeometry = new THREE.BufferGeometry();
+  const backgroundMaterial = particleMaterial.clone();
+  backgroundMaterial.vertexShader = STAR_VERTEX_SHADER;
+  const backgroundPoints = new THREE.Points(backgroundGeometry, backgroundMaterial);
+  backgroundPoints.frustumCulled = false;
+  scene.add(backgroundPoints);
 
   const coreStyle = getVortexCoreStyle(400);
   const coreParticles = createVortexCoreParticles(coreStyle);
@@ -228,7 +318,8 @@ export function mountThreeVortex(
   coreParticles.forEach((particle, index) => {
     corePositions.set([particle.x, particle.y, particle.z], index * 3);
     coreSizes[index] =
-      (particle.size * 2.7 + 1.35) * (particle.flare ? 1.9 : 1);
+      (particle.size * coreStyle.clusterPointScale + 1.35)
+      * (particle.flare ? coreStyle.clusterFlareScale : 1);
     coreBrightness[index] = particle.brightness;
     corePhases[index] = particle.phase;
     coreFlares[index] = particle.flare ? 1 : 0;
@@ -259,7 +350,7 @@ export function mountThreeVortex(
     fragmentShader: STAR_FRAGMENT_SHADER,
     transparent: true,
     depthWrite: false,
-    depthTest: true,
+    depthTest: false,
     blending: THREE.AdditiveBlending,
   });
   const corePoints = new THREE.Points(coreGeometry, coreMaterial);
@@ -268,11 +359,15 @@ export function mountThreeVortex(
 
   const coronaUniforms = {
     uTime: { value: 0 },
+    uFalloff: { value: coreStyle.coronaFalloff },
+    uStrength: { value: coreStyle.coronaStrength },
+    uCoreFalloff: { value: coreStyle.coronaCoreFalloff },
+    uCoreStrength: { value: coreStyle.coronaCoreStrength },
     uColor: { value: new THREE.Color(coreStyle.coreColor) },
   };
   const coronaGeometry = new THREE.PlaneGeometry(
-    coreStyle.coronaRadius * 2,
-    coreStyle.coronaRadius * 2,
+    coreStyle.coronaRadius * coreStyle.coronaRenderScale,
+    coreStyle.coronaRadius * coreStyle.coronaRenderScale,
   );
   const coronaMaterial = new THREE.ShaderMaterial({
     uniforms: coronaUniforms,
@@ -287,16 +382,21 @@ export function mountThreeVortex(
   coronaMesh.renderOrder = 1;
 
   const coreGroup = new THREE.Group();
-  coreGroup.add(coronaMesh, corePoints);
-  scene.add(coreGroup);
+  coreGroup.add(corePoints);
+  galaxy.add(coreGroup);
+  // The halo faces the camera so it never becomes a thin streak when tilted.
+  scene.add(coronaMesh);
 
   let width = 1;
   let height = 1;
   let centerX = 0;
   let centerY = 0;
   let maxRadius = 1;
-  let particles: StarParticle[] = [];
-  let positions = new Float32Array(0);
+  let particleCount = 0;
+  let sceneTime = 0;
+  let flowTime = 0;
+  let flowScale = 1;
+  const rotation = createVortexRotation();
   let frameId = 0;
   let resizeFrameId = 0;
   let lastFrameTime = 0;
@@ -306,130 +406,53 @@ export function mountThreeVortex(
   let intersecting = false;
   const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   let reducedMotion = motionQuery.matches;
-  const pointer: PointerState = {
-    x: 0,
-    y: 0,
-    vx: 0,
-    vy: 0,
-    active: false,
-    dragging: false,
-    pointerId: null,
+  const pointer = {
+    x: 0, y: 0, active: false,
+    pointerId: null as number | null,
     lastTime: 0,
-  };
-  const target: Point = { x: 0, y: 0 };
-  const force: Point = { x: 0, y: 0 };
-  const pointerVelocity: Point = { x: 0, y: 0 };
-  const worldPosition: VortexPoint3D = { x: 0, y: 0, z: 0 };
-  const orbitStep: VortexStep = {
-    angle: 0,
-    radiusRatio: 0,
-    angularSpeed: 0,
-    inwardSpeed: 0,
-    recycled: false,
-  };
-  const forceInput: PointerInfluenceInput = {
-    particle: target,
-    pointer,
-    pointerVelocity,
-    active: false,
-    dragging: false,
-    reducedMotion: false,
-    radius: 94,
-    maxForce: 0.68,
   };
 
   const resetPointer = () => {
+    const capturedId = pointer.pointerId;
     pointer.active = false;
-    pointer.dragging = false;
     pointer.pointerId = null;
-    pointer.vx = 0;
-    pointer.vy = 0;
     pointer.lastTime = 0;
+    endVortexDrag(rotation, true);
+    wrapper.dataset.dragging = "false";
+    if (capturedId !== null && canvas.hasPointerCapture?.(capturedId)) {
+      canvas.releasePointerCapture(capturedId);
+    }
   };
 
-  const writeScreenTarget = (particle: StarParticle) => {
-    writeVortexPosition3D(particle, maxRadius, worldPosition);
-    const perspective = getPerspectiveScale(worldPosition.z, CAMERA_DISTANCE);
-    target.x = centerX + worldPosition.x * perspective;
-    target.y = centerY - worldPosition.y * perspective;
-    return perspective;
-  };
-
-  const writeParticleBuffers = (time: number, animate: boolean) => {
-    const deltaSeconds = animate
-      ? lastFrameTime > 0
-        ? (time - lastFrameTime) / 1000
-        : 1 / 60
-      : 0;
-    const frameScale = getFrameScale(deltaSeconds);
+  const updateScene = (time: number, animate: boolean) => {
+    const delta = animate && lastFrameTime > 0
+      ? Math.min((time - lastFrameTime) / 1000, 0.05) : 0;
     lastFrameTime = animate ? time : 0;
-    const particleDamping = animate ? Math.pow(0.9, frameScale) : 1;
-
     if (animate) {
-      writePointerVelocity(pointer, pointerVelocity);
-      forceInput.active = pointer.active;
-      forceInput.dragging = pointer.dragging;
-      forceInput.reducedMotion = reducedMotion;
-      forceInput.radius = pointer.dragging ? 132 : 94;
-      forceInput.maxForce = pointer.dragging ? 1.95 : 0.68;
+      stepVortexRotation(rotation, delta, reducedMotion);
+      sceneTime += delta;
+      flowScale = stepVortexFlowScale(
+        flowScale,
+        pointer.active || rotation.dragging,
+        delta,
+        reducedMotion,
+      );
+      flowTime += delta * flowScale;
     }
-
-    particles.forEach((particle, index) => {
-      let recycled = false;
-      if (animate) {
-        const nextOrbit = advanceVortexOrbit(particle, deltaSeconds, orbitStep);
-        particle.angle = nextOrbit.angle;
-        particle.radiusRatio = nextOrbit.radiusRatio;
-        recycled = nextOrbit.recycled;
-      }
-
-      const perspective = writeScreenTarget(particle);
-      if (recycled) {
-        particle.x = target.x;
-        particle.y = target.y;
-        particle.vx = 0;
-        particle.vy = 0;
-      } else if (animate) {
-        forceInput.particle = particle;
-        getPointerForce(forceInput, force);
-        particle.vx += ((target.x - particle.x) * 0.014 + force.x) * frameScale;
-        particle.vy += ((target.y - particle.y) * 0.014 + force.y) * frameScale;
-        particle.vx *= particleDamping;
-        particle.vy *= particleDamping;
-        particle.x += particle.vx * frameScale;
-        particle.y += particle.vy * frameScale;
-      } else {
-        particle.x = target.x;
-        particle.y = target.y;
-        particle.vx = 0;
-        particle.vy = 0;
-      }
-
-      const offset = index * 3;
-      positions[offset] = (particle.x - width / 2) / perspective;
-      positions[offset + 1] = -(particle.y - height / 2) / perspective;
-      positions[offset + 2] = worldPosition.z;
-    });
-
-    const positionAttribute = particleGeometry.getAttribute("position") as THREE.BufferAttribute;
-    positionAttribute.needsUpdate = true;
-    particleUniforms.uTime.value = time * 0.001;
-    coreUniforms.uTime.value = time * 0.001;
-    coronaUniforms.uTime.value = time * 0.001;
-
-    if (animate) {
-      corePoints.rotation.y += coreStyle.rotationSpeed * deltaSeconds;
-      corePoints.rotation.x += coreStyle.rotationSpeed * 0.42 * deltaSeconds;
-      coronaMesh.rotation.z -= coreStyle.rotationSpeed * 0.18 * deltaSeconds;
-      const pointerDamping = Math.pow(0.84, frameScale);
-      pointer.vx *= pointerDamping;
-      pointer.vy *= pointerDamping;
-    }
+    orientation.rotation.x = 0.65 + rotation.pitch;
+    galaxy.rotation.z = rotation.yaw;
+    coreGroup.rotation.z = flowTime * -0.085;
+    particleUniforms.uTime.value = sceneTime;
+    particleUniforms.uFlowTime.value = flowTime;
+    haloMaterial.uniforms.uTime.value = sceneTime;
+    haloMaterial.uniforms.uFlowTime.value = flowTime;
+    coreUniforms.uTime.value = sceneTime;
+    coronaUniforms.uTime.value = sceneTime;
   };
 
   const render = (time: number, animate: boolean) => {
     if (contextLost) return;
-    writeParticleBuffers(time, animate);
+    updateScene(time, animate);
     renderer.render(scene, camera);
   };
 
@@ -447,9 +470,11 @@ export function mountThreeVortex(
     const elapsedSincePaint = lastPaintTime > 0
       ? time - lastPaintTime
       : Number.POSITIVE_INFINITY;
-    if (shouldRenderParticleFrame(elapsedSincePaint, pointer.active)) {
+    const interactive = pointer.active || rotation.dragging || Math.abs(rotation.velocityYaw) > 0.01
+      || Math.abs(rotation.velocityPitch) > 0.01;
+    if (shouldRenderParticleFrame(elapsedSincePaint, interactive)) {
       render(time, true);
-      const frameInterval = getParticleFrameInterval(pointer.active);
+      const frameInterval = getParticleFrameInterval(interactive);
       lastPaintTime = Number.isFinite(elapsedSincePaint)
         ? time - (elapsedSincePaint % frameInterval)
         : time;
@@ -469,34 +494,117 @@ export function mountThreeVortex(
   };
 
   const rebuildParticleAttributes = (count: number) => {
-    particles = createVortexSeeds(count).map((seed) => ({
-      ...seed,
-      x: 0,
-      y: 0,
-      vx: 0,
-      vy: 0,
-    }));
-    positions = new Float32Array(count * 3);
+    const seeds = createVortexSeeds(count);
+    const haloCount = seeds.reduce(
+      (total, particle) => total + (getVortexHaloStyle(particle.lightTier) ? 1 : 0),
+      0,
+    );
+    const positions = new Float32Array(count * 3);
     const sizes = new Float32Array(count);
     const brightness = new Float32Array(count);
     const phases = new Float32Array(count);
     const flares = new Float32Array(count);
     const colors = new Float32Array(count * 3);
+    const radiusRatios = new Float32Array(count);
+    const angularSpeeds = new Float32Array(count);
+    const inwardSpeeds = new Float32Array(count);
+    const haloPositions = new Float32Array(haloCount * 3);
+    const haloSizes = new Float32Array(haloCount);
+    const haloBrightness = new Float32Array(haloCount);
+    const haloPhases = new Float32Array(haloCount);
+    const haloFlares = new Float32Array(haloCount);
+    const haloColors = new Float32Array(haloCount * 3);
+    const haloRadiusRatios = new Float32Array(haloCount);
+    const haloAngularSpeeds = new Float32Array(haloCount);
+    const haloInwardSpeeds = new Float32Array(haloCount);
+    let haloIndex = 0;
 
-    particles.forEach((particle, index) => {
+    seeds.forEach((particle, index) => {
+      const radius = particle.radiusRatio * maxRadius;
+      const offset = index * 3;
+      positions[offset] = Math.cos(particle.angle) * radius;
+      positions[offset + 1] = Math.sin(particle.angle) * radius;
+      positions[offset + 2] = particle.depthRatio * maxRadius;
       sizes[index] = getVortexStarPointSize(particle.size, particle.flare);
       brightness[index] = particle.brightness;
       phases[index] = particle.twinklePhase;
       flares[index] = particle.flare ? 1 : 0;
-      colors.set(STAR_COLORS[particle.colorIndex], index * 3);
+      radiusRatios[index] = particle.radiusRatio;
+      angularSpeeds[index] = particle.angularSpeed;
+      inwardSpeeds[index] = particle.inwardSpeed;
+      colors.set(STAR_COLORS[particle.colorIndex], offset);
+      const haloStyle = getVortexHaloStyle(particle.lightTier);
+      if (haloStyle) {
+        const haloOffset = haloIndex * 3;
+        haloPositions.set(positions.subarray(offset, offset + 3), haloOffset);
+        haloSizes[haloIndex] = sizes[index] * haloStyle.scale;
+        haloBrightness[haloIndex] = particle.brightness * haloStyle.brightnessScale;
+        haloPhases[haloIndex] = particle.twinklePhase;
+        haloFlares[haloIndex] = haloStyle.flareMix;
+        haloRadiusRatios[haloIndex] = particle.radiusRatio;
+        haloAngularSpeeds[haloIndex] = particle.angularSpeed;
+        haloInwardSpeeds[haloIndex] = particle.inwardSpeed;
+        haloColors.set(STAR_COLORS[particle.colorIndex], haloOffset);
+        haloIndex += 1;
+      }
     });
 
-    particleGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    particleGeometry.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
-    particleGeometry.setAttribute("aBrightness", new THREE.BufferAttribute(brightness, 1));
-    particleGeometry.setAttribute("aPhase", new THREE.BufferAttribute(phases, 1));
-    particleGeometry.setAttribute("aFlare", new THREE.BufferAttribute(flares, 1));
-    particleGeometry.setAttribute("aColor", new THREE.BufferAttribute(colors, 3));
+    const attributes = {
+      position: new THREE.BufferAttribute(positions, 3),
+      aSize: new THREE.BufferAttribute(sizes, 1),
+      aBrightness: new THREE.BufferAttribute(brightness, 1),
+      aPhase: new THREE.BufferAttribute(phases, 1),
+      aFlare: new THREE.BufferAttribute(flares, 1),
+      aRadiusRatio: new THREE.BufferAttribute(radiusRatios, 1),
+      aAngularSpeed: new THREE.BufferAttribute(angularSpeeds, 1),
+      aInwardSpeed: new THREE.BufferAttribute(inwardSpeeds, 1),
+      aColor: new THREE.BufferAttribute(colors, 3),
+    };
+    // Dispose old GPU buffers before replacement (also on responsive resizes).
+    particleGeometry.dispose();
+    haloGeometry.dispose();
+    Object.entries(attributes).forEach(([name, attribute]) => {
+      particleGeometry.setAttribute(name, attribute);
+    });
+    // Upload only visible halos; regular stars never allocate transparent halo vertices.
+    haloGeometry.setAttribute("position", new THREE.BufferAttribute(haloPositions, 3));
+    haloGeometry.setAttribute("aSize", new THREE.BufferAttribute(haloSizes, 1));
+    haloGeometry.setAttribute("aBrightness", new THREE.BufferAttribute(haloBrightness, 1));
+    haloGeometry.setAttribute("aPhase", new THREE.BufferAttribute(haloPhases, 1));
+    haloGeometry.setAttribute("aFlare", new THREE.BufferAttribute(haloFlares, 1));
+    haloGeometry.setAttribute("aRadiusRatio", new THREE.BufferAttribute(haloRadiusRatios, 1));
+    haloGeometry.setAttribute("aAngularSpeed", new THREE.BufferAttribute(haloAngularSpeeds, 1));
+    haloGeometry.setAttribute("aInwardSpeed", new THREE.BufferAttribute(haloInwardSpeeds, 1));
+    haloGeometry.setAttribute("aColor", new THREE.BufferAttribute(haloColors, 3));
+    particleCount = count;
+  };
+
+  const rebuildBackground = (count: number) => {
+    const seeds = createVortexSeeds(count, 413);
+    const positions = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
+    const brightness = new Float32Array(count);
+    const phases = new Float32Array(count);
+    const colors = new Float32Array(count * 3);
+    seeds.forEach((seed, index) => {
+      // Hashes of the stable seed distribute the distant field over the canvas.
+      const x = Math.sin(index * 127.1 + 31) * 43758.5453;
+      const y = Math.sin(index * 269.5 + 17) * 43758.5453;
+      positions[index * 3] = ((x - Math.floor(x)) - 0.5) * width * 1.4;
+      positions[index * 3 + 1] = ((y - Math.floor(y)) - 0.5) * height * 1.4;
+      positions[index * 3 + 2] = -300;
+      sizes[index] = seed.flare ? 3.4 : 1.2 + seed.size * 0.45;
+      brightness[index] = seed.flare ? 0.5 : 0.12 + seed.brightness * 0.22;
+      phases[index] = seed.twinklePhase;
+      colors.set(STAR_COLORS[seed.colorIndex], index * 3);
+    });
+    backgroundGeometry.dispose();
+    backgroundGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    backgroundGeometry.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
+    backgroundGeometry.setAttribute("aBrightness", new THREE.BufferAttribute(brightness, 1));
+    backgroundGeometry.setAttribute("aPhase", new THREE.BufferAttribute(phases, 1));
+    backgroundGeometry.setAttribute("aFlare", new THREE.BufferAttribute(new Float32Array(count), 1));
+    backgroundGeometry.setAttribute("aColor", new THREE.BufferAttribute(colors, 3));
   };
 
   const rebuild = () => {
@@ -507,9 +615,9 @@ export function mountThreeVortex(
     const rect = canvas.getBoundingClientRect();
     width = Math.max(1, Math.round(rect.width));
     height = Math.max(1, Math.round(rect.height));
-    centerX = width * (document.documentElement.clientWidth < 768 ? 0.5 : 0.54);
+    centerX = width * (document.documentElement.clientWidth < 768 ? 0.5 : 0.68);
     centerY = height * 0.46;
-    maxRadius = Math.min(width * 0.49, height * 0.66);
+    maxRadius = getVortexFieldRadius(width, height);
 
     const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
     const policy = getParticlePolicy(viewportWidth, window.devicePixelRatio);
@@ -520,25 +628,19 @@ export function mountThreeVortex(
     particleUniforms.uPixelRatio.value = renderDpr;
     coreUniforms.uPixelRatio.value = renderDpr;
 
-    if (particles.length !== policy.maxParticles) {
-      rebuildParticleAttributes(policy.maxParticles);
-    }
+    haloMaterial.uniforms.uPixelRatio.value = renderDpr;
+    backgroundMaterial.uniforms.uPixelRatio.value = renderDpr;
+    rebuildParticleAttributes(policy.maxParticles);
+    rebuildBackground(viewportWidth < 768 ? 160 : 360);
 
-    coreGroup.position.set(centerX - width / 2, height / 2 - centerY, 0);
+    orientation.position.set(centerX - width / 2, height / 2 - centerY, 0);
+    coronaMesh.position.copy(orientation.position);
     const responsiveCoreStyle = getVortexCoreStyle(maxRadius);
     const coreScale = responsiveCoreStyle.coreRadius / coreStyle.coreRadius;
     corePoints.scale.setScalar(coreScale);
     coronaMesh.scale.setScalar(coreScale);
 
-    particles.forEach((particle) => {
-      writeScreenTarget(particle);
-      particle.x = target.x;
-      particle.y = target.y;
-      particle.vx = 0;
-      particle.vy = 0;
-    });
-
-    wrapper.dataset.canvasReady = particles.length > 0 ? "true" : "false";
+    wrapper.dataset.canvasReady = particleCount > 0 ? "true" : "false";
     render(0, false);
     syncAnimation();
   };
@@ -552,73 +654,58 @@ export function mountThreeVortex(
   };
 
   const updatePointer = (event: PointerEvent) => {
-    const rect = canvas.getBoundingClientRect();
-    const nextX = event.clientX - rect.left;
-    const nextY = event.clientY - rect.top;
     const now = event.timeStamp || performance.now();
-    const elapsed = pointer.lastTime > 0 ? Math.max(now - pointer.lastTime, 1) : 16.67;
-    pointer.vx = clamp(((nextX - pointer.x) / elapsed) * 16.67, -32, 32);
-    pointer.vy = clamp(((nextY - pointer.y) / elapsed) * 16.67, -32, 32);
-    pointer.x = nextX;
-    pointer.y = nextY;
+    if (rotation.dragging) {
+      dragVortex(rotation, event.clientX - pointer.x, event.clientY - pointer.y,
+        width, height, Math.max((now - pointer.lastTime) / 1000, 1 / 120));
+    }
+    pointer.x = event.clientX;
+    pointer.y = event.clientY;
     pointer.lastTime = now;
-    pointer.active = true;
+    pointer.active = event.pointerType !== "touch";
   };
 
   const cancelPointer = (event?: PointerEvent) => {
-    if (
-      event &&
-      pointer.pointerId !== null &&
-      event.pointerId !== pointer.pointerId
-    ) return;
-    const capturedId = pointer.pointerId;
+    if (event && event.pointerId !== pointer.pointerId) return;
     resetPointer();
-    if (capturedId !== null && canvas.hasPointerCapture?.(capturedId)) {
-      canvas.releasePointerCapture(capturedId);
-    }
   };
-
-  const handlePointerEnter = (event: PointerEvent) => updatePointer(event);
+  const handlePointerEnter = (event: PointerEvent) => {
+    if (pointer.pointerId === null && event.isPrimary) updatePointer(event);
+  };
+  const handlePointerLeave = () => {
+    if (pointer.pointerId === null) pointer.active = false;
+  };
   const handlePointerMove = (event: PointerEvent) => {
-    if (pointer.pointerId !== null && event.pointerId !== pointer.pointerId) return;
-    if (
-      pointer.dragging &&
-      !isPointInsideRect(
-        { x: event.clientX, y: event.clientY },
-        canvas.getBoundingClientRect(),
-      )
-    ) {
-      cancelPointer(event);
-      return;
-    }
+    if (!event.isPrimary || (pointer.pointerId !== null && event.pointerId !== pointer.pointerId)) return;
     updatePointer(event);
   };
   const handlePointerDown = (event: PointerEvent) => {
-    if (!event.isPrimary || reducedMotion) return;
+    if (!event.isPrimary || event.button !== 0 || reducedMotion || contextLost || pointer.pointerId !== null) return;
     updatePointer(event);
-    pointer.dragging = true;
+    beginVortexDrag(rotation);
     pointer.pointerId = event.pointerId;
+    wrapper.dataset.dragging = "true";
     try {
       canvas.setPointerCapture(event.pointerId);
     } catch {
-      // Pointer capture is progressive enhancement; native events still work.
+      // Window-level release handlers still end drags when capture is unavailable.
     }
   };
   const handlePointerUp = (event: PointerEvent) => {
-    if (pointer.pointerId !== null && event.pointerId !== pointer.pointerId) return;
+    if (pointer.pointerId === null || event.pointerId !== pointer.pointerId) return;
+    // Do not replace the last drag velocity with a zero-distance pointerup sample.
+    if (event.timeStamp - pointer.lastTime > 100) rotation.secondsSinceMove = 1;
+    endVortexDrag(rotation);
     const capturedId = pointer.pointerId;
-    updatePointer(event);
-    const keepHover = isPointInsideRect(
-      { x: event.clientX, y: event.clientY },
-      canvas.getBoundingClientRect(),
+    pointer.pointerId = null;
+    pointer.active = event.pointerType !== "touch" && isPointInsideRect(
+      { x: event.clientX, y: event.clientY }, canvas.getBoundingClientRect(),
     );
-    writePointerRelease(pointer, keepHover);
-    if (capturedId !== null && canvas.hasPointerCapture?.(capturedId)) {
-      canvas.releasePointerCapture(capturedId);
-    }
+    wrapper.dataset.dragging = "false";
+    if (canvas.hasPointerCapture?.(capturedId)) canvas.releasePointerCapture(capturedId);
   };
   const handleLostPointerCapture = () => {
-    if (pointer.dragging) resetPointer();
+    if (rotation.dragging) resetPointer();
   };
   const handleVisibility = () => {
     if (document.visibilityState !== "visible") resetPointer();
@@ -631,6 +718,7 @@ export function mountThreeVortex(
   };
   const handleContextLost = (event: Event) => {
     event.preventDefault();
+    resetPointer();
     contextLost = true;
     wrapper.dataset.canvasReady = "false";
     if (frameId) window.cancelAnimationFrame(frameId);
@@ -652,10 +740,10 @@ export function mountThreeVortex(
   canvas.addEventListener("pointerenter", handlePointerEnter);
   canvas.addEventListener("pointermove", handlePointerMove);
   canvas.addEventListener("pointerdown", handlePointerDown);
-  canvas.addEventListener("pointerup", handlePointerUp);
-  canvas.addEventListener("pointercancel", cancelPointer);
+  window.addEventListener("pointerup", handlePointerUp);
+  window.addEventListener("pointercancel", cancelPointer);
   canvas.addEventListener("lostpointercapture", handleLostPointerCapture);
-  canvas.addEventListener("pointerleave", cancelPointer);
+  canvas.addEventListener("pointerleave", handlePointerLeave);
   canvas.addEventListener("webglcontextlost", handleContextLost);
   canvas.addEventListener("webglcontextrestored", handleContextRestored);
   window.addEventListener("blur", resetPointer);
@@ -675,10 +763,10 @@ export function mountThreeVortex(
     canvas.removeEventListener("pointerenter", handlePointerEnter);
     canvas.removeEventListener("pointermove", handlePointerMove);
     canvas.removeEventListener("pointerdown", handlePointerDown);
-    canvas.removeEventListener("pointerup", handlePointerUp);
-    canvas.removeEventListener("pointercancel", cancelPointer);
+    window.removeEventListener("pointerup", handlePointerUp);
+    window.removeEventListener("pointercancel", cancelPointer);
     canvas.removeEventListener("lostpointercapture", handleLostPointerCapture);
-    canvas.removeEventListener("pointerleave", cancelPointer);
+    canvas.removeEventListener("pointerleave", handlePointerLeave);
     canvas.removeEventListener("webglcontextlost", handleContextLost);
     canvas.removeEventListener("webglcontextrestored", handleContextRestored);
     window.removeEventListener("blur", resetPointer);
@@ -690,6 +778,10 @@ export function mountThreeVortex(
     coreMaterial.dispose();
     coronaGeometry.dispose();
     coronaMaterial.dispose();
+    haloGeometry.dispose();
+    haloMaterial.dispose();
+    backgroundGeometry.dispose();
+    backgroundMaterial.dispose();
     renderer.dispose();
   };
 }

@@ -78,7 +78,7 @@ export function getParticlePolicy(
 
   return {
     dpr: Math.min(Math.max(safeDpr, 1), mobile ? 1.5 : 1.75),
-    maxParticles: mobile ? 420 : 560,
+    maxParticles: mobile ? 2400 : 5600,
     sampleGap: mobile ? 6 : 5,
   };
 }

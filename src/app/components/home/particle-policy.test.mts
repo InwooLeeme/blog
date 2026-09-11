@@ -39,7 +39,7 @@ test("fitWebglDpr: GPU 렌더링은 선명도를 유지하면서 픽셀 예산�
 test("getParticlePolicy: 모바일 예산과 DPR을 제한한다", () => {
   assert.deepEqual(getParticlePolicy(390, 3), {
     dpr: 1.5,
-    maxParticles: 420,
+    maxParticles: 2400,
     sampleGap: 6,
   });
 });
@@ -47,14 +47,14 @@ test("getParticlePolicy: 모바일 예산과 DPR을 제한한다", () => {
 test("getParticlePolicy: 데스크톱 예산과 DPR을 제한한다", () => {
   assert.deepEqual(getParticlePolicy(1440, 2), {
     dpr: 1.75,
-    maxParticles: 560,
+    maxParticles: 5600,
     sampleGap: 5,
   });
 });
 
 test("getParticlePolicy: 767px와 768px에서 모바일·데스크톱 정책을 나눈다", () => {
-  assert.equal(getParticlePolicy(767, 2).maxParticles, 420);
-  assert.equal(getParticlePolicy(768, 2).maxParticles, 560);
+  assert.equal(getParticlePolicy(767, 2).maxParticles, 2400);
+  assert.equal(getParticlePolicy(768, 2).maxParticles, 5600);
 });
 
 test("getParticlePolicy: 비정상 DPR도 안전한 범위로 정규화한다", () => {

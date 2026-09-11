@@ -190,14 +190,17 @@ body{ margin: 0; }
 
 /* 홈의 별 소용돌이 — CSS 별무리는 WebGL 초기화 실패 시 남는다. */
 .particle-vortex {
-  --vortex-center-x: 54%;
+  --vortex-center-x: 68%;
   background: transparent;
 }
 .particle-vortex-canvas {
-  cursor: crosshair;
+  cursor: grab;
   opacity: 0;
   touch-action: pan-y;
   transition: opacity 500ms ease;
+}
+.particle-vortex[data-dragging="true"] .particle-vortex-canvas {
+  cursor: grabbing;
 }
 .particle-vortex[data-canvas-ready="true"] .particle-vortex-canvas {
   opacity: 1;

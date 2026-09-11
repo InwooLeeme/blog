@@ -18,20 +18,37 @@ test("getVortexCoreStyle: 중심 항성을 주변 별보다 크지만 소용돌�
   );
 
   assert.ok(style.coreRadius > largestOrbitStar);
-  assert.ok(style.coreRadius <= largestOrbitStar * 4);
+  assert.ok(style.coreRadius <= largestOrbitStar * 5);
   assert.ok(style.coronaRadius > style.coreRadius);
   assert.ok(style.coronaRadius <= style.coreRadius * 2.8);
   assert.equal(style.coreColor, "#f2ffff");
 });
 
 test("getVortexCoreStyle: 단일 구체 대신 깊이가 있는 조밀한 항성군 값을 제공한다", () => {
-  const style = getVortexCoreStyle(400);
+  const style = getVortexCoreStyle(400) as ReturnType<typeof getVortexCoreStyle> & {
+    clusterPointScale?: number;
+    clusterFlareScale?: number;
+    coronaRenderScale?: number;
+    coronaStrength?: number;
+    coronaFalloff?: number;
+    coronaCoreStrength?: number;
+    coronaCoreFalloff?: number;
+  };
 
   assert.ok(style.clusterParticleCount >= 48 && style.clusterParticleCount <= 96);
   assert.ok(style.clusterDepth >= style.coreRadius);
   assert.ok(style.clusterPointSize > 0 && style.clusterPointSize < style.coreRadius);
   assert.ok(style.rotationSpeed > 0 && style.rotationSpeed < 0.25);
   assert.notEqual(style.coreColor, style.edgeColor);
+  assert.ok((style.clusterPointScale ?? 0) >= 2.5);
+  assert.ok((style.clusterFlareScale ?? 0) >= 1.7);
+  assert.ok((style.coronaRenderScale ?? 0) >= 14);
+  assert.ok((style.coronaStrength ?? 0) >= 0.25);
+  assert.ok((style.coronaStrength ?? Number.POSITIVE_INFINITY) <= 0.35);
+  assert.ok((style.coronaFalloff ?? 0) >= 2.5);
+  assert.ok((style.coronaFalloff ?? Number.POSITIVE_INFINITY) <= 3.5);
+  assert.ok((style.coronaCoreStrength ?? 0) >= 0.45);
+  assert.ok((style.coronaCoreFalloff ?? 0) >= 14);
 });
 
 test("createVortexCoreParticles: 결정적인 구형 분포로 중심 항성의 앞뒤 깊이를 만든다", () => {

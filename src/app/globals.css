@@ -299,24 +299,3 @@ article :is(h2,h3,h4){ scroll-margin-top: 6rem; }
     to { opacity: 1; transform: translateY(0); }
   }
 }
-
-/* Profile 내비 항목 — 마우스오버/포커스 시 한 번 대각선으로 흔들림 (상시 반복 애니메이션은 시선을 계속 뺏어 제거) */
-@keyframes diagonal-shake {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  15%  { transform: translate(2.5px, -2.5px) rotate(-9deg); }
-  30%  { transform: translate(-2.5px, 2.5px) rotate(9deg); }
-  45%  { transform: translate(2.5px, -2px) rotate(-8deg); }
-  60% { transform: translate(-2.5px, 2px) rotate(8deg); }
-  75% { transform: translate(2px, -1.5px) rotate(-6deg); }
-  90% { transform: translate(-1.5px, 1.5px) rotate(5deg); }
-}
-.hover-diagonal-shake {
-  display: inline-block;
-}
-.group\/navitem:hover .hover-diagonal-shake,
-.group\/navitem:focus-visible .hover-diagonal-shake {
-  animation: diagonal-shake 0.8s ease-in-out 1;
-}
-@media (prefers-reduced-motion: reduce) {
-  .hover-diagonal-shake { animation: none; }
-}

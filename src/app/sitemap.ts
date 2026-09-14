@@ -17,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/notes",
     "/til",
     "/playground",
+    "/playground/pathfinding",
     "/graph",
   ].map((path) => ({
     url: `${base}${path}`,

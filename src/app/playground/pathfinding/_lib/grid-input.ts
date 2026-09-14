@@ -1,5 +1,9 @@
 type Rect = { left: number; top: number; width: number; height: number };
 
+export function canEditGrid(locked: boolean, panMode: boolean) {
+  return !locked && !panMode;
+}
+
 export function cellFromPoint(x: number, y: number, rect: Rect, cols: number, rows: number): number | null {
   if (rect.width <= 0 || rect.height <= 0 || !Number.isFinite(x) || !Number.isFinite(y)) return null;
   const col = Math.floor((x - rect.left) / rect.width * cols);

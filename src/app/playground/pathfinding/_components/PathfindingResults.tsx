@@ -1,5 +1,5 @@
 import type { PlaygroundState } from "../_lib/playground-state";
-import { ALGORITHMS } from "./PathfindingControls";
+import { ALGORITHMS } from "../_lib/algorithms";
 
 export default function PathfindingResults({ state }: { state: PlaygroundState }) {
   const done = state.status === "complete";

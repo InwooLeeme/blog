@@ -10,6 +10,13 @@ assert.equal(cells.length, 315, "21×15 격자를 서버에서 렌더링해야 �
 assert.equal(cells.filter((cell) => cell.includes('tabindex="0"')).length, 1, "격자는 하나의 탭 진입점만 가져야 합니다");
 assert.match(page, /aria-label="8행 4열, 시작점"/);
 assert.match(page, /aria-label="8행 18열, 도착점"/);
+const settingsPosition = page.indexOf('aria-label="탐색 설정"');
+const gridPosition = page.indexOf('aria-label="경로 탐색 지도"');
+const transportPosition = page.indexOf('aria-label="탐색 재생"');
+const resultsPosition = page.indexOf('aria-label="탐색 결과"');
+assert.ok(settingsPosition >= 0 && settingsPosition < gridPosition && gridPosition < transportPosition && transportPosition < resultsPosition, "설정 → 지도 → 실행 → 결과 순서로 조작할 수 있어야 합니다");
+assert.ok(/<details\b[^>]*id="pathfinding-help"[^>]*>/.test(page), "상세 도움말은 접을 수 있어야 합니다");
+assert.ok(!/<details\b[^>]*id="pathfinding-help"[^>]*\bopen/.test(page), "상세 도움말은 기본적으로 접혀 있어야 합니다");
 assert.match(page, /rel="canonical" href="[^"]*\/playground\/pathfinding"/);
 assert.match(entry, /href="\/playground\/pathfinding"/);
 assert.match(entry, /href="\/playground\/effects"/, "메인에서 이펙트 실험을 선택할 수 있어야 합니다");

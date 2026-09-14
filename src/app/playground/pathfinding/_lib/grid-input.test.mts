@@ -1,6 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { cellFromPoint, cellsOnLine, moveCell } from "./grid-input.ts";
+import * as input from "./grid-input.ts";
+
+test("격자 편집 정책: 화면 이동 모드와 재생 잠금에서는 입력 방식과 무관하게 편집을 막는다", () => {
+  assert.equal(typeof input.canEditGrid, "function");
+  assert.equal(input.canEditGrid(false, false), true);
+  assert.equal(input.canEditGrid(false, true), false);
+  assert.equal(input.canEditGrid(true, false), false);
+  assert.equal(input.canEditGrid(true, true), false);
+});
 
 test("격자 좌표: 스크롤된 사각형의 상대 좌표로 셀을 구하고 밖은 무시한다", () => {
   const rect = { left: -100, top: 50, width: 210, height: 150 };

@@ -4,7 +4,7 @@ import * as ko from "./about.ts";
 import * as en from "./about.en.ts";
 import { getPostSlugs } from "./posts.ts";
 
-test("projects: 임팩트순으로 정렬된다", () => {
+test("projects: 크롤링 프로젝트를 제외하고 임팩트순으로 정렬된다", () => {
   assert.deepEqual(
     ko.projects.map((p) => p.name),
     [
@@ -13,7 +13,6 @@ test("projects: 임팩트순으로 정렬된다", () => {
       "개발자 소득 분석 파이프라인",
       "AI 포트폴리오 챗봇",
       "개인 알고리즘·기술 블로그",
-      "Daum 뉴스 크롤러",
     ],
   );
   assert.deepEqual(
@@ -24,7 +23,6 @@ test("projects: 임팩트순으로 정렬된다", () => {
       "Developer Income Analysis Pipeline",
       "AI Portfolio Chatbot",
       "Personal Algorithm & Dev Blog",
-      "Daum News Crawler",
     ],
   );
 });
@@ -47,6 +45,30 @@ test("projects: ko/en 구조가 1:1로 대응한다", () => {
     assert.equal(k.accent, e.accent, `${k.name}: accent 불일치`);
     assert.equal(k.image, e.image, `${k.name}: image 불일치`);
   });
+});
+
+test("개발자 소득 분석 파이프라인: 주요 기술 스택을 노출한다", () => {
+  const expectedTech = [
+    "Python",
+    "Pandas",
+    "Polars",
+    "NumPy",
+    "SciPy",
+    "scikit-learn",
+    "Seaborn",
+    "Matplotlib",
+    "Plotly Dash",
+    "pytest",
+    "Ruff",
+    "Docker",
+    "Gunicorn",
+  ];
+
+  const koProject = ko.projects.find((project) => project.name === "개발자 소득 분석 파이프라인");
+  const enProject = en.projects.find((project) => project.name === "Developer Income Analysis Pipeline");
+
+  assert.deepEqual(koProject?.tech, expectedTech);
+  assert.deepEqual(enProject?.tech, expectedTech);
 });
 
 test("projects: 내부 링크는 type이 post이고 실제 글 파일을 가리킨다", () => {

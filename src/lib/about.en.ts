@@ -157,13 +157,27 @@ export const projects: Project[] = [
     name: "Developer Income Analysis Pipeline",
     meta: "2026 · 6-person team project",
     highlights: [
-      "End-to-end data analysis pipeline testing whether developers favorable toward AI tools earn differently, using the Stack Overflow 2024 Developer Survey",
-      "Automated eight stages as scripts: loading, preprocessing, descriptive stats, visualization, hypothesis testing, regression, cross-validation, and report generation",
-      "Tested the salary gap with Welch's t-test (α=0.05) and Cohen's d, then isolated the effect of AI sentiment via RidgeCV multivariate regression controlling for country, experience, role, education, org size, remote work, and age",
-      "Benchmarked Pandas vs Polars on loading/filtering/aggregation in stage 0, and validated that both libraries agree (shape, missing values) in stage 1",
-      "Auto-generated static Seaborn charts, interactive Plotly charts, trained models (.joblib), and a report.md analysis report",
+      "Built a reproducible end-to-end pipeline that preprocesses 65,437 Stack Overflow 2024 Developer Survey responses into 17,535 records to analyze whether AI-favorable developers earn differently",
+      "Found that the AI-favorable group earned $7,103 less on average; the difference was significant by Welch's t-test but small in magnitude with Cohen's d of -0.114",
+      "Improved test R² from 0.5563 to 0.5920 with an extended RidgeCV model covering country, experience, role, education, org size, work mode, and age, while documenting that the result is not causal",
+      "Benchmarked Pandas and Polars for loading, filtering, and aggregation, checked matching shapes and null counts for selected columns, and automated the workflow from preprocessing to Markdown reporting as stages 0–8",
+      "Built a Dash dashboard with country, experience, role, and AI-sentiment filters, KPIs, and Plotly charts, packaged for Docker Compose and Gunicorn",
     ],
-    tech: ["Python", "Pandas", "Polars", "scikit-learn", "SciPy", "Seaborn", "Plotly", "pytest", "Ruff"],
+    tech: [
+      "Python",
+      "Pandas",
+      "Polars",
+      "NumPy",
+      "SciPy",
+      "scikit-learn",
+      "Seaborn",
+      "Matplotlib",
+      "Plotly Dash",
+      "pytest",
+      "Ruff",
+      "Docker",
+      "Gunicorn",
+    ],
     links: [
       {
         label: "GitHub",
@@ -218,24 +232,6 @@ export const projects: Project[] = [
     ],
     image: "https://inwooleeme.github.io/assets/projects/BlogThumbnail.png",
     accent: "#f43f5e",
-  },
-  {
-    name: "Daum News Crawler",
-    meta: "2024",
-    highlights: [
-      "A web scraper collecting article data from the Daum news portal",
-      "Extracts title, body, timestamp, outlet, and reporter name",
-      "BeautifulSoup + requests; structures collected data as JSON",
-    ],
-    tech: ["Python", "BeautifulSoup", "requests"],
-    links: [
-      {
-        label: "GitHub",
-        href: "https://github.com/InwooLeeme/daum_news_crawling",
-        type: "github",
-      },
-    ],
-    accent: "#d97706",
   },
 ];
 

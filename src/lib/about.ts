@@ -230,13 +230,27 @@ export const projects: Project[] = [
     name: "개발자 소득 분석 파이프라인",
     meta: "2026 · 6인 팀 프로젝트",
     highlights: [
-      "Stack Overflow 2024 개발자 설문으로 \"AI 도구에 우호적인 개발자는 연봉이 다른가\"를 검증한 End-to-End 데이터 분석 파이프라인",
-      "데이터 로딩·전처리·기술통계·시각화·가설검정·회귀·교차검증·리포트 생성 8단계 스크립트 자동화",
-      "Welch's t-test(α=0.05)와 Cohen's d로 집단 간 연봉 차이 검정, RidgeCV 다변량 회귀로 국가·경력·직군·학력·조직 규모·재택·나이를 통제해 AI 태도의 효과 분리",
-      "0단계에서 Pandas·Polars 로딩/필터링/집계 성능 벤치마크, 1단계에서 두 라이브러리 결과 일치 검증(shape·결측치)",
-      "Seaborn 정적 차트, Plotly 인터랙티브 차트, 학습 모델(.joblib), 분석 리포트(report.md) 자동 생성",
+      "Stack Overflow 2024 개발자 설문 원본 65,437건을 전처리해 17,535건으로 \"AI 도구에 우호적인 개발자는 연봉이 다른가\"를 분석한 재현 가능한 End-to-End 파이프라인",
+      "AI 우호 그룹의 평균 연봉이 그 외 그룹보다 $7,103 낮았으며, Welch's t-test에서는 유의했지만 Cohen's d는 -0.114로 효과크기가 작음을 함께 제시",
+      "국가·경력·직군·학력·조직 규모·근무 형태·연령을 포함한 RidgeCV 확장 모델로 테스트 R²를 0.5563에서 0.5920으로 개선하고 인과관계로 단정할 수 없는 한계 명시",
+      "Pandas·Polars의 로딩·필터·집계 성능을 비교하고 shape와 관심 컬럼 결측치 집계의 일치를 확인했으며, 전처리부터 마크다운 리포트 생성까지 0~8단계 모듈로 자동화",
+      "국가·경력·직군·AI 태도 필터와 KPI·Plotly 차트를 제공하는 Dash 대시보드를 구축하고 Docker Compose·Gunicorn 실행 환경 구성",
     ],
-    tech: ["Python", "Pandas", "Polars", "scikit-learn", "SciPy", "Seaborn", "Plotly", "pytest", "Ruff"],
+    tech: [
+      "Python",
+      "Pandas",
+      "Polars",
+      "NumPy",
+      "SciPy",
+      "scikit-learn",
+      "Seaborn",
+      "Matplotlib",
+      "Plotly Dash",
+      "pytest",
+      "Ruff",
+      "Docker",
+      "Gunicorn",
+    ],
     links: [
       {
         label: "GitHub",
@@ -291,24 +305,6 @@ export const projects: Project[] = [
     ],
     image: "https://inwooleeme.github.io/assets/projects/BlogThumbnail.png",
     accent: "#f43f5e",
-  },
-  {
-    name: "Daum 뉴스 크롤러",
-    meta: "2024",
-    highlights: [
-      "Daum 뉴스 포털에서 기사 데이터를 수집하는 웹 스크래퍼",
-      "기사 제목·본문·작성 시각·언론사·기자명 등 추출",
-      "BeautifulSoup + requests 기반, 수집 데이터를 JSON으로 구조화",
-    ],
-    tech: ["Python", "BeautifulSoup", "requests"],
-    links: [
-      {
-        label: "GitHub",
-        href: "https://github.com/InwooLeeme/daum_news_crawling",
-        type: "github",
-      },
-    ],
-    accent: "#d97706",
   },
 ];
 

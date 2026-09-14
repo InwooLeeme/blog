@@ -15,9 +15,7 @@ export default function NotesIndexContent({ categoryCount, noteCount }: Props) {
     return (
       <p>
         A collection of algorithm implementations I use often — {categoryCount} categories,{" "}
-        {noteCount} notes. Pick an item from the tree on the left, or press{" "}
-        <kbd>⌘</kbd>
-        <kbd>K</kbd> to search by name.
+        {noteCount} notes. Expand a category to choose a note, or use the search at the top.
       </p>
     );
   }
@@ -25,8 +23,7 @@ export default function NotesIndexContent({ categoryCount, noteCount }: Props) {
   return (
     <p>
       자주 쓰는 알고리즘 구현 코드를 모아둔 공간입니다 — {categoryCount}개 카테고리, {noteCount}개
-      노트. 왼쪽 트리에서 항목을 선택하거나, <kbd>⌘</kbd>
-      <kbd>K</kbd>로 이름을 검색하세요.
+      노트. 카테고리를 펼쳐 노트를 선택하거나 상단 검색을 이용하세요.
     </p>
   );
 }

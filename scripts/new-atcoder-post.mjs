@@ -73,7 +73,7 @@ async function main() {
     return;
   }
 
-  const frontmatter = ["---", `title: "${title}"`, `date: "${date}"`, `summary: "${title} 풀이"`, "tags: [AtCoder]", `series: "${series}"`, "draft: true", 'cover: ""', "---"].join(
+  const frontmatter = ["---", `title: "${title}"`, `date: "${date}"`, `summary: "${title} 풀이"`, "tags: [AtCoder]", 'kind: "solve-log"', `series: "${series}"`, "draft: true", 'cover: ""', "---"].join(
     "\n",
   );
 

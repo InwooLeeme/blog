@@ -6,6 +6,7 @@ import {
   getAllTags,
   getTagCounts,
   getPostItemsByTag,
+  getPostItemsByKind,
   getPostBySlug,
   getPostSlugs,
   getPostsBySeries,
@@ -23,6 +24,32 @@ function makePost(slug: string, overrides: Partial<PostMeta> = {}): PostItem {
     meta: { title: slug, date: "2024-01-01", ...overrides },
   };
 }
+
+test("getPostItemsByKind: 개발 연재와 분류 없는 글은 아티클에 남는다", () => {
+  const fixture = [
+    makePost("standalone"),
+    makePost("nextjs-part-1", { series: "Next.js 연재" }),
+    makePost("explicit-article", { kind: "article", series: "개발 일지" }),
+    makePost("solution", { kind: "solve-log", series: "문제 풀이" }),
+  ];
+  assert.deepEqual(getPostItemsByKind(fixture, "article").map((p) => p.slug), [
+    "standalone", "nextjs-part-1", "explicit-article",
+  ]);
+});
+
+test("getPostItemsByKind: 시리즈 없는 풀이도 포함하고 입력 순서를 보존한다", () => {
+  const fixture = [
+    makePost("standalone-solution", { kind: "solve-log" }),
+    makePost("article", { kind: "article" }),
+    makePost("series-solution", { kind: "solve-log", series: "풀이 연재" }),
+  ];
+  const original = [...fixture];
+  assert.deepEqual(getPostItemsByKind(fixture, "solve-log").map((p) => p.slug), [
+    "standalone-solution", "series-solution",
+  ]);
+  assert.deepEqual(fixture, original);
+  assert.deepEqual(getPostItemsByKind([], "solve-log"), []);
+});
 
 test("getAllTags: dedupes and sorts tags", () => {
   const fixture = [

@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { navLinks, siteConfig, isActivePath, resolveNavLabel } from "@/lib/site";
 import { subscribeToScroll } from "./scroll-subscriber";
 import { nextHeaderScrolled } from "./scroll-visibility";
+import { isPostDetailPath } from "./reading-progress";
 
 interface IHeader {
   title: string | undefined;
@@ -206,7 +207,7 @@ export default function Header({ title }: IHeader) {
   return (
     <SearchProvider>
       <header className="sticky top-0 z-50">
-        <ReadingProgressBar />
+        {isPostDetailPath(pathname) && <ReadingProgressBar key={pathname} />}
         <div
           className={cn(
             "border-b backdrop-blur-md transition-[background-color,box-shadow,border-color] duration-200 motion-reduce:transition-none",

@@ -1,53 +1,64 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { cn } from "@/lib/utils";
+import { useEffect, useRef } from "react";
+import { getReadingProgress } from "./reading-progress";
+import { subscribeToScroll } from "./scroll-subscriber";
 
-/* 페이지 읽기 진행률을 표시하는 컴포넌트 */
-const ReadingProgressBar = () => {
-    const [scrollProgress, setScrollProgress] = useState(0);
+/** 블로그 본문만 측정한다. 댓글·관련 글·푸터 높이는 진행률에 영향을 주지 않는다. */
+export default function ReadingProgressBar() {
+  const barRef = useRef<HTMLDivElement>(null);
 
-    const calculateScrollProgress = useCallback(() => {
-        /* 
-        - document.documentElement.scrollHeight: 문서 전체 내용의 높이
-        - document.documentElement.clientHeight: 브라우저 창의 높이
-        - totalHeight: 사용자가 스크롤 할 수 있는 실제 거리 (가장 위 ~ 가장 아래)
-        */
-        const totalHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  useEffect(() => {
+    const bar = barRef.current;
+    const header = bar?.closest("header");
+    const main = document.getElementById("main-content");
+    if (!bar || !header || !main) return;
 
-        /* 현재 스크롤 위치 */
-        const scrolled = window.scrollY;
-        if(totalHeight > 0){
-            const progress = (scrolled / totalHeight) * 100;
-            setScrollProgress(progress);
-        }
-        else{
-            setScrollProgress(0);
-        }
-    }, []);
+    let observedBody: HTMLElement | null = null;
+    const update = () => {
+      const body = document.getElementById("post-body");
+      if (body !== observedBody) {
+        if (observedBody) resizeObserver.unobserve(observedBody);
+        if (body) resizeObserver.observe(body);
+        observedBody = body;
+      }
+      const progress = body
+        ? getReadingProgress(
+            body.getBoundingClientRect(),
+            document.documentElement.clientHeight,
+            header.getBoundingClientRect().bottom,
+          )
+        : 0;
+      bar.style.transform = `scaleX(${progress})`;
+    };
 
-    useEffect(() => {
-        // 마운트 시점에 이미 스크롤된 위치(예: 뒤로가기 복원)를 즉시 반영하기 위한 동기 호출
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        calculateScrollProgress();
+    const resizeObserver = new ResizeObserver(update);
+    resizeObserver.observe(main);
+    resizeObserver.observe(header);
+    // 스트리밍 중 뒤늦게 도착하는 본문도 감지한다.
+    const mutationObserver = new MutationObserver(update);
+    mutationObserver.observe(main, { childList: true, subtree: true });
+    const unsubscribe = subscribeToScroll(update);
+    window.addEventListener("resize", update);
+    main.addEventListener("animationend", update);
+    update();
 
-        window.addEventListener('scroll', calculateScrollProgress);
-        return () => {
-            window.removeEventListener('scroll', calculateScrollProgress);
-        }
-    }, [calculateScrollProgress]);
+    return () => {
+      unsubscribe();
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+      window.removeEventListener("resize", update);
+      main.removeEventListener("animationend", update);
+    };
+  }, []);
 
-    return (
-        <div className={cn('fixed top-0 left-0 h-1 z-20 w-full','bg-transparent')}>
-            <div
-              className="h-full bg-accent-brand transition-transform duration-100 ease-out shadow-lg shadow-accent-brand/50"
-              style={{
-                width: `${scrollProgress}%`,
-                transform: 'translateX(0%)'
-              }}
-            />
-        </div>
-    )
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-10 h-0.5 overflow-hidden">
+      <div
+        ref={barRef}
+        className="h-full w-full origin-left bg-accent-brand"
+        style={{ transform: "scaleX(0)" }}
+      />
+    </div>
+  );
 }
-
-export default ReadingProgressBar;

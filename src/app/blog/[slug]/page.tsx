@@ -136,7 +136,7 @@ export default async function PostPage({ params }: PageProps) {
             </div>
           ) : null}
           {/* MDX 본문 */}
-          <div className="prose prose-zinc dark:prose-invert prose-main lg:prose-xl">
+          <div id="post-body" className="prose prose-zinc dark:prose-invert prose-main lg:prose-xl">
             <MDXRemote
               source={displayContent}
               options={{ mdxOptions }}

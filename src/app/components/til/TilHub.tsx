@@ -91,7 +91,7 @@ export default function TilHub({ overview }: { overview: TilOverview }) {
           className={cn(
             "min-h-10 rounded-full border px-4 text-sm font-medium transition-colors",
             filtered.selectedCourse === null
-              ? "border-accent-brand bg-accent-brand text-white"
+              ? "border-accent-brand bg-accent-brand text-accent-brand-fg"
               : "bg-background hover:border-accent-brand/50 hover:text-accent-brand",
           )}
         >
@@ -106,7 +106,7 @@ export default function TilHub({ overview }: { overview: TilOverview }) {
             className={cn(
               "min-h-10 rounded-full border px-4 text-sm font-medium transition-colors",
               filtered.selectedCourse === item
-                ? "border-accent-brand bg-accent-brand text-white"
+                ? "border-accent-brand bg-accent-brand text-accent-brand-fg"
                 : "bg-background hover:border-accent-brand/50 hover:text-accent-brand",
             )}
           >

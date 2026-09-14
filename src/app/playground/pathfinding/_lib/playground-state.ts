@@ -92,7 +92,7 @@ export function playgroundReducer(state: PlaygroundState, action: PlaygroundActi
 }
 
 /** Derive only the visible prefix; computed search results never leak ahead. */
-export function getSearchLayers(state: PlaygroundState) {
+export function getSearchLayers(state: Pick<PlaygroundState, "result" | "cursor" | "status">) {
   const visited = new Set<number>(), frontier = new Set<number>();
   for (const event of state.result?.events.slice(0, state.cursor) ?? []) {
     visited.add(event.cell);

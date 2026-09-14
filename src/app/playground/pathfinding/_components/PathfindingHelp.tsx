@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { ALGORITHMS } from "../_lib/algorithms";
 
-export default function PathfindingHelp() {
+export default memo(function PathfindingHelp() {
   return (
     <details id="pathfinding-help" className="scroll-mt-24 border-t border-border px-4 py-4 sm:px-6">
       <summary className="w-fit cursor-pointer rounded-lg py-2 text-sm font-medium text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-brand">알고리즘과 조작 방법</summary>
@@ -15,4 +16,4 @@ export default function PathfindingHelp() {
       </div>
     </details>
   );
-}
+});

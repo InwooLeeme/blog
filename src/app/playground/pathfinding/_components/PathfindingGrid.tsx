@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useState, type PointerEvent } from "react";
+import { memo, useCallback, useRef, useState, type PointerEvent } from "react";
 import { canEditGrid, cellFromPoint, cellsOnLine, moveCell } from "../_lib/grid-input";
 import { Hand, Pencil } from "lucide-react";
 import type { Board } from "../_lib/pathfinding";
 import type { Tool } from "../_lib/playground-state";
+import PathfindingCell from "./PathfindingCell";
 
 type Props = {
   board: Board; tool: Tool; locked: boolean;
@@ -12,17 +13,26 @@ type Props = {
   onEdit: (cells: number[]) => void;
 };
 
-export default function PathfindingGrid({ board, tool, locked, visited, frontier, path, onEdit }: Props) {
+export default memo(function PathfindingGrid({ board, tool, locked, visited, frontier, path, onEdit }: Props) {
   const [activeCell, setActiveCell] = useState(board.start);
   const [panMode, setPanMode] = useState(false);
   const editable = canEditGrid(locked, panMode);
   const buttons = useRef(new Map<number, HTMLButtonElement>());
   const drag = useRef<{ pointer: number; last: number | null } | null>(null);
   const pointCell = (event: PointerEvent<HTMLDivElement>) => cellFromPoint(event.clientX, event.clientY, event.currentTarget.getBoundingClientRect(), board.cols, board.rows);
-  const focusCell = (cell: number) => {
+  const registerCell = useCallback((cell: number, element: HTMLButtonElement | null) => {
+    if (element) buttons.current.set(cell, element);
+    else buttons.current.delete(cell);
+  }, []);
+  const focusCell = useCallback((cell: number) => {
     setActiveCell(cell);
     buttons.current.get(cell)?.focus({ preventScroll: true });
-  };
+  }, []);
+  const moveFocus = useCallback((cell: number, key: string) => {
+    const next = moveCell(cell, key, board.cols, board.rows);
+    focusCell(next);
+    buttons.current.get(next)?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [board.cols, board.rows, focusCell]);
   const endDrag = (event: PointerEvent<HTMLDivElement>) => {
     if (drag.current?.pointer !== event.pointerId) return;
     drag.current = null;
@@ -69,28 +79,12 @@ export default function PathfindingGrid({ board, tool, locked, visited, frontier
             <div key={row} role="row" aria-rowindex={row + 1} className="grid" style={{ gridTemplateColumns: `repeat(${board.cols}, minmax(0, 1fr))` }}>
               {Array.from({ length: board.cols }, (_, col) => {
                 const cell = row * board.cols + col;
-                const start = cell === board.start, goal = cell === board.goal, wall = board.walls.has(cell);
-                const onPath = path.has(cell), seen = visited.has(cell), queued = frontier.has(cell);
-                const label = start ? "시작점" : goal ? "도착점" : wall ? "벽" : onPath ? "최종 경로" : seen ? "탐색 완료" : queued ? "탐색 대기" : "빈 칸";
-                const color = start ? "bg-emerald-400 text-emerald-950" : goal ? "bg-amber-300 text-amber-950" : wall ? "bg-slate-500 text-slate-200" : onPath ? "bg-amber-300/90 text-amber-950" : seen ? "bg-sky-800/80 text-sky-200" : queued ? "bg-sky-950 text-sky-300" : "bg-slate-900 text-slate-700";
-                return <button
-                  key={cell} ref={(element) => { if (element) buttons.current.set(cell, element); else buttons.current.delete(cell); }}
-                  type="button" role="gridcell" aria-colindex={col + 1} aria-label={`${row + 1}행 ${col + 1}열, ${label}`} aria-disabled={!editable}
-                  tabIndex={activeCell === cell ? 0 : -1} onFocus={() => setActiveCell(cell)}
-                  className={`relative flex aspect-square min-h-7 min-w-7 select-none items-center justify-center border-r border-b border-slate-700/40 text-[10px] font-bold outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white ${color} ${locked || panMode ? "cursor-default" : "cursor-crosshair hover:brightness-125"}`}
-                  onClick={(event) => { if (event.detail === 0 && editable) onEdit([cell]); }}
-                  onKeyDown={(event) => {
-                    if (event.key.startsWith("Arrow")) {
-                      event.preventDefault();
-                      const next = moveCell(cell, event.key, board.cols, board.rows);
-                      focusCell(next);
-                      buttons.current.get(next)?.scrollIntoView({ block: "nearest", inline: "nearest" });
-                    } else if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      if (editable) onEdit([cell]);
-                    }
-                  }}
-                >{start ? "S" : goal ? "G" : wall ? "▪" : onPath ? "●" : queued ? "◦" : seen ? "·" : null}</button>;
+                const appearance = cell === board.start ? "start" : cell === board.goal ? "goal" : board.walls.has(cell) ? "wall" : path.has(cell) ? "path" : visited.has(cell) ? "visited" : frontier.has(cell) ? "frontier" : "empty";
+                return <PathfindingCell
+                  key={cell} cell={cell} row={row} col={col} appearance={appearance}
+                  active={activeCell === cell} editable={editable}
+                  registerCell={registerCell} onFocus={setActiveCell} onMove={moveFocus} onEdit={onEdit}
+                />;
               })}
             </div>
           ))}
@@ -101,4 +95,4 @@ export default function PathfindingGrid({ board, tool, locked, visited, frontier
       </ul>
     </div>
   );
-}
+});

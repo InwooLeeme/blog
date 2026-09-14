@@ -43,7 +43,7 @@ function useScrolled(onPx = 40, offPx = 16) {
 function Wordmark({ title }: { title: string | undefined }) {
   return (
     <Link
-      href="/blog"
+      href="/"
       title={title}
       className="font-display font-bold tracking-tight text-gradient-brand max-[360px]:text-sm"
     >

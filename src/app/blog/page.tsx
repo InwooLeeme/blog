@@ -1,7 +1,7 @@
 import { sectionHeadingClass } from "@/lib/ui-styles";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { getAllPosts, getTagCounts, groupPostsBySeries, getAllSeries } from "@/lib/posts"
+import { getAllPosts, getTagCounts, getPostItemsByKind, groupPostsBySeries, getAllSeries } from "@/lib/posts"
 import TagSidebar from "../components/TagSidebar";
 import LatestHero from "../components/LatestHero";
 import PostGrid from "../components/PostGrid";
@@ -18,8 +18,10 @@ export default function BlogIndexPage() {
   const tagCounts = getTagCounts(posts);
   const seriesCount = new Set(posts.map((p) => p.meta.series).filter(Boolean)).size;
   const rest = posts.slice(4);
-  const articles = rest.filter((p) => !p.meta.series);
-  const logGroups = groupPostsBySeries(rest.filter((p) => !!p.meta.series));
+  const articles = getPostItemsByKind(rest, "article");
+  const solveLogs = getPostItemsByKind(rest, "solve-log");
+  const logGroups = groupPostsBySeries(solveLogs.filter((p) => !!p.meta.series));
+  const standaloneLogs = solveLogs.filter((p) => !p.meta.series);
 
   return (
     <div className="w-full max-w-6xl mx-auto mt-6 px-4 md:px-6 lg:px-8">
@@ -67,12 +69,13 @@ export default function BlogIndexPage() {
               </section>
             ) : null}
 
-            {logGroups.length > 0 ? (
+            {solveLogs.length > 0 ? (
               <section className="space-y-2">
                 <h2 className={cn(sectionHeadingClass, "mt-2 mb-2")}>
                   <Tr id="blog.solveLogs" />
                 </h2>
                 <SeriesLogList groups={logGroups} />
+                {standaloneLogs.length > 0 ? <PostGrid posts={standaloneLogs} featureFirst={false} /> : null}
               </section>
             ) : null}
           </div>

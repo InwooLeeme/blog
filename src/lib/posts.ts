@@ -5,6 +5,7 @@ import rt from "reading-time"
 import { cache } from "react"
 
 export type CoverFit = "cover" | "contain"
+export type PostKind = "article" | "solve-log"
 
 export type PostMeta = {
   title: string
@@ -16,6 +17,7 @@ export type PostMeta = {
   coverFit?: CoverFit
   readingTime?: number
   series?: string
+  kind?: PostKind
 }
 
 export type PostItem = {
@@ -135,6 +137,11 @@ export function getTagCounts(posts: PostItem[]): TagCount[] {
 */
 export function getPostItemsByTag(posts: PostItem[], tag: string): PostItem[] {
   return posts.filter((p) => p.meta.tags?.includes(tag) ?? false);
+}
+
+/** 시리즈 소속과 독립적인 콘텐츠 분류. 종류가 없는 기존 글은 아티클로 다룬다. */
+export function getPostItemsByKind(posts: PostItem[], kind: PostKind): PostItem[] {
+  return posts.filter((post) => (post.meta.kind ?? "article") === kind);
 }
 
 export type AdjacentPosts = {

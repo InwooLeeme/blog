@@ -105,27 +105,6 @@ export default async function PostPage({ params }: PageProps) {
           buildBreadcrumbJsonLd(slug, meta.title),
         ]}
       />
-      {meta.cover ? (
-        <div
-          className={`relative mb-8 h-[clamp(14rem,42vw,26rem)] overflow-hidden rounded-2xl border ${
-            coverFit === "contain" ? "bg-white" : "bg-card"
-          }`}
-          style={{ viewTransitionName: `post-cover-${slug}` }}
-        >
-          <MdxImage
-            src={meta.cover}
-            alt={meta.title}
-            className={`h-full w-full border-0 ${
-              coverFit === "contain"
-                ? "object-contain p-8 sm:p-12"
-                : "object-cover"
-            }`}
-            wrapperClassName="h-full"
-            sizes="(min-width:1024px) 768px, 100vw"
-            priority
-          />
-        </div>
-      ) : null}
       <div className="xl:flex xl:gap-8 xl:items-stretch">
         <article id="post-article" className="mx-auto w-full min-w-0 max-w-[65ch] lg:text-xl xl:flex-1">
           <PostHeader
@@ -135,6 +114,27 @@ export default async function PostPage({ params }: PageProps) {
             summary={meta.summary}
             series={meta.series}
           />
+          {meta.cover ? (
+            <div
+              className={`relative mb-8 h-[clamp(11rem,32vw,20rem)] overflow-hidden rounded-2xl border ${
+                coverFit === "contain" ? "bg-white" : "bg-card"
+              }`}
+              style={{ viewTransitionName: `post-cover-${slug}` }}
+            >
+              <MdxImage
+                src={meta.cover}
+                alt={meta.title}
+                className={`h-full w-full border-0 ${
+                  coverFit === "contain"
+                    ? "object-contain p-8 sm:p-12"
+                    : "object-cover"
+                }`}
+                wrapperClassName="h-full"
+                sizes="(min-width:1024px) 768px, (min-width:768px) 650px, 100vw"
+                priority
+              />
+            </div>
+          ) : null}
           {/* MDX 본문 */}
           <div className="prose prose-zinc dark:prose-invert prose-main lg:prose-xl">
             <MDXRemote

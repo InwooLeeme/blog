@@ -151,11 +151,10 @@ export type AdjacentPosts = {
 
 export type SeriesNav = {
   series: string;
-  prev: PostItem | null;
-  next: PostItem | null;
+  prev: { slug: string; title: string } | null;
+  next: { slug: string; title: string } | null;
   position: number;
   total: number;
-  currentSlug: string;
   episodes: { slug: string; title: string }[];
 };
 
@@ -197,15 +196,15 @@ export function getSeriesNavigation(slug: string): SeriesNav | null {
 
   const list = getPostsBySeries(series);
   const idx = list.findIndex((p) => p.slug === slug);
+  const episodes = list.map((p) => ({ slug: p.slug, title: p.meta.title }));
 
   return {
     series,
-    prev: idx > 0 ? list[idx - 1] : null,
-    next: idx < list.length - 1 ? list[idx + 1] : null,
+    prev: idx > 0 ? episodes[idx - 1] : null,
+    next: idx < episodes.length - 1 ? episodes[idx + 1] : null,
     position: idx + 1,
     total: list.length,
-    currentSlug: slug,
-    episodes: list.map((p) => ({ slug: p.slug, title: p.meta.title })),
+    episodes,
   };
 }
 

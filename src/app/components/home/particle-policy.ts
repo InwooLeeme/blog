@@ -1,7 +1,6 @@
 export type ParticlePolicy = {
   dpr: number;
   maxParticles: number;
-  sampleGap: number;
 };
 
 export type AnimationPolicyInput = {
@@ -17,27 +16,9 @@ export type RectBounds = {
   right: number;
   bottom: number;
 };
-
-const MAX_CANVAS_PIXELS = 480_000;
 const MAX_WEBGL_PIXELS = 1_250_000;
 const ACTIVE_FRAME_INTERVAL_MS = 1000 / 60;
 const IDLE_FRAME_INTERVAL_MS = 1000 / 30;
-
-export function fitCanvasDpr(
-  width: number,
-  height: number,
-  requestedDpr: number,
-): number {
-  const safeWidth = Number.isFinite(width) && width > 0 ? width : 1;
-  const safeHeight = Number.isFinite(height) && height > 0 ? height : 1;
-  const safeDpr =
-    Number.isFinite(requestedDpr) && requestedDpr > 0 ? requestedDpr : 1;
-  const pixelLimitedDpr = Math.sqrt(
-    MAX_CANVAS_PIXELS / (safeWidth * safeHeight),
-  );
-
-  return Math.min(safeDpr, pixelLimitedDpr);
-}
 
 export function fitWebglDpr(
   width: number,
@@ -79,7 +60,6 @@ export function getParticlePolicy(
   return {
     dpr: Math.min(Math.max(safeDpr, 1), mobile ? 1.5 : 1.75),
     maxParticles: mobile ? 2400 : 5600,
-    sampleGap: mobile ? 6 : 5,
   };
 }
 

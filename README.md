@@ -90,9 +90,11 @@
 
 ## 시작하기
 
+Node.js 24를 사용합니다.
+
 ```bash
 # 의존성 설치
-npm install
+npm ci
 
 # 개발 서버 (포트 3001)
 npm run dev
@@ -198,6 +200,25 @@ content/notes/Graph/Dijkstra.mdx
 [Vercel](https://vercel.com)에 GitHub 연동 → push 자동 배포. 별도 설정 불필요.
 
 빌드 명령: `npm run build` (sitemap 자동 생성)
+
+## 자동 검사 (GitHub Actions)
+
+[`CI` 워크플로](.github/workflows/ci.yml)는 `develop`, `main` 대상 PR과 두 브랜치에 대한 push에서 실행됩니다.
+Node.js 24에서 npm 캐시를 사용하며, 같은 PR이나 브랜치에 새 변경이 올라오면 진행 중인 이전 검사를 취소합니다.
+
+검사 순서는 다음과 같습니다.
+
+```bash
+npm ci
+npm run lint
+npm test
+npm run build
+npm run test:bundle
+```
+
+번들 검사는 빌드 결과를 사용해 About 페이지 용량, 헤더의 지연 로딩, 경로 탐색 페이지 생성을 확인합니다.
+검사 실패 시 PR 머지를 차단하려면 GitHub 브랜치 보호 규칙에서 `Lint, test, build and bundle checks`를 필수 검사로 지정해야 합니다.
+배포는 기존 Vercel 연동이 담당합니다.
 
 ---
 

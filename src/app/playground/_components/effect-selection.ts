@@ -1,3 +1,14 @@
+import { EFFECT_CATALOG } from "./effect-catalog.ts";
+
+export function getLegacyEffectHref(href: string) {
+  const url = new URL(href);
+  if (url.pathname !== "/playground" || !url.searchParams.has("effect")) return null;
+  const id = resolveEffectId(url.searchParams.get("effect"), EFFECT_CATALOG.map((effect) => effect.id));
+  url.pathname = "/playground/effects";
+  url.searchParams.set("effect", id!);
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
 export function getEffectIdFromSearch(search: string) {
   return new URLSearchParams(search).get("effect");
 }

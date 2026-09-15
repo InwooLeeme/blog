@@ -5,8 +5,8 @@ export type EffectMeta = {
 };
 
 export const EFFECT_CATALOG = [
-  { id: "cluster", title: "구상성단", description: "밤하늘 한 자리에 촘촘히 모여 은은하게 깜빡이는 별 무리" },
-  { id: "color-bubbles", title: "색방울", description: "화면을 떠다니다 가장자리에서 튕겨나가며, 서로 겹치면 빛이 밝게 섞이는 색색의 공들" },
+  { id: "cluster", title: "구상성단", description: "중심에 밀집한 별의 분포와 밝기 변화를 표현했습니다." },
+  { id: "color-bubbles", title: "색방울", description: "화면 가장자리에서 튕기는 색방울입니다. 서로 겹치는 부분은 더 밝아집니다." },
 ] as const satisfies readonly EffectMeta[];
 
 export type EffectId = (typeof EFFECT_CATALOG)[number]["id"];

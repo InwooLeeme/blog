@@ -67,9 +67,9 @@
 │   ├── posts/              # 블로그 글 (.mdx)
 │   └── notes/              # 알고리즘 노트 (.mdx, 폴더 = 카테고리)
 ├── public/
-│   ├── fonts/              # Pretendard (OG 이미지 렌더용)
 │   └── avatar.png
 ├── src/
+│   ├── assets/fonts/       # OG용 OTF, 웹폰트 원본과 문자 범위별 서브셋
 │   ├── app/                # App Router
 │   │   ├── blog/           # 블로그 인덱스, 글 페이지, 태그 페이지
 │   │   ├── notes/          # 노트 인덱스, 동적 라우트
@@ -90,9 +90,11 @@
 
 ## 시작하기
 
+Node.js 24를 사용합니다.
+
 ```bash
 # 의존성 설치
-npm install
+npm ci
 
 # 개발 서버 (포트 3001)
 npm run dev
@@ -108,6 +110,28 @@ npm run lint
 ```
 
 `http://localhost:3001` 에서 확인.
+
+### 본문 폰트 관리
+
+Pretendard의 글리프를 보존한 `Blog Sans` 서브셋을 자체 호스팅합니다.
+`unicode-range`로 기본 문자·흔한 한글·나머지 한글을 나눠 현재 페이지에 필요한 파일만 로드합니다.
+세 굵기 모두 원본의 14,336자를 유지하므로 새 글을 작성할 때 다시 생성할 필요가 없습니다.
+
+- 원본: `src/assets/fonts/pretendard-source/`
+- 생성 파일: `src/assets/fonts/pretendard-subsets/`, `src/app/styles/pretendard.css`
+- 라이선스: [`OFL.txt`](src/assets/fonts/OFL.txt). 파생 폰트는 예약된 원본 이름과 구별해 `Blog Sans`로 명명합니다.
+
+원본 폰트를 교체할 때만 아래 명령으로 재생성합니다. 생성 스크립트는 문자 누락과 글자 폭·윤곽 변경도 검사합니다.
+
+```bash
+python3 -m venv /tmp/blog-font-tools
+/tmp/blog-font-tools/bin/pip install 'fonttools[woff]==4.65.0'
+/tmp/blog-font-tools/bin/python scripts/subset-fonts.py
+```
+
+생성 파일은 저장소에 포함하므로 일반 개발·CI 빌드에는 Python이 필요하지 않습니다.
+폰트 분할 방식은 [fontTools 문서](https://fonttools.readthedocs.io/en/latest/subset/index.html)와
+[unicode-range 문서](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/unicode-range)를 참고합니다.
 
 ---
 
@@ -198,6 +222,25 @@ content/notes/Graph/Dijkstra.mdx
 [Vercel](https://vercel.com)에 GitHub 연동 → push 자동 배포. 별도 설정 불필요.
 
 빌드 명령: `npm run build` (sitemap 자동 생성)
+
+## 자동 검사 (GitHub Actions)
+
+[`CI` 워크플로](.github/workflows/ci.yml)는 `develop`, `main` 대상 PR과 두 브랜치에 대한 push에서 실행됩니다.
+Node.js 24에서 npm 캐시를 사용하며, 같은 PR이나 브랜치에 새 변경이 올라오면 진행 중인 이전 검사를 취소합니다.
+
+검사 순서는 다음과 같습니다.
+
+```bash
+npm ci
+npm run lint
+npm test
+npm run build
+npm run test:bundle
+```
+
+번들 검사는 빌드 결과를 사용해 About 페이지 용량, 헤더의 지연 로딩, 경로 탐색 페이지 생성을 확인합니다.
+검사 실패 시 PR 머지를 차단하려면 GitHub 브랜치 보호 규칙에서 `Lint, test, build and bundle checks`를 필수 검사로 지정해야 합니다.
+배포는 기존 Vercel 연동이 담당합니다.
 
 ---
 

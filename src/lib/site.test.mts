@@ -3,12 +3,12 @@ import test from "node:test";
 import { messages } from "./i18n.ts";
 import { navLinks, resolveNavLabel } from "./site.ts";
 
-test("resolveNavLabel localizes the Profile navigation item", () => {
+test("resolveNavLabel localizes the About navigation item", () => {
   const profile = navLinks.find((link) => link.href === "/about");
   assert.ok(profile);
   assert.equal(
     resolveNavLabel(profile, (id) => messages.ko[id]),
-    "프로필",
+    "소개",
   );
 });
 

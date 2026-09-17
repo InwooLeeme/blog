@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 @import "tw-animate-css";
+@import "./styles/pretendard.css";
 @import "./styles/toc.css";
 @import "./styles/code.css";
 @import "./styles/prose.css";
@@ -161,26 +162,6 @@ html { scrollbar-gutter: stable; scroll-behavior: smooth; }
 }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 
-/* Playground 장면 레일 — 캔버스보다 조용하게 보이는 얇은 스크롤바 */
-.playground-rail {
-  scrollbar-color: rgb(125 211 252 / 0.32) #0b0c10;
-  scrollbar-width: thin;
-}
-.playground-rail::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-.playground-rail::-webkit-scrollbar-track {
-  background: #0b0c10;
-}
-.playground-rail::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background-color: rgb(125 211 252 / 0.32);
-}
-.playground-rail::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(125 211 252 / 0.58);
-}
-
 /* TOC 앵커 등 CSS 기반 스크롤 점프가 전정 장애 사용자에게 노출되지 않도록 */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -298,25 +279,4 @@ article :is(h2,h3,h4){ scroll-margin-top: 6rem; }
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
   }
-}
-
-/* Profile 내비 항목 — 마우스오버/포커스 시 한 번 대각선으로 흔들림 (상시 반복 애니메이션은 시선을 계속 뺏어 제거) */
-@keyframes diagonal-shake {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  15%  { transform: translate(2.5px, -2.5px) rotate(-9deg); }
-  30%  { transform: translate(-2.5px, 2.5px) rotate(9deg); }
-  45%  { transform: translate(2.5px, -2px) rotate(-8deg); }
-  60% { transform: translate(-2.5px, 2px) rotate(8deg); }
-  75% { transform: translate(2px, -1.5px) rotate(-6deg); }
-  90% { transform: translate(-1.5px, 1.5px) rotate(5deg); }
-}
-.hover-diagonal-shake {
-  display: inline-block;
-}
-.group\/navitem:hover .hover-diagonal-shake,
-.group\/navitem:focus-visible .hover-diagonal-shake {
-  animation: diagonal-shake 0.8s ease-in-out 1;
-}
-@media (prefers-reduced-motion: reduce) {
-  .hover-diagonal-shake { animation: none; }
 }

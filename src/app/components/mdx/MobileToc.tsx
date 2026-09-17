@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useT } from "../LocaleProvider";
 import { subscribeToScroll } from "../scroll-subscriber";
+import { DESKTOP_TOC_QUERY, subscribeTocViewport } from "./toc-viewport";
 
 type Heading = { id: string; text: string; level: number };
 
@@ -27,41 +28,42 @@ export default function MobileToc() {
   const [activeId, setActiveId] = useState<string | null>(null);
 
   useEffect(() => {
-    const nodes = Array.from(
-      document.querySelectorAll<HTMLElement>(
-        "#post-article h2, #post-article h3, #post-article h4",
-      ),
-    ).filter((el) => el.id && !el.classList.contains("toc-ignore"));
-    // 렌더된 MDX 본문의 실제 heading을 읽어야 해서 effect 안에서만 계산 가능
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setHeadings(
-      nodes.map((el) => ({
-        id: el.id,
-        text: el.textContent?.trim() ?? "",
-        level: Number(el.tagName[1]),
-      })),
-    );
-    // 제목 사이의 긴 본문에서도 직전에 지나온 절을 유지한다.
-    const updateActive = () => {
-      let current = nodes[0]?.id ?? null;
-      for (const node of nodes) {
-        if (node.getBoundingClientRect().top > 112) break;
-        current = node.id;
-      }
-      setActiveId(current);
-    };
-    const frame = requestAnimationFrame(updateActive);
-    const unsubscribe = subscribeToScroll(updateActive);
-    window.addEventListener("resize", updateActive);
-    const observer = new ResizeObserver(updateActive);
-    const article = document.getElementById("post-article");
-    if (article) observer.observe(article);
-    return () => {
-      cancelAnimationFrame(frame);
-      unsubscribe();
-      window.removeEventListener("resize", updateActive);
-      observer.disconnect();
-    };
+    return subscribeTocViewport(window.matchMedia(DESKTOP_TOC_QUERY), false, () => {
+      const nodes = Array.from(
+        document.querySelectorAll<HTMLElement>(
+          "#post-article h2, #post-article h3, #post-article h4",
+        ),
+      ).filter((el) => el.id && !el.classList.contains("toc-ignore"));
+      // 렌더된 MDX 본문의 실제 heading을 읽어야 해서 effect 안에서만 계산 가능
+      setHeadings(
+        nodes.map((el) => ({
+          id: el.id,
+          text: el.textContent?.trim() ?? "",
+          level: Number(el.tagName[1]),
+        })),
+      );
+      // 제목 사이의 긴 본문에서도 직전에 지나온 절을 유지한다.
+      const updateActive = () => {
+        let current = nodes[0]?.id ?? null;
+        for (const node of nodes) {
+          if (node.getBoundingClientRect().top > 112) break;
+          current = node.id;
+        }
+        setActiveId(current);
+      };
+      const frame = requestAnimationFrame(updateActive);
+      const unsubscribe = subscribeToScroll(updateActive);
+      window.addEventListener("resize", updateActive);
+      const observer = new ResizeObserver(updateActive);
+      const article = document.getElementById("post-article");
+      if (article) observer.observe(article);
+      return () => {
+        cancelAnimationFrame(frame);
+        unsubscribe();
+        window.removeEventListener("resize", updateActive);
+        observer.disconnect();
+      };
+    });
   }, [pathname]);
 
   if (headings.length === 0) return null;

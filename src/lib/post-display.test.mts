@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   getCardCoverSrc,
-  getCoverLabel,
   getEpisodeLabel,
   getFirstCardCoverIndex,
   getPostCoverFit,
@@ -46,7 +45,6 @@ test("existing card display helpers keep their current fallbacks", () => {
     series: "AtCoder Weekday Contest",
   });
   assert.equal(getCardCoverSrc(shared), null);
-  assert.equal(getCoverLabel(shared), "PS");
   assert.equal(getEpisodeLabel({ ...shared, title: "AtCoder Weekday Contest 001" }), "001");
 });
 

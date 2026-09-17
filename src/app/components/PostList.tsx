@@ -15,7 +15,9 @@ export default function PostList({
   showCovers?: boolean;
   className?: string;
 }) {
-  const priorityCoverIndex = getFirstCardCoverIndex(posts.map(({ meta }) => meta));
+  const priorityCoverIndex = showCovers
+    ? getFirstCardCoverIndex(posts.map(({ meta }) => meta))
+    : -1;
 
   return (
     <ol className={cn("divide-y border-b", className)}>

@@ -15,13 +15,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+import { ArrowUpRight, Menu, Network } from "lucide-react";
 import ReadingProgressBar from "./ReadingProgressBar";
 import { SearchProvider, SearchTrigger } from "./SearchDialog";
 import { cn } from "@/lib/utils";
 import { navLinks, siteConfig, isActivePath, resolveNavLabel } from "@/lib/site";
 import { subscribeToScroll } from "./scroll-subscriber";
 import { nextHeaderScrolled } from "./scroll-visibility";
+import { isPostDetailPath } from "./reading-progress";
 
 interface IHeader {
   title: string | undefined;
@@ -41,13 +42,17 @@ function useScrolled(onPx = 40, offPx = 16) {
 }
 
 function Wordmark({ title }: { title: string | undefined }) {
+  const hasDevSuffix = title?.endsWith(".dev");
   return (
     <Link
       href="/"
       title={title}
-      className="font-display font-bold tracking-tight text-gradient-brand max-[360px]:text-sm"
+      className="inline-flex min-h-11 shrink-0 items-center rounded-md font-display font-bold tracking-tight text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background max-[360px]:text-sm"
     >
-      {title}
+      <span>
+        {hasDevSuffix ? title?.slice(0, -4) : title}
+        {hasDevSuffix && <span className="text-accent-brand">.dev</span>}
+      </span>
     </Link>
   );
 }
@@ -55,104 +60,41 @@ function Wordmark({ title }: { title: string | undefined }) {
 // 데스크톱 헤더 컨트롤
 function Controls() {
   return (
-    <>
+    <div className="hidden shrink-0 items-center gap-3 lg:flex">
       <SearchTrigger />
-      <span>
-        <Button
-          asChild
-          variant="ghost"
-          size="icon"
-          aria-label="GitHub"
-          className="relative before:absolute before:-inset-1 before:content-['']"
-        >
-          <Link href={siteConfig.githubUrl} target="_blank" rel="noreferrer">
-            <IconGithub width={20} height={20} />
-          </Link>
-        </Button>
-      </span>
-      <LanguageToggle />
-      <ModeToggle />
-    </>
+      <div className="flex items-center border-l border-border/70 pl-2">
+        <LanguageToggle />
+        <ModeToggle />
+      </div>
+    </div>
   );
 }
 
 function DesktopNav({ pathname }: { pathname: string }) {
   const t = useT();
-  const activeIndex = navLinks.findIndex((l) => isActivePath(pathname, l.href));
-  const [hovered, setHovered] = React.useState<number | null>(null);
-  const navRef = React.useRef<HTMLElement>(null);
-  const itemsRef = React.useRef<(HTMLAnchorElement | null)[]>([]);
-  const [pill, setPill] = React.useState({ left: 0, width: 0, opacity: 0 });
-
-  // 강조 대상: 호버 항목, 없으면 현재 경로의 active 항목
-  const target = hovered ?? (activeIndex >= 0 ? activeIndex : null);
-
-  // 레이아웃 변동 시 ResizeObserver가 pill 위치 재측정
-  React.useEffect(() => {
-    const measure = () => {
-      if (target === null) {
-        setPill((p) => ({ ...p, opacity: 0 }));
-        return;
-      }
-      const el = itemsRef.current[target];
-      if (el) setPill({ left: el.offsetLeft, width: el.offsetWidth, opacity: 1 });
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    if (navRef.current) observer.observe(navRef.current);
-    return () => observer.disconnect();
-  }, [target]);
-
   return (
     <nav
-      ref={navRef}
-      className="relative hidden items-center gap-1 text-sm lg:flex"
-      onMouseLeave={() => setHovered(null)}
-      onBlur={(e) => {
-        if (!navRef.current?.contains(e.relatedTarget as Node | null)) {
-          setHovered(null);
-        }
-      }}
+      aria-label={t("header.navigation")}
+      className="hidden shrink-0 items-center gap-1 text-sm lg:flex"
     >
-      <span
-        aria-hidden
-        className="absolute left-0 top-1/2 h-8 rounded-full bg-accent-brand/10 transition-all duration-300 ease-out"
-        style={{
-          width: pill.width,
-          opacity: pill.opacity,
-          transform: `translateX(${pill.left}px) translateY(-50%)`,
-        }}
-      />
-      {navLinks.map((link, i) => {
-        const label = resolveNavLabel(link, t);
+      {navLinks.map((link) => {
+        const active = isActivePath(pathname, link.href);
         return (
           <Link
             key={link.href}
             href={link.href}
-            ref={(el) => {
-              itemsRef.current[i] = el;
-            }}
-            onMouseEnter={() => setHovered(i)}
-            onFocus={() => setHovered(i)}
-            aria-current={i === activeIndex ? "page" : undefined}
+            aria-current={active ? "page" : undefined}
             className={cn(
-              "group/navitem relative rounded-full px-3 py-1.5 font-medium transition-colors",
-              i === target
-                ? "text-accent-brand"
-                : "text-foreground/80 hover:text-foreground",
+              "relative inline-flex min-h-11 items-center whitespace-nowrap rounded-lg px-2.5 font-medium transition-colors hover:bg-muted/70 outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none",
+              active
+                ? "text-accent-brand after:absolute after:inset-x-2.5 after:bottom-1 after:h-0.5 after:rounded-full after:bg-accent-brand"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
-            {link.href === "/about" ? (
-              <span className="hover-diagonal-shake">{label}</span>
-            ) : (
-              label
-            )}
+            {resolveNavLabel(link, t)}
           </Link>
         );
       })}
-      <div className="flex items-center gap-1 pl-2">
-        <Controls />
-      </div>
     </nav>
   );
 }
@@ -160,22 +102,31 @@ function DesktopNav({ pathname }: { pathname: string }) {
 function MobileNav({ pathname }: { pathname: string }) {
   const t = useT();
   return (
-    <div className="flex items-center gap-2 lg:hidden">
-      <SearchTrigger />
+    <div className="flex shrink-0 items-center gap-1 lg:hidden">
+      <SearchTrigger compact />
       <Sheet>
         <SheetTrigger asChild>
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
             aria-label={t("header.openMenu")}
-            className="relative before:absolute before:-inset-1 before:content-['']"
+            className="size-11 rounded-lg text-muted-foreground hover:text-foreground"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="size-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="right" className="w-72 overflow-y-auto p-4" aria-describedby={undefined}>
-          <SheetTitle className="pr-8">{t("header.menu")}</SheetTitle>
-          <nav className="flex flex-col gap-1">
+        <SheetContent
+          side="right"
+          className="w-[min(22rem,100vw)] gap-0 overflow-y-auto p-5 [&>button]:top-3 [&>button]:right-3 [&>button]:flex [&>button]:size-11 [&>button]:items-center [&>button]:justify-center [&>button]:rounded-lg"
+          aria-describedby={undefined}
+        >
+          <SheetTitle className="flex min-h-11 items-center pr-10">
+            {t("header.menu")}
+          </SheetTitle>
+          <nav
+            aria-label={t("header.navigation")}
+            className="mt-4 flex flex-col gap-1"
+          >
             {navLinks.map((n) => {
               const active = isActivePath(pathname, n.href);
               return (
@@ -184,7 +135,7 @@ function MobileNav({ pathname }: { pathname: string }) {
                     href={n.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "flex min-h-11 items-center rounded-md px-3 py-2 text-base transition-colors",
+                      "flex min-h-11 items-center rounded-lg px-3 py-2 text-base transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
                       active
                         ? "bg-accent-brand/10 font-semibold text-accent-brand"
                         : "text-foreground hover:bg-muted/70",
@@ -195,24 +146,52 @@ function MobileNav({ pathname }: { pathname: string }) {
                 </SheetClose>
               );
             })}
+          </nav>
+          <div className="mt-5 border-t border-border/70 pt-5">
+            <h3 className="px-3 text-xs font-medium text-muted-foreground">
+              {t("header.explore")}
+            </h3>
+            <SheetClose asChild>
+              <Link
+                href="/graph"
+                aria-current={
+                  isActivePath(pathname, "/graph") ? "page" : undefined
+                }
+                className={cn(
+                  "mt-2 flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm transition-colors hover:bg-muted/70 outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  isActivePath(pathname, "/graph")
+                    ? "bg-accent-brand/10 font-semibold text-accent-brand"
+                    : "text-foreground",
+                )}
+              >
+                <Network className="size-4" aria-hidden />
+                {t("nav.graph")}
+              </Link>
+            </SheetClose>
             <a
               href={siteConfig.githubUrl}
               target="_blank"
               rel="noreferrer"
-              className="mt-3 flex items-center gap-2 border-t px-3 pt-4 text-sm text-muted-foreground transition-colors hover:text-accent-brand"
+              className="flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <IconGithub width={17} height={17} />
               GitHub
+              <ArrowUpRight className="ml-auto size-4" aria-hidden />
             </a>
-          </nav>
-          <div className="mt-2 space-y-3 border-t px-3 pt-4">
-            <div className="flex min-h-11 items-center justify-between gap-4">
-              <span className="text-sm">{t("header.language")}</span>
-              <LanguageToggle />
-            </div>
-            <div className="flex min-h-11 items-center justify-between gap-4">
-              <span className="text-sm">{t("header.theme")}</span>
-              <ModeToggle />
+          </div>
+          <div className="mt-auto pt-6">
+            <h3 className="border-t border-border/70 px-3 pt-5 text-xs font-medium text-muted-foreground">
+              {t("header.preferences")}
+            </h3>
+            <div className="mt-2 space-y-1 px-3">
+              <div className="flex min-h-11 items-center justify-between gap-4">
+                <span className="text-sm">{t("header.language")}</span>
+                <LanguageToggle />
+              </div>
+              <div className="flex min-h-11 items-center justify-between gap-4">
+                <span className="text-sm">{t("header.theme")}</span>
+                <ModeToggle />
+              </div>
             </div>
           </div>
         </SheetContent>
@@ -227,36 +206,26 @@ export default function Header({ title }: IHeader) {
 
   return (
     <SearchProvider>
-      <div className="sticky top-0 z-50">
-        <ReadingProgressBar />
-        {/* 스크롤 시 알약 헤더가 축소되며 생기는 상단/좌우 틈으로 본문이 비치지 않도록 배경을 페이드아웃 */}
-        <div
-          aria-hidden
-          className={cn(
-            "pointer-events-none absolute inset-x-0 top-0 -z-10 h-20 bg-gradient-to-b from-background to-transparent transition-opacity duration-300",
-            scrolled ? "opacity-100" : "opacity-0",
-          )}
-        />
+      <header className="sticky top-0 z-50">
+        {isPostDetailPath(pathname) && <ReadingProgressBar key={pathname} />}
         <div
           className={cn(
-            "backdrop-blur transition-[transform,border-radius,background-color,box-shadow,border-color] duration-300 ease-out [will-change:transform]",
+            "border-b backdrop-blur-md transition-[background-color,box-shadow,border-color] duration-200 motion-reduce:transition-none",
             scrolled
-              ? "rounded-full border bg-background/95 shadow-sm"
-              : "rounded-none border-b bg-background/70",
+              ? "border-border bg-background/95 shadow-sm"
+              : "border-border/50 bg-background/80",
           )}
-          style={{
-            transform: scrolled ? "translateY(6px) scale(0.97)" : "translateY(0) scale(1)",
-          }}
         >
-          <div className="mx-auto flex h-14 max-w-6xl items-center px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-1 items-center gap-4">
+          <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-6 lg:gap-5 lg:px-8">
+            <div className="flex min-w-0 flex-1 items-center">
               <Wordmark title={title} />
             </div>
             <DesktopNav pathname={pathname} />
+            <Controls />
             <MobileNav pathname={pathname} />
           </div>
         </div>
-      </div>
+      </header>
     </SearchProvider>
   );
 }

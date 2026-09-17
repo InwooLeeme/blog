@@ -16,6 +16,7 @@ import {
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useT } from "./LocaleProvider";
 import { createRetryableLoader } from "./retryable-loader";
 
@@ -128,27 +129,35 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function SearchTrigger() {
+export function SearchTrigger({ compact = false }: { compact?: boolean }) {
   const t = useT();
   const { setOpen } = useSearchDialog();
 
   return (
-    <div className="flex items-center gap-1.5">
-      <Button
-        variant="ghost"
-        size="icon"
-        aria-label={t("search.open")}
-        onPointerEnter={() => void searchDialogLoader.warm()}
-        onFocus={() => void searchDialogLoader.warm()}
-        onClick={() => setOpen(true)}
-        className="relative before:absolute before:-inset-1 before:content-['']"
-      >
-        <Search className="h-5 w-5" />
-      </Button>
-      <kbd className="hidden rounded border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground md:inline-block">
-        ⌘K
-      </kbd>
-    </div>
+    <Button
+      variant="ghost"
+      size="icon"
+      aria-label={t("search.open")}
+      aria-keyshortcuts="Meta+K Control+K"
+      aria-haspopup="dialog"
+      onPointerEnter={() => void searchDialogLoader.warm()}
+      onFocus={() => void searchDialogLoader.warm()}
+      onClick={() => setOpen(true)}
+      className={cn(
+        "h-11 rounded-lg text-muted-foreground hover:text-foreground",
+        compact ? "w-11" : "w-40 justify-start gap-2 border border-border/70 bg-muted/40 px-3",
+      )}
+    >
+      <Search className={compact ? "size-5" : "size-4"} />
+      {!compact && (
+        <>
+          <span className="text-sm">{t("search.trigger")}</span>
+          <kbd aria-hidden className="ml-auto whitespace-nowrap rounded border border-border/70 bg-background px-1 py-0.5 text-[10px] font-medium text-muted-foreground">
+            ⌘/Ctrl K
+          </kbd>
+        </>
+      )}
+    </Button>
   );
 }
 

@@ -1,9 +1,34 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import * as selection from "./effect-selection.ts";
+import { EFFECT_CATALOG } from "./effect-catalog.ts";
 import { getEffectIdFromSearch, resolveEffectId, resolveEffectSelection, stepEffectId, withEffectId } from "./effect-selection.ts";
 
 const ids = ["cluster", "meteor-sky", "warp"];
+
+test("실제 장면 선택: 구상성단 다음에는 색방울만 선택할 수 있다", () => {
+  const available = EFFECT_CATALOG.map(({ id }) => id);
+  assert.equal(stepEffectId("cluster", 1, available), "color-bubbles");
+  assert.equal(stepEffectId("color-bubbles", -1, available), "cluster");
+  assert.equal(stepEffectId("color-bubbles", 1, available), "color-bubbles");
+});
+
+test("삭제한 장면의 저장 링크는 구상성단으로 복구하고 색방울 링크는 유지한다", () => {
+  const available = EFFECT_CATALOG.map(({ id }) => id);
+  for (const removed of ["meteor-sky", "warp", "aurora", "flow", "metaballs", "cloth", "gravity", "water", "lightning", "eclipse", "blackhole", "star-trails", "fireflies", "fluid-ink", "tree-growth"]) {
+    assert.equal(resolveEffectId(removed, available), "cluster", removed);
+  }
+  assert.equal(resolveEffectId("color-bubbles", available), "color-bubbles");
+});
+
+test("기존 Playground 링크는 다른 쿼리와 해시를 보존해 새 이펙트 경로로 연결한다", () => {
+  assert.equal(typeof selection.getLegacyEffectHref, "function");
+  assert.equal(selection.getLegacyEffectHref("https://example.com/playground?effect=color-bubbles&lang=ko#stage"), "/playground/effects?effect=color-bubbles&lang=ko#stage");
+  assert.equal(selection.getLegacyEffectHref("https://example.com/playground?effect=fluid-ink"), "/playground/effects?effect=cluster");
+  assert.equal(selection.getLegacyEffectHref("https://example.com/playground?effect="), "/playground/effects?effect=cluster");
+  assert.equal(selection.getLegacyEffectHref("https://example.com/playground?lang=ko"), null);
+  assert.equal(selection.getLegacyEffectHref("https://example.com/playground/pathfinding?effect=cluster"), null);
+});
 
 test("resolveEffectSelection: 현재 장면과 카탈로그 위치를 함께 반환한다", () => {
   const catalog = [

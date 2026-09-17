@@ -33,10 +33,9 @@ export function resolveNavLabel(
 export const navLinks: NavLink[] = [
   { href: "/blog", label: "블로그", messageId: "footer.blog" },
   { href: "/til", label: "TIL", messageId: "nav.til" },
-  { href: "/about", label: "Profile", messageId: "nav.profile" },
   { href: "/notes", label: "Notes", messageId: "nav.notes" },
   { href: "/playground", label: "Playground", messageId: "nav.playground" },
-  { href: "/graph", label: "Graph", messageId: "nav.graph" },
+  { href: "/about", label: "About", messageId: "nav.profile" },
 ];
 
 /** 푸터 */
@@ -44,7 +43,7 @@ export const footerLinks: NavLink[] = [
   { href: "/blog", label: "블로그", messageId: "footer.blog" },
   { href: "/til", label: "TIL", messageId: "nav.til" },
   { href: "/notes", label: "Notes", messageId: "nav.notes" },
-  { href: "/about", label: "Profile", messageId: "nav.profile" },
+  { href: "/about", label: "About", messageId: "nav.profile" },
 ];
 
 

@@ -237,3 +237,22 @@ test("getSeriesNavigation: first/last episode boundaries", () => {
   assert.equal(lastNav?.next, null);
   assert.equal(lastNav?.position, episodes.length);
 });
+
+test("getSeriesNavigation: client links contain only the neighboring slug and title", () => {
+  const seriesPost = posts.find((post) => post.meta.series);
+  assert.ok(seriesPost?.meta.series);
+  const episodes = getPostsBySeries(seriesPost.meta.series);
+  assert.ok(episodes.length > 1);
+  const nav = getSeriesNavigation(episodes[0].slug);
+  assert.deepEqual(nav?.next, {
+    slug: episodes[1].slug,
+    title: episodes[1].meta.title,
+  });
+  const lastNav = getSeriesNavigation(episodes.at(-1)!.slug);
+  assert.deepEqual(lastNav?.prev, {
+    slug: episodes.at(-2)!.slug,
+    title: episodes.at(-2)!.meta.title,
+  });
+  // The cached post remains intact for the article renderer.
+  assert.ok(getPostBySlug(episodes[1].slug)?.content);
+});

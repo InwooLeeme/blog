@@ -12,24 +12,6 @@ export type VortexSeed = {
   flare: boolean;
 };
 
-export type VortexOrbit = Pick<
-  VortexSeed,
-  "angle" | "radiusRatio" | "angularSpeed" | "inwardSpeed"
->;
-
-export type VortexStep = VortexOrbit & { recycled: boolean };
-
-export type VortexPoint3D = {
-  x: number;
-  y: number;
-  z: number;
-};
-
-export type VortexPositionSeed = Pick<
-  VortexSeed,
-  "angle" | "radiusRatio" | "twinklePhase"
->;
-
 export type VortexStarLightProfile = {
   hotCoreRadius: number;
   softCoreRadius: number;
@@ -58,12 +40,6 @@ export const VORTEX_PATTERN_SPEED = -0.026;
 export const VORTEX_STAR_DRIFT_SPAN = 0.46;
 export const VORTEX_STAR_PERSPECTIVE_MIN = 0.58;
 export const VORTEX_STAR_PERSPECTIVE_MAX = 1.62;
-const DISK_TILT = 0.86;
-const DISK_ROTATION = -0.16;
-const DISK_TILT_COS = Math.cos(DISK_TILT);
-const DISK_TILT_SIN = Math.sin(DISK_TILT);
-const DISK_ROTATION_COS = Math.cos(DISK_ROTATION);
-const DISK_ROTATION_SIN = Math.sin(DISK_ROTATION);
 
 const ORBIT_STAR_LIGHT_PROFILE: VortexStarLightProfile = {
   hotCoreRadius: 0.2,
@@ -122,11 +98,6 @@ export function getVortexStarPointSize(
   return (safeSize * 1.7 + 0.65) * flareScale * depthScale;
 }
 
-export function getFrameScale(deltaSeconds: number): number {
-  if (!Number.isFinite(deltaSeconds) || deltaSeconds <= 0) return 0;
-  return Math.min(deltaSeconds, 0.05) * 60;
-}
-
 export function getVortexFieldRadius(width: number, height: number): number {
   const safeWidth = Number.isFinite(width) && width > 0 ? width : 1;
   const safeHeight = Number.isFinite(height) && height > 0 ? height : 1;
@@ -140,89 +111,6 @@ export function getVortexFlowProfile(radiusRatio: number): VortexFlowProfile {
     angularSpeed: -(0.024 + innerInfluence * 0.105),
     inwardSpeed: 0.0038 + innerInfluence * 0.0052,
   };
-}
-
-export function getVortexFlowMotion(
-  angularSpeed: number,
-  phase: number,
-  elapsedSeconds: number,
-): { angleOffset: number; opacity: number } {
-  const speed = Number.isFinite(angularSpeed) ? angularSpeed : VORTEX_PATTERN_SPEED;
-  const safePhase = Number.isFinite(phase) ? phase : 0;
-  const elapsed = Number.isFinite(elapsedSeconds) && elapsedSeconds > 0
-    ? elapsedSeconds
-    : 0;
-  const positiveModulo = (value: number, divisor: number) =>
-    ((value % divisor) + divisor) % divisor;
-  const startProgress = positiveModulo(safePhase / (Math.PI * 2), 1);
-  const progress = positiveModulo(
-    startProgress -
-      (speed - VORTEX_PATTERN_SPEED) * elapsed / VORTEX_STAR_DRIFT_SPAN,
-    1,
-  );
-  const localDrift = (startProgress - progress) * VORTEX_STAR_DRIFT_SPAN;
-  const smoothstep = (edge0: number, edge1: number, value: number) => {
-    const normalized = Math.min(1, Math.max(0, (value - edge0) / (edge1 - edge0)));
-    return normalized * normalized * (3 - 2 * normalized);
-  };
-  const opacity = smoothstep(0.04, 0.1, progress)
-    * (1 - smoothstep(0.9, 0.96, progress));
-
-  return {
-    angleOffset: VORTEX_PATTERN_SPEED * elapsed + localDrift,
-    opacity,
-  };
-}
-
-export function getVortexFlowRadius(
-  radiusRatio: number,
-  inwardSpeed: number,
-  elapsedSeconds: number,
-): number {
-  const radius = Math.min(
-    VORTEX_FLOW_OUTER_RADIUS,
-    Math.max(
-      VORTEX_FLOW_INNER_RADIUS,
-      Number.isFinite(radiusRatio) ? radiusRatio : VORTEX_FLOW_OUTER_RADIUS,
-    ),
-  );
-  const speed = Number.isFinite(inwardSpeed) && inwardSpeed > 0 ? inwardSpeed : 0;
-  const elapsed = Number.isFinite(elapsedSeconds) && elapsedSeconds > 0
-    ? elapsedSeconds
-    : 0;
-  const span = VORTEX_FLOW_OUTER_RADIUS - VORTEX_FLOW_INNER_RADIUS;
-  const offset = radius - VORTEX_FLOW_INNER_RADIUS - speed * elapsed;
-  return VORTEX_FLOW_INNER_RADIUS + ((offset % span) + span) % span;
-}
-
-export function writeVortexPosition3D(
-  star: VortexPositionSeed,
-  maxRadius: number,
-  output: VortexPoint3D,
-): VortexPoint3D {
-  const safeRadius = Number.isFinite(maxRadius) && maxRadius > 0 ? maxRadius : 1;
-  const radius = safeRadius * star.radiusRatio;
-  const wobble = Math.sin(star.radiusRatio * Math.PI * 5 + star.twinklePhase) * 0.055;
-  const angle = star.angle + wobble;
-  const planeX = Math.cos(angle) * radius;
-  const planeY = Math.sin(angle) * radius;
-  const tiltedY = planeY * DISK_TILT_COS;
-
-  output.x = planeX * DISK_ROTATION_COS - tiltedY * DISK_ROTATION_SIN;
-  output.y = planeX * DISK_ROTATION_SIN + tiltedY * DISK_ROTATION_COS;
-  output.z = planeY * DISK_TILT_SIN;
-  return output;
-}
-
-export function getPerspectiveScale(z: number, cameraDistance: number): number {
-  if (
-    !Number.isFinite(z) ||
-    !Number.isFinite(cameraDistance) ||
-    cameraDistance <= 0
-  ) return 1;
-
-  const clampedZ = Math.min(Math.max(z, -cameraDistance * 0.8), cameraDistance * 0.8);
-  return cameraDistance / (cameraDistance - clampedZ);
 }
 
 function createRandom(seed: number) {
@@ -306,50 +194,4 @@ export function createVortexSeeds(count: number, seed = 20260909): VortexSeed[] 
       flare: lightTier === "flare",
     };
   });
-}
-
-export function advanceVortexOrbit(
-  orbit: VortexOrbit,
-  deltaSeconds: number,
-  output?: VortexStep,
-): VortexStep {
-  const result = output ?? {
-    angle: orbit.angle,
-    radiusRatio: orbit.radiusRatio,
-    angularSpeed: orbit.angularSpeed,
-    inwardSpeed: orbit.inwardSpeed,
-    recycled: false,
-  };
-
-  result.angularSpeed = orbit.angularSpeed;
-  result.inwardSpeed = orbit.inwardSpeed;
-
-  if (!Number.isFinite(deltaSeconds) || deltaSeconds <= 0) {
-    result.angle = orbit.angle;
-    result.radiusRatio = orbit.radiusRatio;
-    result.recycled = false;
-    return result;
-  }
-
-  const delta = Math.min(deltaSeconds, 0.05);
-  const phase = orbit.angle - SPIRAL_PITCH * orbit.radiusRatio;
-  const radiusRatio = orbit.radiusRatio - orbit.inwardSpeed * delta;
-  const angle =
-    phase +
-    SPIRAL_PITCH * radiusRatio +
-    orbit.angularSpeed * delta;
-
-  if (radiusRatio > 0.055) {
-    result.angle = angle;
-    result.radiusRatio = radiusRatio;
-    result.recycled = false;
-    return result;
-  }
-
-  const cycleNoise = Math.abs(Math.sin(angle * 12.9898) * 43758.5453) % 1;
-  result.radiusRatio = 0.94 + cycleNoise * 0.05;
-  result.angle =
-    phase + (Math.PI * 2) / 3 + SPIRAL_PITCH * result.radiusRatio;
-  result.recycled = true;
-  return result;
 }

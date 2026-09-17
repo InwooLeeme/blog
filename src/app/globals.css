@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 @import "tw-animate-css";
+@import "./styles/pretendard.css";
 @import "./styles/toc.css";
 @import "./styles/code.css";
 @import "./styles/prose.css";

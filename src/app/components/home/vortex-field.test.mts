@@ -2,38 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import * as vortexField from "./vortex-field.ts";
 import {
-  advanceVortexOrbit,
   createVortexSeeds,
-  getFrameScale,
-  SPIRAL_PITCH,
 } from "./vortex-field.ts";
 
-type VortexPoint3D = { x: number; y: number; z: number };
 type ThreeDimensionalVortexField = typeof vortexField & {
-  getVortexFlowMotion?: (
-    angularSpeed: number,
-    phase: number,
-    elapsedSeconds: number,
-  ) => { angleOffset: number; opacity: number };
-  getVortexFlowProfile?: (radiusRatio: number) => {
-    angularSpeed: number;
-    inwardSpeed: number;
-  };
-  getVortexFlowRadius?: (
-    radiusRatio: number,
-    inwardSpeed: number,
-    elapsedSeconds: number,
-  ) => number;
   getVortexFieldRadius?: (width: number, height: number) => number;
   getVortexHaloStyle?: (
     tier: "dust" | "star" | "highlight" | "flare",
   ) => { scale: number; brightnessScale: number; flareMix: number } | null;
-  writeVortexPosition3D?: (
-    star: { angle: number; radiusRatio: number; twinklePhase: number },
-    maxRadius: number,
-    output: VortexPoint3D,
-  ) => VortexPoint3D;
-  getPerspectiveScale?: (z: number, cameraDistance: number) => number;
   getVortexStarPointSize?: (
     size: number,
     flare: boolean,
@@ -49,26 +25,6 @@ type ThreeDimensionalVortexField = typeof vortexField & {
     flareCoreScale: number;
   };
 };
-
-test("getVortexFlowMotion: 별은 나선팔 안에서 이동하고 경계에서 투명하게 순환한다", () => {
-  const { getVortexFlowMotion } = vortexField as ThreeDimensionalVortexField;
-  assert.equal(typeof getVortexFlowMotion, "function");
-  if (!getVortexFlowMotion) return;
-
-  assert.equal(getVortexFlowMotion(-0.1, Math.PI, 0).angleOffset, 0);
-  const times = [0, 8, 20, 60];
-  const offsets = times.map((time) =>
-    getVortexFlowMotion(-0.1, Math.PI, time).angleOffset,
-  );
-  assert.ok(offsets.every(Number.isFinite));
-  assert.ok(offsets.every((offset, index) =>
-    Math.abs(offset + 0.026 * times[index]) <= 0.46,
-  ));
-
-  const beforeReset = getVortexFlowMotion(-0.1, 0, 5.9);
-  assert.ok(beforeReset.opacity < 0.25);
-  assert.ok(beforeReset.opacity >= 0);
-});
 
 test("getVortexFlowProfile: 중심부는 외곽보다 빠르게 돌면서 안쪽으로 흐른다", () => {
   const { getVortexFlowProfile } = vortexField as ThreeDimensionalVortexField;
@@ -99,16 +55,6 @@ test("createVortexSeeds: 같은 반경대의 별도 서로 다른 속도로 흘�
 
   assert.ok(speedRatios.length > 150);
   assert.ok(Math.max(...speedRatios) - Math.min(...speedRatios) >= 0.5);
-});
-
-test("getVortexFlowRadius: 첫 프레임의 외곽 별을 순간적으로 중심에 보내지 않는다", () => {
-  const { getVortexFlowRadius } = vortexField as ThreeDimensionalVortexField;
-  assert.equal(typeof getVortexFlowRadius, "function");
-  if (!getVortexFlowRadius) return;
-
-  assert.equal(getVortexFlowRadius(1, 0.002, 0), 1);
-  const after = getVortexFlowRadius(1, 0.002, 20);
-  assert.ok(after < 1 && after > 0.9);
 });
 
 test("createVortexSeeds: 요청한 수만큼 결정적인 별 궤도를 만든다", () => {
@@ -187,119 +133,6 @@ test("getVortexFieldRadius: 외곽 나선이 화면 가장자리까지 뻗도록
 
   assert.equal(getVortexFieldRadius(1000, 1000), 500);
   assert.equal(getVortexFieldRadius(400, 800), 260);
-});
-
-test("advanceVortexOrbit: 별을 천천히 회전시키며 중심으로 이동시킨다", () => {
-  const orbit = {
-    angle: 1,
-    radiusRatio: 0.7,
-    angularSpeed: 0.08,
-    inwardSpeed: 0.02,
-  };
-  const next = advanceVortexOrbit(orbit, 1);
-
-  assert.notEqual(next.angle, orbit.angle);
-  assert.ok(next.radiusRatio < orbit.radiusRatio);
-  assert.equal(next.recycled, false);
-});
-
-test("advanceVortexOrbit: 중심에 도달한 별을 바깥 나선으로 재순환한다", () => {
-  const next = advanceVortexOrbit(
-    {
-      angle: 2,
-      radiusRatio: 0.051,
-      angularSpeed: 0.08,
-      inwardSpeed: 0.02,
-    },
-    1,
-  );
-
-  assert.ok(next.radiusRatio >= 0.94 && next.radiusRatio <= 0.99);
-  assert.ok(Number.isFinite(next.angle));
-  assert.equal(next.recycled, true);
-});
-
-test("advanceVortexOrbit: 비정상 프레임 간격을 무시한다", () => {
-  const orbit = {
-    angle: 1,
-    radiusRatio: 0.7,
-    angularSpeed: 0.08,
-    inwardSpeed: 0.02,
-  };
-
-  assert.deepEqual(advanceVortexOrbit(orbit, Number.NaN), {
-    ...orbit,
-    recycled: false,
-  });
-  assert.deepEqual(advanceVortexOrbit(orbit, -1), {
-    ...orbit,
-    recycled: false,
-  });
-});
-
-test("advanceVortexOrbit: 눈에 띄게 움직인 뒤에도 세 나선팔의 위상 응집도를 유지한다", () => {
-  let stars = createVortexSeeds(420, 20260909).map((star) => ({
-    angle: star.angle,
-    radiusRatio: star.radiusRatio,
-    angularSpeed: star.angularSpeed,
-    inwardSpeed: star.inwardSpeed,
-  }));
-
-  for (let frame = 0; frame < 160; frame += 1) {
-    stars = stars.map((star) => advanceVortexOrbit(star, 0.05));
-  }
-
-  const armStars = stars.filter((_, index) => index % 7 !== 0);
-  const phaseVectors = armStars.map((star) => {
-    const phase = (star.angle - SPIRAL_PITCH * star.radiusRatio) * 3;
-    return { x: Math.cos(phase), y: Math.sin(phase) };
-  });
-  const concentration = Math.hypot(
-    phaseVectors.reduce((sum, point) => sum + point.x, 0),
-    phaseVectors.reduce((sum, point) => sum + point.y, 0),
-  ) / phaseVectors.length;
-
-  assert.ok(concentration > 0.65, `arm concentration was ${concentration}`);
-});
-
-test("getFrameScale: 60Hz를 기준으로 고주사율과 긴 프레임을 정규화한다", () => {
-  assert.ok(Math.abs(getFrameScale(1 / 60) - 1) < 1e-9);
-  assert.ok(Math.abs(getFrameScale(1 / 120) - 0.5) < 1e-9);
-  assert.equal(getFrameScale(1), 3);
-  assert.equal(getFrameScale(Number.NaN), 0);
-});
-
-test("writeVortexPosition3D: 나선 원반의 위아래 절반을 카메라 앞뒤 깊이에 배치한다", () => {
-  const { writeVortexPosition3D } = vortexField as ThreeDimensionalVortexField;
-  assert.equal(typeof writeVortexPosition3D, "function");
-  if (!writeVortexPosition3D) return;
-
-  const near = writeVortexPosition3D(
-    { angle: Math.PI / 2, radiusRatio: 0.4, twinklePhase: -Math.PI * 2 },
-    200,
-    { x: 0, y: 0, z: 0 },
-  );
-  const far = writeVortexPosition3D(
-    { angle: -Math.PI / 2, radiusRatio: 0.4, twinklePhase: Math.PI * 2 },
-    200,
-    { x: 0, y: 0, z: 0 },
-  );
-
-  assert.ok(near.z > 0);
-  assert.ok(far.z < 0);
-  assert.ok(Math.abs(Math.hypot(near.x, near.y, near.z) - 80) < 1e-9);
-  assert.ok(Math.abs(Math.hypot(far.x, far.y, far.z) - 80) < 1e-9);
-});
-
-test("getPerspectiveScale: 가까운 별은 커지고 먼 별은 작아진다", () => {
-  const { getPerspectiveScale } = vortexField as ThreeDimensionalVortexField;
-  assert.equal(typeof getPerspectiveScale, "function");
-  if (!getPerspectiveScale) return;
-
-  assert.equal(getPerspectiveScale(0, 800), 1);
-  assert.ok(getPerspectiveScale(120, 800) > 1);
-  assert.ok(getPerspectiveScale(-120, 800) < 1);
-  assert.equal(getPerspectiveScale(120, Number.NaN), 1);
 });
 
 test("getVortexStarPointSize: 밝은 별과 가까운 별의 크기 대비를 강화한다", () => {

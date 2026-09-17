@@ -131,7 +131,7 @@ function AdjacentLink({
           !isPrev && "text-accent-brand",
         )}
       >
-        {post.meta.title}
+        {post.title}
       </span>
     </Link>
   );

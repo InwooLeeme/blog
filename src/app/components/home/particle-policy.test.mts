@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  fitCanvasDpr,
   getParticlePolicy,
   isPointInsideRect,
   shouldRenderParticleFrame,
@@ -12,17 +11,6 @@ import * as particlePolicy from "./particle-policy.ts";
 type WebglParticlePolicy = typeof particlePolicy & {
   fitWebglDpr?: (width: number, height: number, requestedDpr: number) => number;
 };
-
-test("fitCanvasDpr: 큰 히어로는 백킹 캔버스 픽셀 예산을 넘지 않는다", () => {
-  const dpr = fitCanvasDpr(1026, 844, 1.75);
-
-  assert.ok(1026 * 844 * dpr * dpr <= 480_001);
-  assert.ok(dpr > 0 && dpr < 1);
-});
-
-test("fitCanvasDpr: 작은 모바일 캔버스는 정책 DPR을 유지한다", () => {
-  assert.equal(fitCanvasDpr(367, 444, 1.5), 1.5);
-});
 
 test("fitWebglDpr: GPU 렌더링은 선명도를 유지하면서 픽셀 예산을 제한한다", () => {
   const { fitWebglDpr } = particlePolicy as WebglParticlePolicy;
@@ -40,7 +28,6 @@ test("getParticlePolicy: 모바일 예산과 DPR을 제한한다", () => {
   assert.deepEqual(getParticlePolicy(390, 3), {
     dpr: 1.5,
     maxParticles: 2400,
-    sampleGap: 6,
   });
 });
 
@@ -48,7 +35,6 @@ test("getParticlePolicy: 데스크톱 예산과 DPR을 제한한다", () => {
   assert.deepEqual(getParticlePolicy(1440, 2), {
     dpr: 1.75,
     maxParticles: 5600,
-    sampleGap: 5,
   });
 });
 

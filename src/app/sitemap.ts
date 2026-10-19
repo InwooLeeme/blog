@@ -2,7 +2,6 @@ import type { MetadataRoute } from "next";
 import { getAllPosts, getAllSeries, getAllTags } from "@/lib/posts";
 import { getNoteSlugs } from "@/lib/notes";
 import { siteConfig } from "@/lib/site";
-import { getAllTilRecords } from "@/lib/til-files";
 
 const base = siteConfig.url.replace(/\/$/, "");
 
@@ -15,7 +14,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/blog/series",
     "/about",
     "/notes",
-    "/til",
     "/playground",
     "/playground/effects",
     "/playground/pathfinding",
@@ -42,17 +40,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${base}/notes/${slug.map(encodeURIComponent).join("/")}`,
   }));
 
-  const tilRoutes: MetadataRoute.Sitemap = getAllTilRecords().map((record) => ({
-    url: `${base}/til/${record.date}`,
-    lastModified: new Date(`${record.date}T00:00:00Z`),
-  }));
-
   return [
     ...staticRoutes,
     ...postRoutes,
     ...seriesRoutes,
     ...tagRoutes,
     ...noteRoutes,
-    ...tilRoutes,
   ];
 }

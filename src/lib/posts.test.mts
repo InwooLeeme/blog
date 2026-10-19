@@ -239,9 +239,9 @@ test("getSeriesNavigation: first/last episode boundaries", () => {
 });
 
 test("getSeriesNavigation: client links contain only the neighboring slug and title", () => {
-  const seriesPost = posts.find((post) => post.meta.series);
-  assert.ok(seriesPost?.meta.series);
-  const episodes = getPostsBySeries(seriesPost.meta.series);
+  const series = groupPostsBySeries(posts).find((group) => group.total > 1);
+  assert.ok(series, "neighbor link checks require a series with multiple episodes");
+  const episodes = getPostsBySeries(series.series);
   assert.ok(episodes.length > 1);
   const nav = getSeriesNavigation(episodes[0].slug);
   assert.deepEqual(nav?.next, {

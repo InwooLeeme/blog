@@ -43,29 +43,21 @@ test("buildGraphData: tag edges fully connect groups sized 2..MAX_TAG_GROUP_SIZE
   }
 
   const tagEdges = graph.edges.filter((e) => e.kind === "tag");
-  const hasEdge = (a: string, b: string) =>
-    tagEdges.some(
-      (e) => (e.source === a && e.target === b) || (e.source === b && e.target === a),
-    );
-
-  let expectedCount = 0;
+  const pairKey = (a: string, b: string) => JSON.stringify([a, b].sort());
+  const expectedPairs: string[] = [];
   for (const slugs of tagGroups.values()) {
-    if (slugs.length < 2 || slugs.length > MAX_TAG_GROUP_SIZE) {
-      for (let i = 0; i < slugs.length; i++) {
-        for (let j = i + 1; j < slugs.length; j++) {
-          assert.ok(!hasEdge(slugs[i], slugs[j]), `unexpected edge for oversized/singleton tag group`);
-        }
-      }
-      continue;
-    }
+    if (slugs.length < 2 || slugs.length > MAX_TAG_GROUP_SIZE) continue;
     for (let i = 0; i < slugs.length; i++) {
       for (let j = i + 1; j < slugs.length; j++) {
-        assert.ok(hasEdge(slugs[i], slugs[j]));
-        expectedCount++;
+        expectedPairs.push(pairKey(slugs[i], slugs[j]));
       }
     }
   }
 
-  assert.equal(tagEdges.length, expectedCount);
+  // 큰 태그를 공유해도 다른 작은 태그로 연결될 수 있으며, 태그별 중복 간선도 유지한다.
+  assert.deepEqual(
+    tagEdges.map((e) => pairKey(e.source, e.target)).sort(),
+    expectedPairs.sort(),
+  );
   assert.ok(tagEdges.every((e) => e.weight === 1));
 });

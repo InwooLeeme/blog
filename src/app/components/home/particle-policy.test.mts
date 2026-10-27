@@ -26,8 +26,9 @@ test("fitWebglDpr: GPU 렌더링은 선명도를 유지하면서 픽셀 예산�
 
 test("getParticlePolicy: 모바일 예산과 DPR을 제한한다", () => {
   assert.deepEqual(getParticlePolicy(390, 3), {
-    dpr: 1.5,
+    dpr: 1.25,
     maxParticles: 2400,
+    nebulaTextureSize: 768,
   });
 });
 
@@ -35,6 +36,7 @@ test("getParticlePolicy: 데스크톱 예산과 DPR을 제한한다", () => {
   assert.deepEqual(getParticlePolicy(1440, 2), {
     dpr: 1.75,
     maxParticles: 5600,
+    nebulaTextureSize: 1536,
   });
 });
 
@@ -97,6 +99,16 @@ test("shouldRenderParticleFrame: 유휴 상태는 30fps, 상호작용 중에는 
   assert.equal(shouldRenderParticleFrame(34, false), true);
   assert.equal(shouldRenderParticleFrame(8, true), false);
   assert.equal(shouldRenderParticleFrame(17, true), true);
+});
+
+test("모바일은 드래그하지 않아도 60fps 주기로 그리고 고밀도 화면 비용을 제한한다", () => {
+  assert.equal(shouldRenderParticleFrame(17, false, true), true);
+  assert.equal(shouldRenderParticleFrame(8, false, true), false);
+  assert.equal(shouldRenderParticleFrame(17, true, true), true);
+  const policy = getParticlePolicy(390, 3);
+  const dpr = particlePolicy.fitWebglDpr(390, 400, policy.dpr);
+  assert.ok(390 * 400 * dpr ** 2 <= 244_000);
+  assert.ok(policy.nebulaTextureSize ** 2 * 4 < 3 * 1024 ** 2);
 });
 
 test("isPointInsideRect: 경계 안쪽과 바깥쪽을 구분한다", () => {

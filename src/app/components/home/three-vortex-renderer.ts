@@ -1013,6 +1013,25 @@ export function mountThreeVortex(
     if (reducedMotion) resetPointer();
     syncAnimation();
   };
+  const disposeSceneResources = () => {
+    particleGeometry.dispose();
+    particleMaterial.dispose();
+    coreGeometry.dispose();
+    coreMaterial.dispose();
+    coronaGeometry.dispose();
+    coronaMaterial.dispose();
+    haloGeometry.dispose();
+    haloMaterial.dispose();
+    backgroundGeometry.dispose();
+    backgroundMaterial.dispose();
+    nebulaGeometry.dispose();
+    nebulaMaterial.dispose();
+    nebulaBakeMaterial.dispose();
+    nebulaTarget.dispose();
+    meteorGeometry.dispose();
+    meteors.forEach((meteor) => meteor.material.dispose());
+  };
+
   const handleContextLost = (event: Event) => {
     event.preventDefault();
     resetPointer();
@@ -1021,6 +1040,11 @@ export function mountThreeVortex(
     wrapper.dataset.canvasReady = "false";
     if (frameId) window.cancelAnimationFrame(frameId);
     frameId = 0;
+    // Detach Three.js disposal listeners while they still belong to the lost
+    // context. Disposing after restoration would delete old buffers/programs
+    // through the new context and raise INVALID_OPERATION. CPU data is retained
+    // and uploaded again by rebuild() after Three.js resets its renderer caches.
+    disposeSceneResources();
   };
   const handleContextRestored = () => {
     if (destroyed) return;
@@ -1070,22 +1094,7 @@ export function mountThreeVortex(
     window.removeEventListener("blur", resetPointer);
     document.removeEventListener("visibilitychange", handleVisibility);
     motionQuery.removeEventListener("change", handleMotionChange);
-    particleGeometry.dispose();
-    particleMaterial.dispose();
-    coreGeometry.dispose();
-    coreMaterial.dispose();
-    coronaGeometry.dispose();
-    coronaMaterial.dispose();
-    haloGeometry.dispose();
-    haloMaterial.dispose();
-    backgroundGeometry.dispose();
-    backgroundMaterial.dispose();
-    nebulaGeometry.dispose();
-    nebulaMaterial.dispose();
-    nebulaBakeMaterial.dispose();
-    nebulaTarget.dispose();
-    meteorGeometry.dispose();
-    meteors.forEach((meteor) => meteor.material.dispose());
+    disposeSceneResources();
     renderer.dispose();
   };
 }

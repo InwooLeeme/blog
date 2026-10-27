@@ -1,6 +1,7 @@
 export type ParticlePolicy = {
   dpr: number;
   maxParticles: number;
+  nebulaTextureSize: number;
 };
 
 export type AnimationPolicyInput = {
@@ -58,8 +59,9 @@ export function getParticlePolicy(
     : 1;
 
   return {
-    dpr: Math.min(Math.max(safeDpr, 1), mobile ? 1.5 : 1.75),
+    dpr: Math.min(Math.max(safeDpr, 1), mobile ? 1.25 : 1.75),
     maxParticles: mobile ? 2400 : 5600,
+    nebulaTextureSize: mobile ? 768 : 1536,
   };
 }
 
@@ -80,11 +82,12 @@ export function shouldAnimateParticleHero({
 export function shouldRenderParticleFrame(
   elapsedMs: number,
   interactive: boolean,
+  mobile = false,
 ): boolean {
   if (!Number.isFinite(elapsedMs) || elapsedMs < 0) return true;
-  return elapsedMs >= getParticleFrameInterval(interactive);
+  return elapsedMs >= getParticleFrameInterval(interactive, mobile);
 }
 
-export function getParticleFrameInterval(interactive: boolean): number {
-  return interactive ? ACTIVE_FRAME_INTERVAL_MS : IDLE_FRAME_INTERVAL_MS;
+export function getParticleFrameInterval(interactive: boolean, mobile = false): number {
+  return interactive || mobile ? ACTIVE_FRAME_INTERVAL_MS : IDLE_FRAME_INTERVAL_MS;
 }

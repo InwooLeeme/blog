@@ -43,23 +43,32 @@ const STAR_VERTEX_SHADER = /* glsl */ `
   uniform float uTime;
   uniform float uPixelRatio;
   uniform float uAlphaBoost;
+  uniform float uDepthMotion;
   varying vec3 vColor;
   varying float vAlpha;
   varying float vFlare;
 
   void main() {
-    vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
+    float proximity = smoothstep(-480.0, 100.0, position.z) * uDepthMotion;
+    vec3 driftingPosition = position;
+    driftingPosition.xy += vec2(
+      sin(uTime * 0.035 + aPhase) - sin(aPhase),
+      cos(uTime * 0.028 + aPhase) - cos(aPhase)
+    ) * vec2(12.0, 7.0) * proximity;
+    vec4 viewPosition = modelViewMatrix * vec4(driftingPosition, 1.0);
     float twinkle = 0.82 + sin(uTime * (0.35 + fract(aPhase) * 0.5) + aPhase) * 0.18;
+    float glint = smoothstep(0.72, 0.995, sin(uTime * 0.32 + aPhase))
+      * aFlare * uDepthMotion;
     float perspective = clamp(
       ${CAMERA_DISTANCE.toFixed(1)} / -viewPosition.z,
       ${VORTEX_STAR_PERSPECTIVE_MIN.toFixed(2)},
       ${VORTEX_STAR_PERSPECTIVE_MAX.toFixed(2)}
     );
-    gl_PointSize = max(1.0, aSize * uPixelRatio * perspective);
+    gl_PointSize = max(1.0, aSize * uPixelRatio * perspective * (1.0 + glint * 0.16));
     gl_Position = projectionMatrix * viewPosition;
     vColor = aColor;
-    vAlpha = min(1.0, aBrightness * twinkle * uAlphaBoost);
-    vFlare = aFlare;
+    vAlpha = min(1.0, aBrightness * (twinkle + glint * 0.32) * uAlphaBoost);
+    vFlare = aFlare * mix(1.0, 0.45 + glint * 0.95, uDepthMotion);
   }
 `;
 
@@ -131,6 +140,7 @@ const FLOW_STAR_VERTEX_SHADER = /* glsl */ `
       1.0
     );
     float twinkle = 0.9 + sin(uTime * (0.35 + fract(aPhase) * 0.5) + aPhase) * 0.1;
+    float glint = smoothstep(0.78, 0.995, sin(uTime * 0.26 + aPhase)) * aFlare;
     float perspective = clamp(
       ${CAMERA_DISTANCE.toFixed(1)} / -viewPosition.z,
       ${VORTEX_STAR_PERSPECTIVE_MIN.toFixed(2)},
@@ -141,9 +151,9 @@ const FLOW_STAR_VERTEX_SHADER = /* glsl */ `
     gl_PointSize = max(1.0, aSize * uPixelRatio * perspective);
     gl_Position = projectionMatrix * viewPosition;
     vColor = aColor;
-    vAlpha = min(1.0, aBrightness * twinkle * uAlphaBoost)
+    vAlpha = min(1.0, aBrightness * (twinkle + glint * 0.18) * uAlphaBoost)
       * centerFade * edgeFade * lifeFade;
-    vFlare = aFlare;
+    vFlare = aFlare * (0.55 + glint * 0.85);
   }
 `;
 
@@ -295,31 +305,18 @@ const NEBULA_FRAGMENT_SHADER = /* glsl */ `
   }
 `;
 
-// Screen-space trails use the same paused clock as the stars (including reduced motion).
+// Each trail occupies a small quad instead of shading the entire canvas.
 const METEOR_FRAGMENT_SHADER = /* glsl */ `
-  uniform float uTime;
-  uniform vec2 uResolution;
+  uniform float uFade;
   varying vec2 vUv;
   void main() {
-    vec2 p = vUv * uResolution;
-    vec3 light = vec3(0.0);
-    vec2 direction = normalize(vec2(-1.0, -0.48));
-    for (int i = 0; i < 3; i++) {
-      float seed = float(i);
-      float cycle = mod(uTime + seed * 7.3, 19.0);
-      float progress = clamp(cycle / 2.8, 0.0, 1.0);
-      vec2 start = vec2(0.98 - seed * 0.11, 0.94 - seed * 0.18) * uResolution;
-      vec2 head = start + direction * progress * uResolution.x * 0.27;
-      vec2 offset = p - head;
-      float along = dot(offset, -direction);
-      float across = dot(offset, vec2(-direction.y, direction.x));
-      float tail = exp(-across * across / 1.8)
-        * exp(-max(along, 0.0) / 28.0) * step(0.0, along);
-      float spark = exp(-dot(offset, offset) / 5.0);
-      float fade = smoothstep(0.0, 0.4, cycle) * (1.0 - smoothstep(1.7, 2.8, cycle));
-      light += (vec3(0.28, 0.65, 1.0) * tail + vec3(0.85, 0.95, 1.0) * spark) * fade;
-    }
-    gl_FragColor = vec4(light, 0.7);
+    vec2 offset = vec2(vUv.x * 120.0 - 8.0, (vUv.y - 0.5) * 12.0);
+    float tail = exp(-offset.y * offset.y / 1.8)
+      * exp(-max(offset.x, 0.0) / 28.0) * step(0.0, offset.x)
+      * (1.0 - smoothstep(90.0, 112.0, offset.x));
+    float spark = exp(-dot(offset, offset) / 5.0);
+    vec3 light = vec3(0.28, 0.65, 1.0) * tail + vec3(0.85, 0.95, 1.0) * spark;
+    gl_FragColor = vec4(light, 0.7 * uFade);
   }
 `;
 
@@ -363,6 +360,7 @@ export function mountThreeVortex(
     uFlowTime: { value: 0 },
     uPixelRatio: { value: 1 },
     uAlphaBoost: { value: particleLightProfile.alphaBoost },
+    uDepthMotion: { value: 0 },
     uHotCoreRadius: { value: particleLightProfile.hotCoreRadius },
     uSoftCoreRadius: { value: particleLightProfile.softCoreRadius },
     uEdgeFadeStart: { value: particleLightProfile.edgeFadeStart },
@@ -390,11 +388,57 @@ export function mountThreeVortex(
   scene.add(orientation);
 
   const nebulaGeometry = new THREE.PlaneGeometry(2, 2);
-  const nebulaUniforms = { uFlowTime: { value: 0 } };
-  const nebulaMaterial = new THREE.ShaderMaterial({
-    uniforms: nebulaUniforms,
+  // The noise field only rotates; bake it once and rotate the textured disk.
+  // Keep the baking resources for responsive quality changes and context recovery.
+  const nebulaTarget = new THREE.WebGLRenderTarget(1, 1, {
+    depthBuffer: false,
+    stencilBuffer: false,
+    minFilter: THREE.LinearFilter,
+    magFilter: THREE.LinearFilter,
+    generateMipmaps: false,
+  });
+  const nebulaBakeMaterial = new THREE.ShaderMaterial({
+    uniforms: { uFlowTime: { value: 0 } },
     vertexShader: CORONA_VERTEX_SHADER,
     fragmentShader: NEBULA_FRAGMENT_SHADER,
+    depthTest: false,
+    depthWrite: false,
+    blending: THREE.NoBlending,
+  });
+  const nebulaBakeScene = new THREE.Scene();
+  nebulaBakeScene.add(new THREE.Mesh(nebulaGeometry, nebulaBakeMaterial));
+  const nebulaBakeCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 2);
+  nebulaBakeCamera.position.z = 1;
+  let nebulaTextureReady = false;
+  const bakeNebula = (size: number) => {
+    if (nebulaTextureReady && nebulaTarget.width === size) return;
+    nebulaTarget.setSize(size, size);
+    renderer.setRenderTarget(nebulaTarget);
+    renderer.setClearColor(0x000000, 0);
+    renderer.render(nebulaBakeScene, nebulaBakeCamera);
+    renderer.setRenderTarget(null);
+    renderer.setClearColor(0x08090b, 1);
+    nebulaTextureReady = true;
+  };
+  const nebulaColorShift = new THREE.Matrix3();
+  const nebulaMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      uMap: { value: nebulaTarget.texture },
+      uColorShift: { value: nebulaColorShift },
+    },
+    vertexShader: CORONA_VERTEX_SHADER,
+    fragmentShader: /* glsl */ `
+      uniform sampler2D uMap;
+      uniform mat3 uColorShift;
+      varying vec2 vUv;
+      void main() {
+        vec4 gas = texture2D(uMap, vUv);
+        vec2 center = (vUv - 0.5) * 2.0;
+        float outerArms = smoothstep(0.015, 0.12, dot(center, center));
+        vec3 shifted = max(vec3(0.0), uColorShift * gas.rgb);
+        gl_FragColor = vec4(mix(gas.rgb, shifted, outerArms), gas.a);
+      }
+    `,
     transparent: true,
     depthWrite: false,
     depthTest: false,
@@ -428,6 +472,7 @@ export function mountThreeVortex(
   const backgroundGeometry = new THREE.BufferGeometry();
   const backgroundMaterial = particleMaterial.clone();
   backgroundMaterial.vertexShader = STAR_VERTEX_SHADER;
+  backgroundMaterial.uniforms.uDepthMotion.value = 1;
   backgroundMaterial.uniforms.uFlareCoreScale.value = 0.28;
   backgroundMaterial.uniforms.uRaySharpness.value = 220;
   backgroundMaterial.uniforms.uRayStrength.value = 0.8;
@@ -436,22 +481,24 @@ export function mountThreeVortex(
   scene.add(backgroundPoints);
 
   const meteorGeometry = new THREE.PlaneGeometry(1, 1);
-  const meteorUniforms = {
-    uTime: { value: 0 },
-    uResolution: { value: new THREE.Vector2(1, 1) },
-  };
-  const meteorMaterial = new THREE.ShaderMaterial({
-    uniforms: meteorUniforms,
-    vertexShader: CORONA_VERTEX_SHADER,
-    fragmentShader: METEOR_FRAGMENT_SHADER,
-    transparent: true,
-    depthWrite: false,
-    depthTest: false,
-    blending: THREE.AdditiveBlending,
+  const meteorDirection = new THREE.Vector2(1, 0.48).normalize();
+  const meteors = Array.from({ length: 3 }, () => {
+    const material = new THREE.ShaderMaterial({
+      uniforms: { uFade: { value: 0 } },
+      vertexShader: CORONA_VERTEX_SHADER,
+      fragmentShader: METEOR_FRAGMENT_SHADER,
+      transparent: true,
+      depthWrite: false,
+      depthTest: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const mesh = new THREE.Mesh(meteorGeometry, material);
+    mesh.scale.set(120, 12, 1);
+    mesh.rotation.z = Math.atan2(meteorDirection.y, meteorDirection.x);
+    mesh.renderOrder = 3;
+    scene.add(mesh);
+    return mesh;
   });
-  const meteorMesh = new THREE.Mesh(meteorGeometry, meteorMaterial);
-  meteorMesh.renderOrder = 3;
-  scene.add(meteorMesh);
 
   const coreStyle = getVortexCoreStyle(400);
   const coreParticles = createVortexCoreParticles(coreStyle);
@@ -488,6 +535,7 @@ export function mountThreeVortex(
     uTime: { value: 0 },
     uPixelRatio: { value: 1 },
     uAlphaBoost: { value: coreLightProfile.alphaBoost },
+    uDepthMotion: { value: 0 },
     uHotCoreRadius: { value: coreLightProfile.hotCoreRadius },
     uSoftCoreRadius: { value: coreLightProfile.softCoreRadius },
     uEdgeFadeStart: { value: coreLightProfile.edgeFadeStart },
@@ -544,6 +592,7 @@ export function mountThreeVortex(
   let centerY = 0;
   let maxRadius = 1;
   let particleCount = 0;
+  let mobile = false;
   let sceneTime = 0;
   let flowTime = 0;
   let flowScale = 1;
@@ -595,13 +644,36 @@ export function mountThreeVortex(
     coreGroup.rotation.z = flowTime * -0.085;
     particleUniforms.uTime.value = sceneTime;
     particleUniforms.uFlowTime.value = flowTime;
-    nebulaUniforms.uFlowTime.value = flowTime;
+    nebulaMesh.rotation.z = VORTEX_PATTERN_SPEED * flowTime;
+    // Rotate the outer arms' colors slowly around the neutral RGB axis.
+    // CPU uniforms keep trigonometry out of the cached-texture fragment pass.
+    const hue = Math.sin(sceneTime * 0.075) * 0.45;
+    const cosine = Math.cos(hue);
+    const sine = Math.sin(hue) / Math.sqrt(3);
+    const neutral = (1 - cosine) / 3;
+    nebulaColorShift.set(
+      cosine + neutral, neutral - sine, neutral + sine,
+      neutral + sine, cosine + neutral, neutral - sine,
+      neutral - sine, neutral + sine, cosine + neutral,
+    );
     haloMaterial.uniforms.uTime.value = sceneTime;
     haloMaterial.uniforms.uFlowTime.value = flowTime;
     coreUniforms.uTime.value = sceneTime;
     backgroundMaterial.uniforms.uTime.value = sceneTime;
     coronaUniforms.uTime.value = sceneTime;
-    meteorUniforms.uTime.value = sceneTime;
+    meteors.forEach((meteor, index) => {
+      const cycle = (sceneTime + index * 7.3) % 19;
+      meteor.visible = cycle > 0 && cycle < 2.8;
+      if (!meteor.visible) return;
+      const distance = cycle / 2.8 * width * 0.27;
+      meteor.position.set(
+        (0.98 - index * 0.11) * width - width / 2 + meteorDirection.x * (52 - distance),
+        (0.94 - index * 0.18) * height - height / 2 + meteorDirection.y * (52 - distance),
+        0,
+      );
+      meteor.material.uniforms.uFade.value = THREE.MathUtils.smoothstep(cycle, 0, 0.4)
+        * (1 - THREE.MathUtils.smoothstep(cycle, 1.7, 2.8));
+    });
   };
 
   const render = (time: number, animate: boolean) => {
@@ -626,9 +698,9 @@ export function mountThreeVortex(
       : Number.POSITIVE_INFINITY;
     const interactive = pointer.active || rotation.dragging || Math.abs(rotation.velocityYaw) > 0.01
       || Math.abs(rotation.velocityPitch) > 0.01;
-    if (shouldRenderParticleFrame(elapsedSincePaint, interactive)) {
+    if (shouldRenderParticleFrame(elapsedSincePaint, interactive, mobile)) {
       render(time, true);
-      const frameInterval = getParticleFrameInterval(interactive);
+      const frameInterval = getParticleFrameInterval(interactive, mobile);
       lastPaintTime = Number.isFinite(elapsedSincePaint)
         ? time - (elapsedSincePaint % frameInterval)
         : time;
@@ -755,9 +827,12 @@ export function mountThreeVortex(
       positions[index * 3 + 1] = ((y - Math.floor(y)) - 0.5) * height * 1.4;
       // A few nearby diffraction stars frame the galaxy; the rest remain distant.
       const foreground = index % 29 === 0;
-      positions[index * 3 + 2] = foreground ? 60 : -300;
-      sizes[index] = foreground ? 18 + seed.size * 6 : 1.5 + seed.size * 0.65;
-      brightness[index] = foreground ? 0.82 : 0.24 + seed.brightness * 0.32;
+      const middleDistance = !foreground && index % 7 === 0;
+      positions[index * 3 + 2] = foreground ? 100 : middleDistance ? -180 : -480;
+      sizes[index] = foreground ? 18 + seed.size * 6
+        : middleDistance ? 2.4 + seed.size * 0.8 : 1.4 + seed.size * 0.6;
+      brightness[index] = foreground ? 0.76
+        : middleDistance ? 0.4 + seed.brightness * 0.25 : 0.22 + seed.brightness * 0.28;
       flares[index] = foreground ? 1 : 0;
       phases[index] = seed.twinklePhase;
       colors.set(STAR_COLORS[seed.colorIndex], index * 3);
@@ -780,6 +855,7 @@ export function mountThreeVortex(
     width = Math.max(1, Math.round(rect.width));
     height = Math.max(1, Math.round(rect.height));
     const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+    mobile = viewportWidth < 768;
     // Keep the bright nucleus clear of the copy on narrow phones.
     centerX = width * (viewportWidth < 480 ? 0.78 : viewportWidth < 768 ? 0.64 : 0.68);
     centerY = height * 0.46;
@@ -790,8 +866,7 @@ export function mountThreeVortex(
     renderer.setPixelRatio(renderDpr);
     renderer.setSize(width, height, false);
     configureCamera(camera, width, height);
-    meteorMesh.scale.set(width, height, 1);
-    meteorUniforms.uResolution.value.set(width, height);
+    bakeNebula(policy.nebulaTextureSize);
     particleUniforms.uPixelRatio.value = renderDpr;
     coreUniforms.uPixelRatio.value = renderDpr;
 
@@ -888,6 +963,7 @@ export function mountThreeVortex(
     event.preventDefault();
     resetPointer();
     contextLost = true;
+    nebulaTextureReady = false;
     wrapper.dataset.canvasReady = "false";
     if (frameId) window.cancelAnimationFrame(frameId);
     frameId = 0;
@@ -952,8 +1028,10 @@ export function mountThreeVortex(
     backgroundMaterial.dispose();
     nebulaGeometry.dispose();
     nebulaMaterial.dispose();
+    nebulaBakeMaterial.dispose();
+    nebulaTarget.dispose();
     meteorGeometry.dispose();
-    meteorMaterial.dispose();
+    meteors.forEach((meteor) => meteor.material.dispose());
     renderer.dispose();
   };
 }

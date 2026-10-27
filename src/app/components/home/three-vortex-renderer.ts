@@ -173,7 +173,9 @@ const STAR_FRAGMENT_SHADER = /* glsl */ `
     float radius = length(point);
     if (radius > 1.0) discard;
 
-    float coreScale = mix(1.0, uFlareCoreScale, vFlare);
+    // Glints can exceed 1.0 for brighter rays, but core interpolation must not
+    // extrapolate into negative radii and reverse the smoothstep falloff.
+    float coreScale = mix(1.0, uFlareCoreScale, clamp(vFlare, 0.0, 1.0));
     float softCore = 1.0 - smoothstep(0.04, uSoftCoreRadius * coreScale, radius);
     float hotCore = 1.0 - smoothstep(0.0, uHotCoreRadius * coreScale, radius);
     float horizontal = exp(-uRaySharpness * point.y * point.y)

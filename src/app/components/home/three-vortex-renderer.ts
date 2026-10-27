@@ -5,6 +5,9 @@ import {
 } from "./vortex-interaction";
 import {
   fitWebglDpr,
+  createParticleQuality,
+  resetParticleQualitySamples,
+  sampleParticleQuality,
   getParticleFrameInterval,
   getParticlePolicy,
   isPointInsideRect,
@@ -26,6 +29,7 @@ import {
   VORTEX_STAR_PERSPECTIVE_MIN,
 } from "./vortex-field";
 import { createVortexCoreParticles, getVortexCoreStyle } from "./vortex-core";
+import { createMeteorFlight } from "./vortex-meteor";
 
 const CAMERA_DISTANCE = 800;
 const STAR_COLORS = [
@@ -57,7 +61,9 @@ const STAR_VERTEX_SHADER = /* glsl */ `
     ) * vec2(12.0, 7.0) * proximity;
     vec4 viewPosition = modelViewMatrix * vec4(driftingPosition, 1.0);
     float twinkle = 0.82 + sin(uTime * (0.35 + fract(aPhase) * 0.5) + aPhase) * 0.18;
-    float glint = smoothstep(0.72, 0.995, sin(uTime * 0.32 + aPhase))
+    float glintSpeed = mix(0.19, 0.41, fract(aPhase * 2.37));
+    float glintThreshold = mix(0.78, 0.94, fract(aPhase * 4.13));
+    float glint = smoothstep(glintThreshold, 0.995, sin(uTime * glintSpeed + aPhase))
       * aFlare * uDepthMotion;
     float perspective = clamp(
       ${CAMERA_DISTANCE.toFixed(1)} / -viewPosition.z,
@@ -140,7 +146,9 @@ const FLOW_STAR_VERTEX_SHADER = /* glsl */ `
       1.0
     );
     float twinkle = 0.9 + sin(uTime * (0.35 + fract(aPhase) * 0.5) + aPhase) * 0.1;
-    float glint = smoothstep(0.78, 0.995, sin(uTime * 0.26 + aPhase)) * aFlare;
+    float glintSpeed = mix(0.16, 0.36, fract(aPhase * 2.37));
+    float glintThreshold = mix(0.82, 0.95, fract(aPhase * 4.13));
+    float glint = smoothstep(glintThreshold, 0.995, sin(uTime * glintSpeed + aPhase)) * aFlare;
     float perspective = clamp(
       ${CAMERA_DISTANCE.toFixed(1)} / -viewPosition.z,
       ${VORTEX_STAR_PERSPECTIVE_MIN.toFixed(2)},
@@ -269,12 +277,15 @@ const NEBULA_FRAGMENT_SHADER = /* glsl */ `
     float angle = atan(p.y, p.x);
     float phase = angle - radius * ${SPIRAL_PITCH.toFixed(8)} - rotation;
     float arm = sin(phase * 1.5 + (clouds - 0.5) * 1.25);
-    float ribbons = exp(-arm * arm * 8.0);
+    float armVariation = noise(cloudPosition * 3.5 + 73.0);
+    float ribbons = exp(-arm * arm * mix(6.0, 12.0, armVariation));
     float mist = exp(-arm * arm * 2.0);
     float dustLane = smoothstep(0.28, 0.72, clouds);
     float envelope = smoothstep(0.035, 0.18, radius)
       * (1.0 - smoothstep(0.65, 1.0, radius));
-    float gas = (ribbons * 0.82 + mist * 0.4) * (0.18 + dustLane) * envelope;
+    float armDensity = mix(0.66, 1.16, armVariation);
+    float gaps = 1.0 - smoothstep(0.61, 0.81, noise(warped * 11.0 + 93.0)) * 0.55;
+    float gas = (ribbons * 0.82 + mist * 0.4) * (0.18 + dustLane) * envelope * armDensity;
     float violet = smoothstep(0.38, 0.75, noise(cloudPosition * 5.0 + 17.0));
     vec3 gasColor = mix(vec3(0.12, 0.44, 1.0), vec3(0.95, 0.19, 0.65), violet);
     gasColor = mix(vec3(1.0, 0.53, 0.22), gasColor, smoothstep(0.12, 0.42, radius));
@@ -283,7 +294,7 @@ const NEBULA_FRAGMENT_SHADER = /* glsl */ `
     float filamentWave = sin(phase * 1.5 + 0.38 + clouds * 0.6);
     float filament = exp(-filamentWave * filamentWave * 32.0);
     float knots = smoothstep(0.58, 0.78, clouds) * ribbons * envelope;
-    float bulge = exp(-radius * radius * 65.0);
+    float bulge = exp(-radius * radius * 85.0);
     float halo = exp(-radius * radius * 2.5) * (0.12 + clouds * 0.28);
     float branchWave = sin(phase * 1.5 - 0.55 + clouds * 1.8);
     float branches = exp(-branchWave * branchWave * 15.0) * envelope;
@@ -301,7 +312,9 @@ const NEBULA_FRAGMENT_SHADER = /* glsl */ `
       + vec3(0.72, 0.85, 1.0) * knots * (0.3 + fineDust * 0.3)
       + vec3(0.26, 0.7, 1.0) * lace * clouds * 0.55
       + vec3(0.8, 0.9, 1.0) * starDust * 1.4;
-    light *= extinction;
+    light *= extinction * mix(1.0, gaps, envelope);
+    // Compress the baked highlights while retaining warm midtones and dust detail.
+    light = light / (vec3(1.0) + light * 0.22);
     float edge = 1.0 - smoothstep(0.82, 1.0, radius);
     gl_FragColor = vec4(light, edge);
   }
@@ -390,7 +403,7 @@ export function mountThreeVortex(
   scene.add(orientation);
 
   const nebulaGeometry = new THREE.PlaneGeometry(2, 2);
-  // The noise field only rotates; bake it once and rotate the textured disk.
+  // Bake the expensive noise once; a small UV drift animates the cached disk.
   // Keep the baking resources for responsive quality changes and context recovery.
   const nebulaTarget = new THREE.WebGLRenderTarget(1, 1, {
     depthBuffer: false,
@@ -427,16 +440,22 @@ export function mountThreeVortex(
     uniforms: {
       uMap: { value: nebulaTarget.texture },
       uColorShift: { value: nebulaColorShift },
+      uDrift: { value: new THREE.Vector2() },
     },
     vertexShader: CORONA_VERTEX_SHADER,
     fragmentShader: /* glsl */ `
       uniform sampler2D uMap;
       uniform mat3 uColorShift;
+      uniform vec2 uDrift;
       varying vec2 vUv;
       void main() {
-        vec4 gas = texture2D(uMap, vUv);
         vec2 center = (vUv - 0.5) * 2.0;
-        float outerArms = smoothstep(0.015, 0.12, dot(center, center));
+        float radiusSquared = dot(center, center);
+        float outerArms = smoothstep(0.015, 0.12, radiusSquared);
+        float driftMask = outerArms * (1.0 - smoothstep(0.55, 0.95, radiusSquared));
+        vec2 drift = vec2(-center.y, center.x) * uDrift.x
+          + center * (center.x - center.y) * uDrift.y;
+        vec4 gas = texture2D(uMap, vUv + drift * driftMask);
         vec3 shifted = max(vec3(0.0), uColorShift * gas.rgb);
         gl_FragColor = vec4(mix(gas.rgb, shifted, outerArms), gas.a);
       }
@@ -483,7 +502,10 @@ export function mountThreeVortex(
   scene.add(backgroundPoints);
 
   const meteorGeometry = new THREE.PlaneGeometry(1, 1);
-  const meteorDirection = new THREE.Vector2(1, 0.48).normalize();
+  const meteorFlights = Array.from({ length: 3 }, (_, index) => ({
+    sequence: 0,
+    flight: createMeteorFlight(index, 0, 4 + index * 9),
+  }));
   const meteors = Array.from({ length: 3 }, () => {
     const material = new THREE.ShaderMaterial({
       uniforms: { uFade: { value: 0 } },
@@ -496,7 +518,6 @@ export function mountThreeVortex(
     });
     const mesh = new THREE.Mesh(meteorGeometry, material);
     mesh.scale.set(120, 12, 1);
-    mesh.rotation.z = Math.atan2(meteorDirection.y, meteorDirection.x);
     mesh.renderOrder = 3;
     scene.add(mesh);
     return mesh;
@@ -520,10 +541,10 @@ export function mountThreeVortex(
     coreSizes[index] =
       (particle.size * coreStyle.clusterPointScale + 1.35)
       * (particle.flare ? coreStyle.clusterFlareScale : 1);
-    coreBrightness[index] = particle.brightness;
+    coreBrightness[index] = particle.brightness * 0.82;
     corePhases[index] = particle.phase;
     coreFlares[index] = particle.flare ? 1 : 0;
-    mixedCoreColor.copy(coreWhite).lerp(coreEdge, particle.colorMix * 0.52);
+    mixedCoreColor.copy(coreWhite).lerp(coreEdge, 0.12 + particle.colorMix * 0.6);
     coreColors.set(mixedCoreColor.toArray(), index * 3);
   });
   coreGeometry.setAttribute("position", new THREE.BufferAttribute(corePositions, 3));
@@ -561,9 +582,9 @@ export function mountThreeVortex(
   const coronaUniforms = {
     uTime: { value: 0 },
     uFalloff: { value: coreStyle.coronaFalloff },
-    uStrength: { value: coreStyle.coronaStrength },
-    uCoreFalloff: { value: coreStyle.coronaCoreFalloff },
-    uCoreStrength: { value: coreStyle.coronaCoreStrength },
+    uStrength: { value: coreStyle.coronaStrength * 0.85 },
+    uCoreFalloff: { value: coreStyle.coronaCoreFalloff * 1.3 },
+    uCoreStrength: { value: coreStyle.coronaCoreStrength * 0.72 },
     uColor: { value: new THREE.Color("#ffe1b1") },
   };
   const coronaGeometry = new THREE.PlaneGeometry(
@@ -603,6 +624,9 @@ export function mountThreeVortex(
   let resizeFrameId = 0;
   let lastFrameTime = 0;
   let lastPaintTime = 0;
+  let lastTickTime = 0;
+  let baseRenderDpr = 1;
+  const quality = createParticleQuality();
   let destroyed = false;
   let contextLost = false;
   let intersecting = false;
@@ -647,6 +671,12 @@ export function mountThreeVortex(
     particleUniforms.uTime.value = sceneTime;
     particleUniforms.uFlowTime.value = flowTime;
     nebulaMesh.rotation.z = VORTEX_PATTERN_SPEED * flowTime;
+    // CPU trigonometry and one texture lookup keep per-pixel work small.
+    const driftStrength = (mobile ? 0.0025 : 0.004) * quality.scale;
+    nebulaMaterial.uniforms.uDrift.value.set(
+      Math.sin(flowTime * 0.13) * driftStrength,
+      Math.sin(flowTime * 0.09) * driftStrength * 0.6,
+    );
     // Rotate the outer arms' colors slowly around the neutral RGB axis.
     // CPU uniforms keep trigonometry out of the cached-texture fragment pass.
     const hue = Math.sin(sceneTime * 0.075) * 0.45;
@@ -664,17 +694,25 @@ export function mountThreeVortex(
     backgroundMaterial.uniforms.uTime.value = sceneTime;
     coronaUniforms.uTime.value = sceneTime;
     meteors.forEach((meteor, index) => {
-      const cycle = (sceneTime + index * 7.3) % 19;
-      meteor.visible = cycle > 0 && cycle < 2.8;
+      const state = meteorFlights[index];
+      if (sceneTime >= state.flight.nextStart) {
+        state.sequence++;
+        state.flight = createMeteorFlight(index, state.sequence, state.flight.nextStart);
+      }
+      const flight = state.flight;
+      const progress = (sceneTime - flight.start) / flight.duration;
+      meteor.visible = progress > 0 && progress < 1;
       if (!meteor.visible) return;
-      const distance = cycle / 2.8 * width * 0.27;
+      const distance = progress * width * flight.distance;
+      meteor.scale.x = flight.length;
+      meteor.rotation.z = Math.atan2(flight.dy, flight.dx);
       meteor.position.set(
-        (0.98 - index * 0.11) * width - width / 2 + meteorDirection.x * (52 - distance),
-        (0.94 - index * 0.18) * height - height / 2 + meteorDirection.y * (52 - distance),
+        flight.x * width - width / 2 + flight.dx * (flight.length * 0.433 - distance),
+        flight.y * height - height / 2 + flight.dy * (flight.length * 0.433 - distance),
         0,
       );
-      meteor.material.uniforms.uFade.value = THREE.MathUtils.smoothstep(cycle, 0, 0.4)
-        * (1 - THREE.MathUtils.smoothstep(cycle, 1.7, 2.8));
+      meteor.material.uniforms.uFade.value = THREE.MathUtils.smoothstep(progress, 0, 0.15)
+        * (1 - THREE.MathUtils.smoothstep(progress, 0.6, 1));
     });
   };
 
@@ -692,9 +730,22 @@ export function mountThreeVortex(
       rendererAvailable: !contextLost,
     });
 
+  const applyRenderDpr = () => {
+    const renderDpr = baseRenderDpr * quality.scale;
+    renderer.setPixelRatio(renderDpr);
+    particleUniforms.uPixelRatio.value = renderDpr;
+    coreUniforms.uPixelRatio.value = renderDpr;
+    haloMaterial.uniforms.uPixelRatio.value = renderDpr;
+    backgroundMaterial.uniforms.uPixelRatio.value = renderDpr;
+  };
+
   const tick = (time: number) => {
     frameId = 0;
     if (destroyed || !canAnimate()) return;
+    const previousScale = quality.scale;
+    if (lastTickTime > 0) sampleParticleQuality(quality, time - lastTickTime);
+    lastTickTime = time;
+    if (quality.scale !== previousScale) applyRenderDpr();
     const elapsedSincePaint = lastPaintTime > 0
       ? time - lastPaintTime
       : Number.POSITIVE_INFINITY;
@@ -717,6 +768,8 @@ export function mountThreeVortex(
     }
     lastFrameTime = 0;
     lastPaintTime = 0;
+    lastTickTime = 0;
+    resetParticleQualitySamples(quality);
     if (canAnimate()) frameId = window.requestAnimationFrame(tick);
     else render(0, false);
   };
@@ -755,7 +808,11 @@ export function mountThreeVortex(
       positions[offset + 2] = particle.depthRatio * maxRadius;
       sizes[index] = getVortexStarPointSize(particle.size, particle.flare)
         * (particle.flare ? 1.65 : 1);
-      brightness[index] = particle.brightness;
+      // Uneven clusters travel with the stars without adding per-frame noise.
+      const clusterLight = 0.82 + 0.18 * Math.sin(
+        particle.angle * 2 + particle.radiusRatio * 19,
+      );
+      brightness[index] = particle.brightness * clusterLight;
       phases[index] = particle.twinklePhase;
       flares[index] = particle.flare ? 1 : 0;
       radiusRatios[index] = particle.radiusRatio;
@@ -772,7 +829,7 @@ export function mountThreeVortex(
         const haloOffset = haloIndex * 3;
         haloPositions.set(positions.subarray(offset, offset + 3), haloOffset);
         haloSizes[haloIndex] = sizes[index] * haloStyle.scale;
-        haloBrightness[haloIndex] = particle.brightness * haloStyle.brightnessScale;
+        haloBrightness[haloIndex] = brightness[index] * haloStyle.brightnessScale;
         haloPhases[haloIndex] = particle.twinklePhase;
         haloFlares[haloIndex] = haloStyle.flareMix;
         haloRadiusRatios[haloIndex] = particle.radiusRatio;
@@ -864,16 +921,11 @@ export function mountThreeVortex(
     maxRadius = getVortexFieldRadius(width, height);
 
     const policy = getParticlePolicy(viewportWidth, window.devicePixelRatio);
-    const renderDpr = fitWebglDpr(width, height, policy.dpr);
-    renderer.setPixelRatio(renderDpr);
+    baseRenderDpr = fitWebglDpr(width, height, policy.dpr);
+    applyRenderDpr();
     renderer.setSize(width, height, false);
     configureCamera(camera, width, height);
     bakeNebula(policy.nebulaTextureSize);
-    particleUniforms.uPixelRatio.value = renderDpr;
-    coreUniforms.uPixelRatio.value = renderDpr;
-
-    haloMaterial.uniforms.uPixelRatio.value = renderDpr;
-    backgroundMaterial.uniforms.uPixelRatio.value = renderDpr;
     rebuildParticleAttributes(policy.maxParticles);
     rebuildBackground(viewportWidth < 768 ? 160 : 360);
 

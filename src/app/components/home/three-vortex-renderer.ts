@@ -17,6 +17,7 @@ import {
   getVortexHaloStyle,
   getVortexStarLightProfile,
   getVortexStarPointSize,
+  SPIRAL_PITCH,
   VORTEX_FLOW_INNER_RADIUS,
   VORTEX_FLOW_OUTER_RADIUS,
   VORTEX_PATTERN_SPEED,
@@ -28,9 +29,9 @@ import { createVortexCoreParticles, getVortexCoreStyle } from "./vortex-core";
 
 const CAMERA_DISTANCE = 800;
 const STAR_COLORS = [
-  [0.95, 0.98, 1],
-  [0.68, 0.82, 1],
-  [1, 0.72, 0.55],
+  [0.72, 0.85, 1],
+  [0.32, 0.58, 1],
+  [0.9, 0.42, 0.78],
 ] as const;
 
 const STAR_VERTEX_SHADER = /* glsl */ `
@@ -48,7 +49,7 @@ const STAR_VERTEX_SHADER = /* glsl */ `
 
   void main() {
     vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
-    float twinkle = 0.9 + sin(uTime * (0.35 + fract(aPhase) * 0.5) + aPhase) * 0.1;
+    float twinkle = 0.82 + sin(uTime * (0.35 + fract(aPhase) * 0.5) + aPhase) * 0.18;
     float perspective = clamp(
       ${CAMERA_DISTANCE.toFixed(1)} / -viewPosition.z,
       ${VORTEX_STAR_PERSPECTIVE_MIN.toFixed(2)},
@@ -107,7 +108,7 @@ const FLOW_STAR_VERTEX_SHADER = /* glsl */ `
     float lifeFade = smoothstep(0.04, 0.1, driftProgress)
       * (1.0 - smoothstep(0.9, 0.96, driftProgress));
     float angleOffset =
-      ${(Math.PI * 2.8).toFixed(8)} * (flowedRadius - aRadiusRatio) +
+      ${SPIRAL_PITCH.toFixed(8)} * (flowedRadius - aRadiusRatio) +
       patternSpeed * uFlowTime +
       starDrift +
       armWave +
@@ -169,7 +170,11 @@ const STAR_FRAGMENT_SHADER = /* glsl */ `
       * (1.0 - smoothstep(0.08, 1.0, abs(point.x)));
     float vertical = exp(-uRaySharpness * point.x * point.x)
       * (1.0 - smoothstep(0.08, 1.0, abs(point.y)));
-    float rays = (horizontal + vertical) * vFlare * uRayStrength;
+    vec2 diagonal = vec2(point.x + point.y, point.x - point.y) * 0.7071;
+    float diagonalRays = exp(-uRaySharpness * diagonal.x * diagonal.x)
+      + exp(-uRaySharpness * diagonal.y * diagonal.y);
+    float rays = (horizontal + vertical + diagonalRays * 0.18
+      * (1.0 - smoothstep(0.1, 0.8, radius))) * vFlare * uRayStrength;
     float edgeFade = 1.0 - smoothstep(uEdgeFadeStart, 1.0, radius);
     float alpha = (softCore + rays) * edgeFade * vAlpha;
     vec3 color = mix(vColor, vec3(1.0), hotCore * 0.9);
@@ -204,8 +209,117 @@ const CORONA_FRAGMENT_SHADER = /* glsl */ `
     float coreGlow = exp(-uCoreFalloff * radius * radius) * uCoreStrength;
     float edgeFade = 1.0 - smoothstep(0.65, 1.0, radius);
     float pulse = 0.96 + sin(uTime * 0.45) * 0.04;
-    float alpha = (glow + coreGlow) * edgeFade * pulse;
-    gl_FragColor = vec4(uColor, alpha);
+    float streak = exp(-point.y * point.y * 4800.0)
+      * exp(-abs(point.x) * 3.2) * 0.6;
+    vec2 tilted = mat2(0.866, -0.5, 0.5, 0.866) * point;
+    float spikes = exp(-tilted.x * tilted.x * 3500.0)
+      * exp(-abs(tilted.y) * 9.0) * 0.32;
+    float aureole = exp(-radius * radius * 5.5) * 0.12;
+    vec3 light = uColor * (glow * 0.8 + coreGlow + spikes)
+      + vec3(0.48, 0.76, 1.0) * (aureole + streak);
+    gl_FragColor = vec4(light, edgeFade * pulse);
+  }
+`;
+
+// One translucent disk adds gaseous arms without a bloom pass or extra particles.
+// It shares the stars' pitch, pattern clock and drag transform.
+const NEBULA_FRAGMENT_SHADER = /* glsl */ `
+  uniform float uFlowTime;
+  varying vec2 vUv;
+
+  float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+  }
+
+  float noise(vec2 p) {
+    vec2 cell = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    return mix(mix(hash(cell), hash(cell + vec2(1.0, 0.0)), f.x),
+      mix(hash(cell + vec2(0.0, 1.0)), hash(cell + vec2(1.0)), f.x), f.y);
+  }
+
+  void main() {
+    vec2 p = (vUv - 0.5) * 2.0;
+    float radius = length(p);
+    if (radius > 1.0) discard;
+    float rotation = ${VORTEX_PATTERN_SPEED.toFixed(6)} * uFlowTime;
+    float c = cos(rotation);
+    float s = sin(rotation);
+    vec2 cloudPosition = mat2(c, -s, s, c) * p;
+    vec2 warped = cloudPosition + vec2(
+      noise(cloudPosition * 6.0), noise(cloudPosition * 6.0 + 41.0)
+    ) * 0.09;
+    float fineDust = noise(warped * 180.0);
+    float clouds = noise(warped * 8.0) * 0.44
+      + noise(warped * 23.0) * 0.3
+      + noise(warped * 61.0) * 0.18 + fineDust * 0.08;
+    float angle = atan(p.y, p.x);
+    float phase = angle - radius * ${SPIRAL_PITCH.toFixed(8)} - rotation;
+    float arm = sin(phase * 1.5 + (clouds - 0.5) * 1.25);
+    float ribbons = exp(-arm * arm * 8.0);
+    float mist = exp(-arm * arm * 2.0);
+    float dustLane = smoothstep(0.28, 0.72, clouds);
+    float envelope = smoothstep(0.035, 0.18, radius)
+      * (1.0 - smoothstep(0.65, 1.0, radius));
+    float gas = (ribbons * 0.82 + mist * 0.4) * (0.18 + dustLane) * envelope;
+    float violet = smoothstep(0.38, 0.75, noise(cloudPosition * 5.0 + 17.0));
+    vec3 gasColor = mix(vec3(0.12, 0.44, 1.0), vec3(0.95, 0.19, 0.65), violet);
+    gasColor = mix(vec3(1.0, 0.53, 0.22), gasColor, smoothstep(0.12, 0.42, radius));
+    float ionized = smoothstep(0.48, 0.78, clouds) * ribbons;
+    gasColor = mix(gasColor, vec3(0.3, 0.9, 1.0), ionized * 0.55);
+    float filamentWave = sin(phase * 1.5 + 0.38 + clouds * 0.6);
+    float filament = exp(-filamentWave * filamentWave * 32.0);
+    float knots = smoothstep(0.58, 0.78, clouds) * ribbons * envelope;
+    float bulge = exp(-radius * radius * 65.0);
+    float halo = exp(-radius * radius * 2.5) * (0.12 + clouds * 0.28);
+    float branchWave = sin(phase * 1.5 - 0.55 + clouds * 1.8);
+    float branches = exp(-branchWave * branchWave * 15.0) * envelope;
+    float dustWave = sin(phase * 1.5 - 0.2 + clouds * 0.7);
+    float extinction = 1.0 - exp(-dustWave * dustWave * 90.0)
+      * smoothstep(0.3, 0.65, clouds) * 0.82;
+    float laceWave = sin(phase * 4.5 + clouds * 3.0);
+    float lace = exp(-laceWave * laceWave * 55.0) * ribbons * envelope;
+    float starDust = pow(smoothstep(0.55, 0.95, fineDust), 6.0)
+      * ribbons * envelope;
+    vec3 light = gasColor * gas + vec3(1.0, 0.72, 0.42) * bulge * 0.48
+      + vec3(0.4, 0.25, 0.8) * halo
+      + vec3(0.68, 0.18, 0.78) * branches * dustLane * 0.4
+      + vec3(0.38, 0.6, 1.0) * filament * envelope * clouds * 0.23
+      + vec3(0.72, 0.85, 1.0) * knots * (0.3 + fineDust * 0.3)
+      + vec3(0.26, 0.7, 1.0) * lace * clouds * 0.55
+      + vec3(0.8, 0.9, 1.0) * starDust * 1.4;
+    light *= extinction;
+    float edge = 1.0 - smoothstep(0.82, 1.0, radius);
+    gl_FragColor = vec4(light, edge);
+  }
+`;
+
+// Screen-space trails use the same paused clock as the stars (including reduced motion).
+const METEOR_FRAGMENT_SHADER = /* glsl */ `
+  uniform float uTime;
+  uniform vec2 uResolution;
+  varying vec2 vUv;
+  void main() {
+    vec2 p = vUv * uResolution;
+    vec3 light = vec3(0.0);
+    vec2 direction = normalize(vec2(-1.0, -0.48));
+    for (int i = 0; i < 3; i++) {
+      float seed = float(i);
+      float cycle = mod(uTime + seed * 7.3, 19.0);
+      float progress = clamp(cycle / 2.8, 0.0, 1.0);
+      vec2 start = vec2(0.98 - seed * 0.11, 0.94 - seed * 0.18) * uResolution;
+      vec2 head = start + direction * progress * uResolution.x * 0.27;
+      vec2 offset = p - head;
+      float along = dot(offset, -direction);
+      float across = dot(offset, vec2(-direction.y, direction.x));
+      float tail = exp(-across * across / 1.8)
+        * exp(-max(along, 0.0) / 28.0) * step(0.0, along);
+      float spark = exp(-dot(offset, offset) / 5.0);
+      float fade = smoothstep(0.0, 0.4, cycle) * (1.0 - smoothstep(1.7, 2.8, cycle));
+      light += (vec3(0.28, 0.65, 1.0) * tail + vec3(0.85, 0.95, 1.0) * spark) * fade;
+    }
+    gl_FragColor = vec4(light, 0.7);
   }
 `;
 
@@ -270,10 +384,26 @@ export function mountThreeVortex(
   const galaxy = new THREE.Group();
   const orientation = new THREE.Group();
   orientation.rotation.order = "ZXY";
-  orientation.rotation.z = -0.9;
+  orientation.rotation.z = -0.32;
   galaxy.add(particlePoints);
   orientation.add(galaxy);
   scene.add(orientation);
+
+  const nebulaGeometry = new THREE.PlaneGeometry(2, 2);
+  const nebulaUniforms = { uFlowTime: { value: 0 } };
+  const nebulaMaterial = new THREE.ShaderMaterial({
+    uniforms: nebulaUniforms,
+    vertexShader: CORONA_VERTEX_SHADER,
+    fragmentShader: NEBULA_FRAGMENT_SHADER,
+    transparent: true,
+    depthWrite: false,
+    depthTest: false,
+    blending: THREE.AdditiveBlending,
+    side: THREE.DoubleSide,
+  });
+  const nebulaMesh = new THREE.Mesh(nebulaGeometry, nebulaMaterial);
+  nebulaMesh.renderOrder = -1;
+  galaxy.add(nebulaMesh);
 
   // A second, sparse point layer gives only the brightest stars a soft halo.
   const haloGeometry = new THREE.BufferGeometry();
@@ -287,7 +417,7 @@ export function mountThreeVortex(
       float falloff = mix(7.5, 4.2, vFlare);
       float glow = exp(-falloff * radius * radius)
         * (1.0 - smoothstep(0.7, 1.0, radius));
-      float strength = mix(0.1, 0.22, vFlare);
+      float strength = mix(0.14, 0.32, vFlare);
       gl_FragColor = vec4(vColor, glow * vAlpha * strength);
     }
   `;
@@ -298,9 +428,30 @@ export function mountThreeVortex(
   const backgroundGeometry = new THREE.BufferGeometry();
   const backgroundMaterial = particleMaterial.clone();
   backgroundMaterial.vertexShader = STAR_VERTEX_SHADER;
+  backgroundMaterial.uniforms.uFlareCoreScale.value = 0.28;
+  backgroundMaterial.uniforms.uRaySharpness.value = 220;
+  backgroundMaterial.uniforms.uRayStrength.value = 0.8;
   const backgroundPoints = new THREE.Points(backgroundGeometry, backgroundMaterial);
   backgroundPoints.frustumCulled = false;
   scene.add(backgroundPoints);
+
+  const meteorGeometry = new THREE.PlaneGeometry(1, 1);
+  const meteorUniforms = {
+    uTime: { value: 0 },
+    uResolution: { value: new THREE.Vector2(1, 1) },
+  };
+  const meteorMaterial = new THREE.ShaderMaterial({
+    uniforms: meteorUniforms,
+    vertexShader: CORONA_VERTEX_SHADER,
+    fragmentShader: METEOR_FRAGMENT_SHADER,
+    transparent: true,
+    depthWrite: false,
+    depthTest: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const meteorMesh = new THREE.Mesh(meteorGeometry, meteorMaterial);
+  meteorMesh.renderOrder = 3;
+  scene.add(meteorMesh);
 
   const coreStyle = getVortexCoreStyle(400);
   const coreParticles = createVortexCoreParticles(coreStyle);
@@ -363,7 +514,7 @@ export function mountThreeVortex(
     uStrength: { value: coreStyle.coronaStrength },
     uCoreFalloff: { value: coreStyle.coronaCoreFalloff },
     uCoreStrength: { value: coreStyle.coronaCoreStrength },
-    uColor: { value: new THREE.Color(coreStyle.coreColor) },
+    uColor: { value: new THREE.Color("#ffe1b1") },
   };
   const coronaGeometry = new THREE.PlaneGeometry(
     coreStyle.coronaRadius * coreStyle.coronaRenderScale,
@@ -439,15 +590,18 @@ export function mountThreeVortex(
       );
       flowTime += delta * flowScale;
     }
-    orientation.rotation.x = 0.65 + rotation.pitch;
+    orientation.rotation.x = 0.9 + rotation.pitch;
     galaxy.rotation.z = rotation.yaw;
     coreGroup.rotation.z = flowTime * -0.085;
     particleUniforms.uTime.value = sceneTime;
     particleUniforms.uFlowTime.value = flowTime;
+    nebulaUniforms.uFlowTime.value = flowTime;
     haloMaterial.uniforms.uTime.value = sceneTime;
     haloMaterial.uniforms.uFlowTime.value = flowTime;
     coreUniforms.uTime.value = sceneTime;
+    backgroundMaterial.uniforms.uTime.value = sceneTime;
     coronaUniforms.uTime.value = sceneTime;
+    meteorUniforms.uTime.value = sceneTime;
   };
 
   const render = (time: number, animate: boolean) => {
@@ -525,14 +679,20 @@ export function mountThreeVortex(
       positions[offset] = Math.cos(particle.angle) * radius;
       positions[offset + 1] = Math.sin(particle.angle) * radius;
       positions[offset + 2] = particle.depthRatio * maxRadius;
-      sizes[index] = getVortexStarPointSize(particle.size, particle.flare);
+      sizes[index] = getVortexStarPointSize(particle.size, particle.flare)
+        * (particle.flare ? 1.65 : 1);
       brightness[index] = particle.brightness;
       phases[index] = particle.twinklePhase;
       flares[index] = particle.flare ? 1 : 0;
       radiusRatios[index] = particle.radiusRatio;
       angularSpeeds[index] = particle.angularSpeed;
       inwardSpeeds[index] = particle.inwardSpeed;
-      colors.set(STAR_COLORS[particle.colorIndex], offset);
+      const coolColor = STAR_COLORS[particle.colorIndex];
+      const warmth = (1 - Math.min(1, particle.radiusRatio / 0.42)) ** 2;
+      const color = coolColor.map((channel, i) =>
+        THREE.MathUtils.lerp(channel, [1, 0.78, 0.5][i], warmth),
+      );
+      colors.set(color, offset);
       const haloStyle = getVortexHaloStyle(particle.lightTier);
       if (haloStyle) {
         const haloOffset = haloIndex * 3;
@@ -544,7 +704,7 @@ export function mountThreeVortex(
         haloRadiusRatios[haloIndex] = particle.radiusRatio;
         haloAngularSpeeds[haloIndex] = particle.angularSpeed;
         haloInwardSpeeds[haloIndex] = particle.inwardSpeed;
-        haloColors.set(STAR_COLORS[particle.colorIndex], haloOffset);
+        haloColors.set(color, haloOffset);
         haloIndex += 1;
       }
     });
@@ -586,15 +746,19 @@ export function mountThreeVortex(
     const brightness = new Float32Array(count);
     const phases = new Float32Array(count);
     const colors = new Float32Array(count * 3);
+    const flares = new Float32Array(count);
     seeds.forEach((seed, index) => {
       // Hashes of the stable seed distribute the distant field over the canvas.
       const x = Math.sin(index * 127.1 + 31) * 43758.5453;
       const y = Math.sin(index * 269.5 + 17) * 43758.5453;
       positions[index * 3] = ((x - Math.floor(x)) - 0.5) * width * 1.4;
       positions[index * 3 + 1] = ((y - Math.floor(y)) - 0.5) * height * 1.4;
-      positions[index * 3 + 2] = -300;
-      sizes[index] = seed.flare ? 3.4 : 1.2 + seed.size * 0.45;
-      brightness[index] = seed.flare ? 0.5 : 0.12 + seed.brightness * 0.22;
+      // A few nearby diffraction stars frame the galaxy; the rest remain distant.
+      const foreground = index % 29 === 0;
+      positions[index * 3 + 2] = foreground ? 60 : -300;
+      sizes[index] = foreground ? 18 + seed.size * 6 : 1.5 + seed.size * 0.65;
+      brightness[index] = foreground ? 0.82 : 0.24 + seed.brightness * 0.32;
+      flares[index] = foreground ? 1 : 0;
       phases[index] = seed.twinklePhase;
       colors.set(STAR_COLORS[seed.colorIndex], index * 3);
     });
@@ -603,7 +767,7 @@ export function mountThreeVortex(
     backgroundGeometry.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
     backgroundGeometry.setAttribute("aBrightness", new THREE.BufferAttribute(brightness, 1));
     backgroundGeometry.setAttribute("aPhase", new THREE.BufferAttribute(phases, 1));
-    backgroundGeometry.setAttribute("aFlare", new THREE.BufferAttribute(new Float32Array(count), 1));
+    backgroundGeometry.setAttribute("aFlare", new THREE.BufferAttribute(flares, 1));
     backgroundGeometry.setAttribute("aColor", new THREE.BufferAttribute(colors, 3));
   };
 
@@ -615,16 +779,19 @@ export function mountThreeVortex(
     const rect = canvas.getBoundingClientRect();
     width = Math.max(1, Math.round(rect.width));
     height = Math.max(1, Math.round(rect.height));
-    centerX = width * (document.documentElement.clientWidth < 768 ? 0.5 : 0.68);
+    const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+    // Keep the bright nucleus clear of the copy on narrow phones.
+    centerX = width * (viewportWidth < 480 ? 0.78 : viewportWidth < 768 ? 0.64 : 0.68);
     centerY = height * 0.46;
     maxRadius = getVortexFieldRadius(width, height);
 
-    const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
     const policy = getParticlePolicy(viewportWidth, window.devicePixelRatio);
     const renderDpr = fitWebglDpr(width, height, policy.dpr);
     renderer.setPixelRatio(renderDpr);
     renderer.setSize(width, height, false);
     configureCamera(camera, width, height);
+    meteorMesh.scale.set(width, height, 1);
+    meteorUniforms.uResolution.value.set(width, height);
     particleUniforms.uPixelRatio.value = renderDpr;
     coreUniforms.uPixelRatio.value = renderDpr;
 
@@ -634,6 +801,7 @@ export function mountThreeVortex(
     rebuildBackground(viewportWidth < 768 ? 160 : 360);
 
     orientation.position.set(centerX - width / 2, height / 2 - centerY, 0);
+    nebulaMesh.scale.setScalar(maxRadius);
     coronaMesh.position.copy(orientation.position);
     const responsiveCoreStyle = getVortexCoreStyle(maxRadius);
     const coreScale = responsiveCoreStyle.coreRadius / coreStyle.coreRadius;
@@ -782,6 +950,10 @@ export function mountThreeVortex(
     haloMaterial.dispose();
     backgroundGeometry.dispose();
     backgroundMaterial.dispose();
+    nebulaGeometry.dispose();
+    nebulaMaterial.dispose();
+    meteorGeometry.dispose();
+    meteorMaterial.dispose();
     renderer.dispose();
   };
 }

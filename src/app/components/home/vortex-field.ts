@@ -33,7 +33,7 @@ export type VortexFlowProfile = {
   inwardSpeed: number;
 };
 
-export const SPIRAL_PITCH = Math.PI * 2.8;
+export const SPIRAL_PITCH = Math.PI * 1.65;
 export const VORTEX_FLOW_INNER_RADIUS = 0.055;
 export const VORTEX_FLOW_OUTER_RADIUS = 1.005;
 export const VORTEX_PATTERN_SPEED = -0.026;

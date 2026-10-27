@@ -2,11 +2,47 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   getParticlePolicy,
+  createParticleQuality,
+  sampleParticleQuality,
+  resetParticleQualitySamples,
   isPointInsideRect,
   shouldRenderParticleFrame,
   shouldAnimateParticleHero,
 } from "./particle-policy.ts";
 import * as particlePolicy from "./particle-policy.ts";
+
+test("지속적인 프레임 저하에만 해상도를 낮추고 충분히 안정된 뒤 복구한다", () => {
+  const quality = createParticleQuality();
+  for (let i = 0; i < 50; i++) sampleParticleQuality(quality, 33);
+  assert.equal(quality.scale, 1, "짧은 저하는 무시한다");
+  for (let i = 0; i < 20; i++) sampleParticleQuality(quality, 33);
+  assert.equal(quality.scale, 0.85);
+  for (let i = 0; i < 300; i++) sampleParticleQuality(quality, 16.7);
+  assert.equal(quality.scale, 0.85, "빠른 품질 왕복을 방지한다");
+  for (let i = 0; i < 450; i++) sampleParticleQuality(quality, 16.7);
+  assert.equal(quality.scale, 1);
+});
+
+test("품질 조절은 하한을 지키며 중단·복귀 시간을 성능 저하로 세지 않는다", () => {
+  const quality = createParticleQuality();
+  for (let i = 0; i < 400; i++) sampleParticleQuality(quality, 40);
+  assert.equal(quality.scale, 0.7);
+  resetParticleQualitySamples(quality);
+  for (const gap of [5000, Number.NaN, 0, -1]) sampleParticleQuality(quality, gap);
+  assert.equal(quality.scale, 0.7);
+  for (let i = 0; i < 1250; i++) sampleParticleQuality(quality, 16.7);
+  assert.equal(quality.scale, 1);
+  for (let i = 0; i < 50; i++) sampleParticleQuality(quality, 33);
+  resetParticleQualitySamples(quality);
+  for (let i = 0; i < 20; i++) sampleParticleQuality(quality, 33);
+  assert.equal(quality.scale, 1);
+});
+
+test("고주사율이나 간헐적인 긴 프레임은 해상도를 떨어뜨리지 않는다", () => {
+  const quality = createParticleQuality();
+  for (let i = 0; i < 1500; i++) sampleParticleQuality(quality, i % 200 === 0 ? 100 : 8.3);
+  assert.equal(quality.scale, 1);
+});
 
 type WebglParticlePolicy = typeof particlePolicy & {
   fitWebglDpr?: (width: number, height: number, requestedDpr: number) => number;

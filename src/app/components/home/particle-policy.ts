@@ -21,6 +21,50 @@ const MAX_WEBGL_PIXELS = 1_250_000;
 const ACTIVE_FRAME_INTERVAL_MS = 1000 / 60;
 const IDLE_FRAME_INTERVAL_MS = 1000 / 30;
 
+export type ParticleQuality = {
+  scale: number;
+  elapsedMs: number;
+  samples: number;
+  stableMs: number;
+};
+
+export function createParticleQuality(): ParticleQuality {
+  return { scale: 1, elapsedMs: 0, samples: 0, stableMs: 0 };
+}
+
+export function resetParticleQualitySamples(quality: ParticleQuality): void {
+  quality.elapsedMs = 0;
+  quality.samples = 0;
+  quality.stableMs = 0;
+}
+
+// Sample rAF cadence, not the intentionally capped desktop paint cadence.
+// Two-second windows ignore brief stalls; recovery requires ten stable seconds.
+export function sampleParticleQuality(quality: ParticleQuality, frameMs: number): void {
+  if (!Number.isFinite(frameMs) || frameMs <= 0 || frameMs > 250) {
+    resetParticleQualitySamples(quality);
+    return;
+  }
+  quality.elapsedMs += frameMs;
+  quality.samples++;
+  if (quality.elapsedMs < 2000) return;
+  const averageMs = quality.elapsedMs / quality.samples;
+  if (averageMs > 24) {
+    quality.scale = quality.scale > 0.85 ? 0.85 : 0.7;
+    quality.stableMs = 0;
+  } else if (averageMs < 19) {
+    quality.stableMs += quality.elapsedMs;
+    if (quality.stableMs >= 10000) {
+      quality.scale = quality.scale < 0.85 ? 0.85 : 1;
+      quality.stableMs = 0;
+    }
+  } else {
+    quality.stableMs = 0;
+  }
+  quality.elapsedMs = 0;
+  quality.samples = 0;
+}
+
 export function fitWebglDpr(
   width: number,
   height: number,

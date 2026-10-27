@@ -43,7 +43,7 @@ export function getVortexCoreStyle(maxRadius: number): VortexCoreStyle {
     coreRadius,
     coronaRadius: coreRadius * 2.35,
     coreColor: "#f2ffff",
-    edgeColor: "#9eeff2",
+    edgeColor: "#ffcba0",
     clusterParticleCount: 64,
     clusterDepth: coreRadius * 1.2,
     clusterPointSize: coreRadius * 0.2,

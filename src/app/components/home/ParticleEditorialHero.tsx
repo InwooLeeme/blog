@@ -19,7 +19,7 @@ export default function ParticleEditorialHero() {
 
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(8,9,11,.94)_0%,rgba(8,9,11,.65)_30%,rgba(8,9,11,.08)_58%,transparent_78%)] max-md:bg-[linear-gradient(110deg,rgba(8,9,11,.88)_0%,rgba(8,9,11,.65)_55%,rgba(8,9,11,.25)_100%)]"
+          className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(8,9,11,.94)_0%,rgba(8,9,11,.65)_30%,rgba(8,9,11,.08)_58%,transparent_78%)] max-md:bg-[linear-gradient(90deg,rgba(8,9,11,.9)_0%,rgba(8,9,11,.6)_40%,rgba(8,9,11,.2)_72%,rgba(8,9,11,.06)_100%)]"
         />
         <div
           aria-hidden="true"

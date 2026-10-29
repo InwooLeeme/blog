@@ -32,8 +32,8 @@ export default function SiteFooter() {
           {/* 브랜드 */}
           <div className="space-y-3">
             <Link
-              href="/blog"
-              className="font-semibold tracking-tight"
+              href="/"
+              className="inline-flex min-h-11 items-center font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-ring"
             >
               {siteConfig.name}
             </Link>
@@ -66,7 +66,7 @@ export default function SiteFooter() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="text-foreground/80 transition hover:text-accent-brand"
+                className="inline-flex min-h-11 items-center text-foreground/80 transition hover:text-accent-brand focus-visible:outline-2 focus-visible:outline-ring"
               >
                 {l.messageId ? <Tr id={l.messageId} /> : l.label}
               </Link>

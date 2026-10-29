@@ -27,3 +27,11 @@ export function getKindTags(posts: PostItem[], kind: PostKind | 'all') {
   }
   return [...counts].map(([tag, count]) => ({tag, count})).sort((a,b) => b.count-a.count || a.tag.localeCompare(b.tag));
 }
+
+export const POST_PAGE_SIZE = 15;
+
+export function getVisiblePostCount(value: string | null, total: number): number {
+  const count = Number(value);
+  const valid = Number.isSafeInteger(count) && count >= POST_PAGE_SIZE && count % POST_PAGE_SIZE === 0;
+  return Math.min(total, valid ? count : POST_PAGE_SIZE);
+}

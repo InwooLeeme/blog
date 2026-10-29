@@ -32,6 +32,7 @@ export function resolveNavLabel(
 /** 헤더 내비게이션 */
 export const navLinks: NavLink[] = [
   { href: "/blog", label: "블로그", messageId: "footer.blog" },
+  { href: "/graph", label: "지식 지도", messageId: "nav.graph" },
   { href: "/notes", label: "Notes", messageId: "nav.notes" },
   { href: "/playground", label: "Playground", messageId: "nav.playground" },
   { href: "/about", label: "About", messageId: "nav.profile" },

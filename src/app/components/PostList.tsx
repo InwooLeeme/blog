@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight } from "lucide-react";
 import type { PostItem } from "@/lib/posts";
 import { getCardCoverSrc, getFirstCardCoverIndex } from "@/lib/post-display";
 import { cn } from "@/lib/utils";
@@ -44,9 +43,7 @@ export default function PostList({
                     priority={index === priorityCoverIndex}
                   />
                 </div>
-              ) : (
-                <ArrowUpRight aria-hidden className="mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-accent-brand" />
-              )}
+              ) : null}
             </Link>
           </li>
         );

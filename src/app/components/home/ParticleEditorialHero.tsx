@@ -1,6 +1,4 @@
-import { ArrowDown, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import { siteConfig } from "@/lib/site";
 import Tr from "../Tr";
 import ParticleVortex from "./ParticleVortex";
 
@@ -10,7 +8,7 @@ const textLinkClass =
 export default function ParticleEditorialHero() {
   return (
     <div className="bg-background px-4 pt-4 sm:px-6 lg:px-8">
-      <section className="relative isolate mx-auto max-w-6xl overflow-hidden rounded-xl border border-white/10 bg-[#08090b] text-white">
+      <section className="relative isolate mx-auto max-w-6xl overflow-hidden border-b border-white/10 bg-[#08090b] text-white">
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0">
             <ParticleVortex />
@@ -19,7 +17,7 @@ export default function ParticleEditorialHero() {
 
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(8,9,11,.94)_0%,rgba(8,9,11,.65)_30%,rgba(8,9,11,.08)_58%,transparent_78%)] max-md:bg-[linear-gradient(90deg,rgba(8,9,11,.9)_0%,rgba(8,9,11,.6)_40%,rgba(8,9,11,.2)_72%,rgba(8,9,11,.06)_100%)]"
+          className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(8,9,11,.94)_0%,rgba(8,9,11,.65)_30%,rgba(8,9,11,.08)_58%,transparent_78%)] max-md:bg-[linear-gradient(90deg,rgba(8,9,11,.9)_0%,rgba(8,9,11,.75)_40%,rgba(8,9,11,.5)_72%,rgba(8,9,11,.18)_100%)]"
         />
         <div
           aria-hidden="true"
@@ -27,41 +25,26 @@ export default function ParticleEditorialHero() {
         />
 
         <div className="pointer-events-none relative z-10 mx-auto flex min-h-[clamp(20rem,46svh,25rem)] max-w-6xl flex-col px-5 py-5 sm:px-8 md:min-h-[clamp(23rem,48svh,32rem)] md:py-6 lg:px-10">
-          <div className="flex items-center justify-between font-mono text-xs tracking-[0.08em] text-white/70">
-            <span>~/inwooleeme/home</span>
-            <span className="hidden sm:inline">Canvas study · 2026</span>
-          </div>
-
-          <div className="pointer-events-auto my-auto max-w-3xl pb-12 pt-8 md:max-w-[68%] md:pb-10">
-            <p className="mb-3 font-mono text-xs uppercase tracking-[0.12em] text-cyan-200/85">
-              Personal developer log
-            </p>
-            <h1 className="font-display text-[clamp(1.75rem,5.5vw,4rem)] font-semibold leading-[1.1] tracking-[-0.05em] [overflow-wrap:anywhere] text-white">
-              {siteConfig.name}
+          <div className="pointer-events-auto my-auto max-w-xl py-10 md:max-w-[62%] md:py-12">
+            <h1 className="font-display text-[clamp(2rem,4.6vw,3.75rem)] font-semibold leading-[1.22] tracking-[-0.045em] text-white [word-break:keep-all]">
+              <Tr id="landing.heroLead" />
+              <br />
+              <Tr id="landing.heroEnd" />
             </h1>
-            <p className="mt-4 max-w-lg text-base leading-relaxed text-white/80 sm:text-lg">
-              <Tr id="about.heroTitle" />
+            <p className="mt-6 max-w-sm text-sm leading-7 text-white/80 sm:text-base">
+              <Tr id="landing.heroDescription" />
             </p>
 
             <div className="pointer-events-auto mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <Link href="/blog" className="group/link inline-flex min-h-11 items-center gap-2 rounded-lg bg-cyan-300 px-4 text-sm font-semibold text-slate-950 transition-colors hover:bg-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-4 focus-visible:ring-offset-[#08090b]">
+              <Link href="/blog" className="group/link inline-flex min-h-11 items-center gap-2 rounded-sm bg-cyan-300 px-4 text-sm font-semibold text-slate-950 transition-colors hover:bg-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-4 focus-visible:ring-offset-[#08090b]">
                 <Tr id="landing.blogCta" />
-                <ArrowUpRight className="h-4 w-4 transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5 motion-reduce:transform-none motion-reduce:transition-none" aria-hidden />
               </Link>
               <Link href="/notes" className={textLinkClass}>
                 <Tr id="landing.notesCta" />
-                <ArrowUpRight className="h-4 w-4 transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5 motion-reduce:transform-none motion-reduce:transition-none" aria-hidden />
               </Link>
             </div>
           </div>
 
-          <a
-            href="#recent-posts"
-            className="pointer-events-auto absolute bottom-5 right-4 inline-flex min-h-11 items-center gap-2 font-mono text-xs tracking-[0.08em] text-white/75 transition hover:text-cyan-200 focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 sm:right-6 lg:right-8"
-          >
-            <Tr id="landing.scrollCue" />
-            <ArrowDown className="h-3.5 w-3.5" aria-hidden />
-          </a>
         </div>
       </section>
     </div>

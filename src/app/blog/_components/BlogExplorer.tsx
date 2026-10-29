@@ -5,21 +5,24 @@ import Link from 'next/link';
 import type { PostItem, PostKind } from '@/lib/posts';
 import { useT } from '../../components/LocaleProvider';
 import { formatPostDate } from '@/lib/post-display';
-import { filterPosts } from './filter-posts';
+import { filterPosts, getKindTags, getListSummary } from './filter-posts';
+import { useBlogLocation } from './use-blog-location';
 
 const focus = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background';
 
-export default function BlogExplorer({ posts, tags }: { posts: PostItem[]; tags: { tag: string; count: number }[] }) {
+export default function BlogExplorer({ posts }: { posts: PostItem[] }) {
   const t = useT();
-  const [query, setQuery] = useState('');
-  const [tag, setTag] = useState<string | null>(null);
-  const [kind, setKind] = useState<PostKind | 'all'>('all');
+  const { query, tag, kind, update } = useBlogLocation();
   const [expanded, setExpanded] = useState(false);
-  const sortedTags = useMemo(() => [...tags].sort((a,b) => b.count-a.count || a.tag.localeCompare(b.tag)), [tags]);
+  const sortedTags = useMemo(() => getKindTags(posts, kind), [posts, kind]);
   const visibleTags = expanded ? sortedTags : sortedTags.filter((item,index) => index < 5 || item.tag === tag);
   const results = useMemo(() => filterPosts(posts, query, tag, kind), [posts,query,tag,kind]);
   const active = Boolean(query || tag || kind !== 'all');
-  const reset = () => { setQuery(''); setTag(null); setKind('all'); };
+  const reset = () => update({q: '', tag: null, kind: 'all'});
+  const changeKind = (next: PostKind | 'all') => {
+    const available = getKindTags(posts, next);
+    update({kind: next, tag: available.some(item => item.tag === tag) ? tag : null});
+  };
   const buttonClass = (selected: boolean) => `min-h-11 rounded-sm px-3 text-sm ${focus} ${selected ? 'bg-muted font-semibold text-foreground underline decoration-accent-brand decoration-2 underline-offset-8' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}`;
 
   return (
@@ -34,19 +37,19 @@ export default function BlogExplorer({ posts, tags }: { posts: PostItem[]; tags:
       <section aria-label={t('blog.filters')} className="space-y-5 py-6">
         <div>
           <label htmlFor="blog-search" className="mb-2 block text-sm font-medium">{t('blog.searchLabel')}</label>
-          <input id="blog-search" type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder={t('blog.searchPlaceholder')} aria-controls="blog-results" className={`min-h-12 w-full rounded-sm border border-border bg-background px-4 text-base placeholder:text-muted-foreground ${focus}`} />
+          <input id="blog-search" type="search" value={query} onChange={e => update({q: e.target.value})} placeholder={t('blog.searchPlaceholder')} aria-controls="blog-results" className={`min-h-12 w-full rounded-sm border border-border bg-background px-4 text-base placeholder:text-muted-foreground ${focus}`} />
         </div>
         <fieldset>
           <legend className="sr-only">{t('blog.kind')}</legend>
           <div className="flex flex-wrap gap-1">
-            {(['all','article','solve-log'] as const).map(value => <button key={value} type="button" aria-pressed={kind === value} onClick={() => setKind(value)} className={buttonClass(kind === value)}>{t(value === 'all' ? 'sidebar.all' : value === 'article' ? 'blog.articles' : 'blog.solveLogs')}</button>)}
+            {(['all','article','solve-log'] as const).map(value => <button key={value} type="button" aria-pressed={kind === value} onClick={() => changeKind(value)} className={buttonClass(kind === value)}>{t(value === 'all' ? 'sidebar.all' : value === 'article' ? 'blog.articles' : 'blog.solveLogs')}</button>)}
           </div>
         </fieldset>
         <fieldset>
           <legend className="mb-1 text-sm font-medium">{t('blog.tags')}</legend>
           <div className="flex flex-wrap gap-1">
-            <button type="button" aria-pressed={!tag} onClick={() => setTag(null)} className={buttonClass(!tag)}>{t('sidebar.all')}</button>
-            {visibleTags.map(item => <button type="button" key={item.tag} aria-pressed={tag === item.tag} onClick={() => setTag(tag === item.tag ? null : item.tag)} className={buttonClass(tag === item.tag)}>{item.tag} <span className="ml-1 tabular-nums text-muted-foreground">{item.count}</span></button>)}
+            <button type="button" aria-pressed={!tag} onClick={() => update({tag: null})} className={buttonClass(!tag)}>{t('sidebar.all')}</button>
+            {visibleTags.map(item => <button type="button" key={item.tag} aria-pressed={tag === item.tag} onClick={() => update({tag: tag === item.tag ? null : item.tag})} className={buttonClass(tag === item.tag)}>{item.tag} <span className="ml-1 tabular-nums text-muted-foreground">{item.count}</span></button>)}
             {sortedTags.length > 5 && <button type="button" aria-expanded={expanded} onClick={() => setExpanded(!expanded)} className={`min-h-11 px-3 text-sm underline underline-offset-4 ${focus}`}>{t(expanded ? 'blog.tagsLess' : 'blog.tagsAll')}</button>}
           </div>
         </fieldset>
@@ -60,7 +63,7 @@ export default function BlogExplorer({ posts, tags }: { posts: PostItem[]; tags:
           {results.map(({slug,meta}) => <li key={slug}>
             <article className="py-6 sm:py-7">
               <h2 className="text-xl font-semibold leading-snug tracking-tight sm:text-2xl"><Link href={`/blog/${slug}`} className={`rounded-sm underline-offset-4 hover:underline ${focus}`}>{meta.title}</Link></h2>
-              {meta.summary && <p className="mt-3 line-clamp-2 text-sm leading-7 text-foreground/75 sm:text-base">{meta.summary}</p>}
+              {getListSummary(meta.title, meta.summary) && <p className="mt-3 line-clamp-2 text-sm leading-7 text-foreground/75 sm:text-base">{meta.summary}</p>}
               <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
                 <time dateTime={meta.date}>{formatPostDate(meta.date)}</time>
                 {meta.readingTime && <span>{t('post.readingTime',{n:meta.readingTime})}</span>}

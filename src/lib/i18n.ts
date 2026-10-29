@@ -27,6 +27,9 @@ const ko = {
   "detail.newer": "다음 날짜의 글",
   "detail.seriesContinue": "시리즈 이어 읽기",
 
+  "blog.showMore": "글 더 보기",
+  "blog.visibleCount": "전체 {total}개 중 {shown}개 표시",
+  "blog.filterTag": "{tag} 태그로 글 필터링",
   "blog.explore": "다른 방식으로 둘러보기",
   "blog.filters": "글 검색과 필터",
   "blog.searchLabel": "글 검색",
@@ -173,6 +176,9 @@ const en: Record<MessageId, string> = {
   "detail.newer": "Newer post",
   "detail.seriesContinue": "Continue this series",
 
+  "blog.showMore": "Show more posts",
+  "blog.visibleCount": "Showing {shown} of {total} posts",
+  "blog.filterTag": "Filter posts by {tag}",
   "blog.explore": "Explore posts",
   "blog.filters": "Search and filter posts",
   "blog.searchLabel": "Search posts",

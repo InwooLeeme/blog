@@ -15,7 +15,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ArrowUpRight, Menu, Network } from "lucide-react";
+import { ArrowUpRight, Menu } from "lucide-react";
 import ReadingProgressBar from "./ReadingProgressBar";
 import { SearchProvider, SearchTrigger } from "./SearchDialog";
 import { cn } from "@/lib/utils";
@@ -151,23 +151,6 @@ function MobileNav({ pathname }: { pathname: string }) {
             <h3 className="px-3 text-xs font-medium text-muted-foreground">
               {t("header.explore")}
             </h3>
-            <SheetClose asChild>
-              <Link
-                href="/graph"
-                aria-current={
-                  isActivePath(pathname, "/graph") ? "page" : undefined
-                }
-                className={cn(
-                  "mt-2 flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm transition-colors hover:bg-muted/70 outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  isActivePath(pathname, "/graph")
-                    ? "bg-accent-brand/10 font-semibold text-accent-brand"
-                    : "text-foreground",
-                )}
-              >
-                <Network className="size-4" aria-hidden />
-                {t("nav.graph")}
-              </Link>
-            </SheetClose>
             <a
               href={siteConfig.githubUrl}
               target="_blank"

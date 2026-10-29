@@ -81,3 +81,24 @@ test("createFrameLoop: destroy cancels work and permanently prevents restart", (
   assert.deepEqual(scheduler.cancelled, [1]);
   assert.equal(scheduler.callbacks.size, 0);
 });
+
+test("frame limit skips work between intervals and resets time on resume", () => {
+  const scheduler = createScheduler();
+  const times: number[] = [];
+  const loop = createFrameLoop({requestFrame:scheduler.requestFrame,cancelFrame:scheduler.cancelFrame,onFrame:t=>times.push(t), intervalMs: 1000/30});
+  loop.start();
+  for (const t of [0,16,34,50,68]) scheduler.run([...scheduler.callbacks.keys()][0],t);
+  assert.deepEqual(times,[0,34,68]);
+  loop.stop();loop.start();scheduler.run([...scheduler.callbacks.keys()][0],70);
+  assert.deepEqual(times,[0,34,68,70]);
+  loop.destroy();assert.equal(scheduler.callbacks.size,0);
+});
+
+test("frame limit carries timing jitter forward instead of lowering the target rate", () => {
+  const scheduler=createScheduler(); let frames=0;
+  const loop=createFrameLoop({requestFrame:scheduler.requestFrame,cancelFrame:scheduler.cancelFrame,onFrame:()=>frames++,intervalMs:1000/30});
+  loop.start();
+  for(let t=0;t<2000;t+=17) scheduler.run([...scheduler.callbacks.keys()][0],t);
+  assert.ok(frames>=59 && frames<=61, `expected about 60 frames in two seconds, got ${frames}`);
+  loop.destroy();
+});

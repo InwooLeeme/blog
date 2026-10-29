@@ -1,3 +1,5 @@
+import GraphPreview from "./graph/_components/GraphPreview";
+import { buildGraphData } from "@/lib/graph";
 import { getAllPosts } from "@/lib/posts";
 import JsonLd from "./components/JsonLd";
 import { buildWebSiteJsonLd, buildPersonJsonLd } from "@/lib/jsonLd";
@@ -17,6 +19,7 @@ export default function Home() {
       <JsonLd data={[buildWebSiteJsonLd(), buildPersonJsonLd()]} />
       <ParticleEditorialHero />
       <EditorialRecentPosts posts={posts} />
+      <GraphPreview data={buildGraphData()} />
     </>
   );
 }

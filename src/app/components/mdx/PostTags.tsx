@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Tag } from "lucide-react";
+import Tr from "../Tr";
 
 interface IPostTagsProps {
     tags?: string[];
@@ -9,15 +9,14 @@ export default function PostTags({ tags }: IPostTagsProps) {
     if (!tags || tags.length === 0) return null;
 
     return (
-        <div className="mt-10 mb-6 flex flex-wrap items-center gap-2">
-            <span className="font-bold text-base mr-1">Tags:</span>
+        <div className="flex flex-wrap items-center gap-2">
+            <span className="font-bold text-base mr-1"><Tr id="blog.tags" /></span>
             {tags.map((tag, index) => (
                 <Link
                     key={index}
                     href={`/blog/tags/${encodeURIComponent(tag)}`}
-                    className="group inline-flex items-center gap-1.5 rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-bold text-white border border-zinc-700 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:border-accent-brand hover:bg-accent-brand hover:text-zinc-900 hover:shadow-md hover:shadow-accent-brand/30"
+                    className="inline-flex min-h-11 items-center px-2 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-ring"
                 >
-                    <Tag className="h-3.5 w-3.5 transition-transform duration-200 group-hover:rotate-12" />
                     {tag}
                 </Link>
             ))}

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { SeriesNav } from "@/lib/posts";
 import { useT } from "./LocaleProvider";
@@ -34,39 +33,17 @@ function EpisodeRow({
   const isCurrent = state === "current";
 
   return (
-    <li className={cn("relative flex gap-3", !isLast && "pb-4")}>
-      {/* 레일: 점 + 다음 노드로 이어지는 연결선 */}
-      <div className="relative w-5 shrink-0">
-        {!isLast && (
-          <span
-            aria-hidden
-            className={cn(
-              "absolute left-1/2 top-3 bottom-0 w-px -translate-x-1/2",
-              state === "read" ? "bg-accent-brand" : "bg-border",
-            )}
-          />
-        )}
-        <span
-          aria-hidden
-          className={cn(
-            "absolute left-1/2 top-1 -translate-x-1/2 rounded-full",
-            isCurrent && "h-3 w-3 bg-accent-brand ring-4 ring-accent-brand/20",
-            state === "read" && "h-2 w-2 bg-accent-brand",
-            state === "upcoming" && "h-2 w-2 border-2 border-muted-foreground/30 bg-card",
-          )}
-        />
-      </div>
-
+    <li className={cn("flex", !isLast && "pb-1")}>
       <Link
         href={`/blog/${episode.slug}`}
         aria-current={isCurrent ? "page" : undefined}
         className={cn(
-          "flex min-w-0 flex-1 items-baseline gap-2 rounded-md px-2 py-0.5 text-sm transition",
+          "flex min-w-0 flex-1 items-baseline gap-2 rounded-md min-h-11 px-2 py-2 text-sm transition focus-visible:outline-2 focus-visible:outline-ring",
           isCurrent
             ? "bg-accent-brand/10 font-semibold text-accent-brand"
             : state === "read"
               ? "text-foreground/80 hover:bg-muted hover:text-foreground"
-              : "text-foreground/55 hover:bg-muted hover:text-foreground",
+              : "text-foreground/80 hover:bg-muted hover:text-foreground",
         )}
       >
         <span className="tabular-nums opacity-60">{index + 1}.</span>
@@ -109,7 +86,7 @@ function AdjacentLink({
     <Link
       href={`/blog/${post.slug}`}
       className={cn(
-        "flex-1 rounded-lg border p-3 text-sm transition hover:bg-muted",
+        "min-w-0 flex-1 border-t py-3 text-sm transition hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring",
         isPrev
           ? "hover:border-accent-brand/50"
           : "border-accent-brand/30 bg-accent-brand/5 text-right hover:border-accent-brand",
@@ -121,9 +98,7 @@ function AdjacentLink({
           isPrev ? "text-muted-foreground" : "justify-end text-accent-brand",
         )}
       >
-        {isPrev && <ChevronLeft className="h-3.5 w-3.5" />}
         {isPrev ? t("seriesNav.prev") : t("seriesNav.next")}
-        {!isPrev && <ChevronRight className="h-3.5 w-3.5" />}
       </span>
       <span
         className={cn(
@@ -156,18 +131,11 @@ export default function SeriesNavigation({ nav }: { nav: SeriesNav }) {
   return (
     <section
       aria-label={t("seriesNav.aria")}
-      className="relative mt-12 overflow-hidden rounded-xl border bg-card p-5"
+      className="mt-8 border-t pt-6"
     >
-      {/* 좌측 브랜드 그라데이션 레일 */}
-      <div
-        aria-hidden
-        className="absolute inset-y-0 left-0 w-1.5"
-        style={{ background: "var(--accent-gradient)" }}
-      />
-
       <div className="flex items-baseline justify-between gap-3">
         <span className="text-xs font-semibold tracking-wider text-accent-brand">
-          {t("series.label")}
+          {t("detail.seriesContinue")}
         </span>
         <span className="text-xs tabular-nums text-muted-foreground">
           {t("seriesNav.position", { a: position, b: total })}
@@ -179,7 +147,7 @@ export default function SeriesNavigation({ nav }: { nav: SeriesNav }) {
 
       <ol className="mt-4 border-t pt-4">
         {visibleEpisodes.map((ep, localI) => {
-          const i = windowStart + localI;
+          const i = expanded ? localI : windowStart + localI;
           return (
             <EpisodeRow
               key={ep.slug}
@@ -196,13 +164,13 @@ export default function SeriesNavigation({ nav }: { nav: SeriesNav }) {
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className="mt-1 text-xs font-medium text-muted-foreground transition hover:text-accent-brand"
+          className="mt-1 min-h-11 text-sm focus-visible:outline-2 focus-visible:outline-ring font-medium text-muted-foreground transition hover:text-accent-brand"
         >
           {t("seriesNav.viewAll", { n: episodes.length })}
         </button>
       )}
 
-      <div className="mt-5 flex items-stretch gap-3 border-t pt-4">
+      <div className="mt-5 flex flex-col sm:flex-row items-stretch gap-3 border-t pt-4">
         <AdjacentLink post={prev} direction="prev" />
         <AdjacentLink post={next} direction="next" />
       </div>

@@ -1,22 +1,48 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import type { PostItem, PostKind } from '@/lib/posts';
 import { useT } from '../../components/LocaleProvider';
 import { formatPostDate } from '@/lib/post-display';
-import { filterPosts, getKindTags, getListSummary } from './filter-posts';
+import { filterPosts, getKindTags, getListSummary, getVisiblePostCount, POST_PAGE_SIZE } from './filter-posts';
 import { useBlogLocation } from './use-blog-location';
 
 const focus = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background';
 
 export default function BlogExplorer({ posts }: { posts: PostItem[] }) {
   const t = useT();
-  const { query, tag, kind, update } = useBlogLocation();
+  const { query, tag, kind, shown, update } = useBlogLocation();
   const [expanded, setExpanded] = useState(false);
   const sortedTags = useMemo(() => getKindTags(posts, kind), [posts, kind]);
   const visibleTags = expanded ? sortedTags : sortedTags.filter((item,index) => index < 5 || item.tag === tag);
   const results = useMemo(() => filterPosts(posts, query, tag, kind), [posts,query,tag,kind]);
+  const visibleCount = getVisiblePostCount(shown, results.length);
+  const list = useRef<HTMLOListElement>(null);
+  const resultStatus = useRef<HTMLParagraphElement>(null);
+  const pendingFocus = useRef<number | 'results' | null>(null);
+  useLayoutEffect(() => {
+    const target = pendingFocus.current;
+    pendingFocus.current = null;
+    if (target === null) return;
+    const element = target === 'results' ? resultStatus.current : list.current?.children[target]?.querySelector<HTMLAnchorElement>('h2 a');
+    element?.focus({preventScroll: true});
+    element?.scrollIntoView({block: 'start', behavior: 'instant'});
+  });
+  const showMore = () => {
+    pendingFocus.current = visibleCount;
+    update({shown: visibleCount + POST_PAGE_SIZE});
+  };
+  const selectPostTag = (value: string) => {
+    pendingFocus.current = 'results';
+    update({tag: value});
+    // Selecting the already-active tag still brings the result summary into view.
+    if (tag === value && !shown) {
+      pendingFocus.current = null;
+      resultStatus.current?.focus({preventScroll: true});
+      resultStatus.current?.scrollIntoView({block: 'start', behavior: 'instant'});
+    }
+  };
   const active = Boolean(query || tag || kind !== 'all');
   const reset = () => update({q: '', tag: null, kind: 'all'});
   const changeKind = (next: PostKind | 'all') => {
@@ -56,22 +82,26 @@ export default function BlogExplorer({ posts }: { posts: PostItem[] }) {
       </section>
       <section aria-label={t('blog.pageTitle')}>
         <div className="flex min-h-12 flex-wrap items-center justify-between gap-x-4 border-b pb-2 text-sm text-muted-foreground">
-          <p role="status" aria-live="polite" aria-atomic="true">{t('blog.resultCount',{n:results.length})}{tag ? ` · ${tag}` : ''} · {t('blog.latestFirst')}</p>
+          <p ref={resultStatus} tabIndex={-1} className="scroll-mt-28 focus-visible:outline-2 focus-visible:outline-ring" role="status" aria-live="polite" aria-atomic="true">{t('blog.resultCount',{n:results.length})}{tag ? ` · ${tag}` : ''} · {t('blog.latestFirst')}</p>
           {active && <button type="button" onClick={reset} className={`min-h-11 text-foreground underline underline-offset-4 ${focus}`}>{t('blog.reset')}</button>}
         </div>
-        <ol id="blog-results" className="divide-y border-b">
-          {results.map(({slug,meta}) => <li key={slug}>
+        <ol ref={list} id="blog-results" className="divide-y border-b">
+          {results.slice(0, visibleCount).map(({slug,meta}) => <li key={slug}>
             <article className="py-6 sm:py-7">
-              <h2 className="text-xl font-semibold leading-snug tracking-tight sm:text-2xl"><Link href={`/blog/${slug}`} className={`rounded-sm underline-offset-4 hover:underline ${focus}`}>{meta.title}</Link></h2>
+              <h2 className="text-xl font-semibold leading-snug tracking-tight sm:text-2xl"><Link href={`/blog/${slug}`} className={`scroll-mt-28 rounded-sm underline-offset-4 hover:underline ${focus}`}>{meta.title}</Link></h2>
               {getListSummary(meta.title, meta.summary) && <p className="mt-3 line-clamp-2 text-sm leading-7 text-foreground/75 sm:text-base">{meta.summary}</p>}
               <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
                 <time dateTime={meta.date}>{formatPostDate(meta.date)}</time>
                 {meta.readingTime && <span>{t('post.readingTime',{n:meta.readingTime})}</span>}
-                {meta.tags?.slice(0,3).map(item => <span key={item}>{item}</span>)}
+                {meta.tags?.slice(0,3).map(item => <button type="button" key={item} onClick={() => selectPostTag(item)} aria-label={t('blog.filterTag', {tag: item})} aria-controls="blog-results" className={`min-h-11 rounded-sm px-1 underline-offset-4 hover:text-foreground hover:underline focus-visible:underline ${focus}`}>{item}</button>)}
               </div>
             </article>
           </li>)}
         </ol>
+        {results.length > 0 && <div className="flex flex-col items-center gap-2 py-6">
+          <p role="status" aria-live="polite" aria-atomic="true" className="text-sm text-muted-foreground">{t('blog.visibleCount', {shown: visibleCount, total: results.length})}</p>
+          {visibleCount < results.length && <button type="button" onClick={showMore} aria-controls="blog-results" className={`min-h-11 rounded-sm px-5 text-sm underline underline-offset-4 ${focus}`}>{t('blog.showMore')}</button>}
+        </div>}
         {results.length === 0 && <div className="py-16 text-center"><p className="font-medium">{t('blog.noResults')}</p><p className="mt-2 text-sm text-muted-foreground">{t('blog.tryAgain')}</p></div>}
       </section>
     </div>

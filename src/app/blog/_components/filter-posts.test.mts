@@ -30,3 +30,12 @@ test('종류별 태그 개수는 해당 종류에서만 집계하고 기본 종�
   assert.deepEqual(getKindTags(posts, 'solve-log'), [{tag:'CS',count:1}]);
   assert.deepEqual(getKindTags(posts, 'all'), [{tag:'CS',count:3},{tag:'Network',count:2}]);
 });
+
+test('더 보기 개수는 15개 단위로 복원하고 잘못된 값은 기본값으로 처리한다', async () => {
+  const { getVisiblePostCount } = await import('./filter-posts.ts');
+  assert.equal(getVisiblePostCount(null, 45), 15);
+  assert.equal(getVisiblePostCount('30', 45), 30);
+  assert.equal(getVisiblePostCount('45', 32), 32);
+  for (const value of ['-15', '0', '16', 'Infinity', '30abc']) assert.equal(getVisiblePostCount(value, 45), 15);
+  assert.equal(getVisiblePostCount(null, 0), 0);
+});

@@ -41,6 +41,7 @@ export const navLinks: NavLink[] = [
 /** 푸터 */
 export const footerLinks: NavLink[] = [
   { href: "/blog", label: "블로그", messageId: "footer.blog" },
+  { href: "/graph", label: "지식 지도", messageId: "nav.graph" },
   { href: "/notes", label: "Notes", messageId: "nav.notes" },
   { href: "/about", label: "About", messageId: "nav.profile" },
 ];

@@ -35,3 +35,7 @@
     border-left-color: var(--accent-brand);
     font-weight: 600;
 }
+
+.js-toc .is-collapsed { display: none; }
+.js-toc a:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+.js-toc a { padding-block: 0.55rem; }

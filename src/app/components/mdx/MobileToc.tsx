@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { List } from "lucide-react";
 import {
@@ -23,6 +23,7 @@ type Heading = { id: string; text: string; level: number };
  */
 export default function MobileToc() {
   const t = useT();
+  const selectedHeading = useRef<string | null>(null);
   const pathname = usePathname();
   const [headings, setHeadings] = useState<Heading[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -31,7 +32,7 @@ export default function MobileToc() {
     return subscribeTocViewport(window.matchMedia(DESKTOP_TOC_QUERY), false, () => {
       const nodes = Array.from(
         document.querySelectorAll<HTMLElement>(
-          "#post-article h2, #post-article h3, #post-article h4",
+          "#post-body h2, #post-body h3, #post-body h4",
         ),
       ).filter((el) => el.id && !el.classList.contains("toc-ignore"));
       // 렌더된 MDX 본문의 실제 heading을 읽어야 해서 effect 안에서만 계산 가능
@@ -74,13 +75,26 @@ export default function MobileToc() {
         <button
           type="button"
           aria-label={t("toc.open")}
-          className="fixed bottom-20 right-6 z-40 inline-flex h-11 items-center gap-2 rounded-full border bg-card/95 px-4 text-sm font-medium text-foreground shadow-sm backdrop-blur transition-colors hover:border-accent-brand/40 hover:text-accent-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 xl:hidden"
+          className="fixed bottom-20 right-6 z-40 inline-flex h-11 items-center gap-2 rounded-sm border bg-card/95 px-4 text-sm font-medium text-foreground shadow-sm backdrop-blur transition-colors hover:border-accent-brand/40 hover:text-accent-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 xl:hidden"
         >
           <List className="h-5 w-5" />
           {t("toc.title")}
         </button>
       </SheetTrigger>
-      <SheetContent side="bottom" className="max-h-[70vh] gap-0 rounded-t-xl p-0">
+      <SheetContent closeLabel={t("detail.closeToc")} side="bottom" className="max-h-[70dvh] gap-0 p-0 pb-[env(safe-area-inset-bottom)] [&>button]:h-11 [&>button]:w-11 [&>button]:top-1"
+        onOpenAutoFocus={(event) => {
+          const current = document.querySelector<HTMLAnchorElement>('[role="dialog"] a[aria-current="location"]');
+          if (current) { event.preventDefault(); current.focus(); current.scrollIntoView({ block: 'nearest', behavior: 'instant' }); }
+        }}
+        onCloseAutoFocus={(event) => {
+          if (!selectedHeading.current) return;
+          event.preventDefault();
+          const heading = document.getElementById(selectedHeading.current);
+          heading?.setAttribute('tabindex', '-1');
+          heading?.focus({ preventScroll: true });
+          heading?.scrollIntoView({ block: 'start' });
+          selectedHeading.current = null;
+        }}>
         <SheetTitle className="border-b px-5 py-4 text-sm font-semibold">
           {t("toc.title")}
         </SheetTitle>
@@ -94,6 +108,7 @@ export default function MobileToc() {
                 <SheetClose asChild>
                   <a
                     href={`#${h.id}`}
+                    onClick={() => { selectedHeading.current = h.id; }}
                     aria-current={activeId === h.id ? "location" : undefined}
                     className={cn(
                       "flex min-h-11 items-center rounded-md border-l-2 px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",

@@ -1,64 +1,52 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { Check, Copy } from "lucide-react"
+import { useEffect, useId, useRef, useState, type HTMLAttributes } from 'react';
+import { useT } from '../LocaleProvider';
 
-type PreProps = React.HTMLAttributes<HTMLPreElement> & {
-  children?: React.ReactNode
-  "data-language"?: string
+type PreProps = HTMLAttributes<HTMLPreElement> & { 'data-language'?: string; collapsible?: boolean };
+
+export function ArticlePre(props: PreProps) {
+  return <PreWithCopy {...props} collapsible />;
 }
 
-export default function PreWithCopy({ className = "", children, ...props }: PreProps) {
-  const preRef = React.useRef<HTMLPreElement>(null)
-  const [copied, setCopied] = React.useState(false)
-  const language = props["data-language"]
+export default function PreWithCopy({ className = '', children, collapsible = false, ...props }: PreProps) {
+  const t = useT();
+  const codeId = useId();
+  const [expanded, setExpanded] = useState(false);
+  const [lineCount, setLineCount] = useState(0);
+  const foldable = lineCount > 20;
+  const preRef = useRef<HTMLPreElement>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [status, setStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+
+  useEffect(() => {
+    // Count the highlighted lines after MDX has rendered; copying still uses the full code DOM.
+    if (!collapsible) return;
+    const count = preRef.current?.querySelectorAll('code > [data-line]').length ?? 0;
+    setLineCount(count);
+  }, [children, collapsible]);
 
   async function onCopy() {
-    const text =
-      preRef.current?.querySelector("code")?.textContent ??
-      preRef.current?.textContent ??
-      ""
-    if (!text) return
-    await navigator.clipboard.writeText(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
+    if (timer.current) clearTimeout(timer.current);
+    try {
+      const text = preRef.current?.querySelector('code')?.textContent ?? preRef.current?.textContent ?? '';
+      await navigator.clipboard.writeText(text);
+      setStatus('copied');
+    } catch {
+      setStatus('failed');
+    }
+    timer.current = setTimeout(() => setStatus('idle'), 3000);
   }
 
-  return (
-    <div className="relative group">
-      {language ? (
-        <span
-          className="absolute right-20 top-2 z-10 select-none rounded-md border bg-background/80 dark:bg-zinc-900/70 px-2 py-0.5 text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground backdrop-blur supports-[backdrop-filter]:backdrop-blur"
-          aria-hidden
-        >
-          {language}
-        </span>
-      ) : null}
-
-      <Button
-        type="button"
-        onClick={onCopy}
-        variant="outline"
-        size="sm"
-        className="absolute right-2 top-2 h-8 gap-1 z-10
-                   opacity-0 group-hover:opacity-100 focus:opacity-100 active:opacity-100 transition
-                   bg-background/80 dark:bg-zinc-900/70 border shadow-sm
-                   backdrop-blur supports-[backdrop-filter]:backdrop-blur
-                   text-xs"
-        aria-label={copied ? "Copied" : "Copy code to clipboard"}
-      >
-        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-        <span>{copied ? "Copied" : "Copy"}</span>
-      </Button>
-
-      <pre
-        ref={preRef}
-        className={`rounded-lg border overflow-x-auto ${className}`}
-        {...props}
-      >
-        {children}
-      </pre>
+  return <div className="code-block my-6 min-w-0" data-folded={foldable && !expanded ? "true" : undefined}>
+    <div className="flex min-h-12 flex-wrap items-center justify-between gap-x-3 border border-b-0 px-3 text-sm">
+      <span className="font-mono text-muted-foreground">{props['data-language'] === 'plaintext' ? t('detail.code') : props['data-language'] ?? t('detail.code')}</span>
+      {foldable && <button type="button" aria-expanded={expanded} aria-controls={codeId} onClick={() => setExpanded(!expanded)} className="min-h-11 px-2 text-sm font-medium underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-ring">{t(expanded ? 'detail.collapseCode' : 'detail.expandCode', { n: lineCount })}</button>}
+      <button type="button" onClick={onCopy} className="min-h-11 px-2 text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">{status === 'copied' ? t('post.copied') : t('detail.copyCode')}</button>
+      <span role="status" aria-live="polite" className={status === 'failed' ? 'w-full pb-2 text-sm text-foreground' : 'sr-only'}>{status === 'copied' ? t('post.copied') : status === 'failed' ? t('detail.copyFailed') : ''}</span>
     </div>
-  )
+    {foldable && !expanded && <p className="code-preview-label border-x px-3 text-xs text-muted-foreground">{t('detail.codePreview', { n: lineCount })}</p>}
+    <pre {...props} id={codeId} ref={preRef} tabIndex={0} aria-label={t('detail.codeScroll')} className={`overflow-x-auto focus-visible:outline-2 focus-visible:outline-ring ${className}`}>{children}</pre>
+  </div>;
 }

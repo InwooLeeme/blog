@@ -8,6 +8,25 @@ export const DEFAULT_LOCALE: Locale = "ko";
 export const LOCALE_COOKIE = "locale";
 
 const ko = {
+  "detail.closeToc": "목차 닫기",
+  "detail.expandCode": "전체 {n}줄 펼치기",
+  "detail.collapseCode": "코드 접기",
+  "detail.codePreview": "전체 {n}줄 중 처음 12줄 · 복사는 전체 코드에 적용됩니다.",
+  "detail.tableHint": "좌우로 스크롤해 표 전체를 볼 수 있습니다.",
+  "detail.mathHint": "좌우로 스크롤해 수식 전체를 볼 수 있습니다.",
+  "detail.mathScroll": "수식, 좌우 방향키로 스크롤",
+  "detail.code": "코드",
+  "detail.copyCode": "코드 복사",
+  "detail.copyFailed": "복사하지 못했습니다. 코드를 선택해 직접 복사해 주세요.",
+  "detail.linkFailed": "복사하지 못했습니다. 주소창의 링크를 복사해 주세요.",
+  "detail.codeScroll": "코드 블록, 좌우 방향키로 스크롤",
+  "detail.tableScroll": "표, 좌우 방향키로 스크롤",
+  "detail.sectionLink": "이 절로 이동: {title}",
+  "detail.dateNavigation": "작성일순 글 이동",
+  "detail.older": "이전 날짜의 글",
+  "detail.newer": "다음 날짜의 글",
+  "detail.seriesContinue": "시리즈 이어 읽기",
+
   "blog.explore": "다른 방식으로 둘러보기",
   "blog.filters": "글 검색과 필터",
   "blog.searchLabel": "글 검색",
@@ -135,6 +154,25 @@ const ko = {
 export type MessageId = keyof typeof ko;
 
 const en: Record<MessageId, string> = {
+  "detail.closeToc": "Close table of contents",
+  "detail.expandCode": "Show all {n} lines",
+  "detail.collapseCode": "Collapse code",
+  "detail.codePreview": "First 12 of {n} lines. Copy includes the entire code.",
+  "detail.tableHint": "Scroll horizontally to view the full table.",
+  "detail.mathHint": "Scroll horizontally to view the full equation.",
+  "detail.mathScroll": "Equation, use left and right arrow keys to scroll",
+  "detail.code": "Code",
+  "detail.copyCode": "Copy code",
+  "detail.copyFailed": "Could not copy. Select and copy the code manually.",
+  "detail.linkFailed": "Could not copy. Copy the URL from the address bar.",
+  "detail.codeScroll": "Code block, use left and right arrow keys to scroll",
+  "detail.tableScroll": "Table, use left and right arrow keys to scroll",
+  "detail.sectionLink": "Go to section: {title}",
+  "detail.dateNavigation": "Posts by date",
+  "detail.older": "Older post",
+  "detail.newer": "Newer post",
+  "detail.seriesContinue": "Continue this series",
+
   "blog.explore": "Explore posts",
   "blog.filters": "Search and filter posts",
   "blog.searchLabel": "Search posts",

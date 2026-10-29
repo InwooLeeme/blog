@@ -173,3 +173,31 @@
         @apply opacity-100;
     }
 }
+
+/* Preserve mathematical layout while containing wide display equations. */
+#post-body .math-block { display: block; margin-block: 1em; min-width: 0; }
+#post-body .math-scroll-hint { display: block; margin-bottom: .5rem; }
+#post-body .katex-display { max-width: 100%; overflow-x: auto; overflow-y: hidden; margin: 0; padding-block: .25rem; }
+#post-body .katex-display > .katex { width: max-content; min-width: 100%; }
+#post-body .katex-display:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* Article reading layout; keep notebook typography unchanged. */
+#post-body { font-size: 1rem; line-height: 1.8; max-width: none; }
+@media (min-width: 768px) { #post-body { font-size: 1.125rem; } }
+#post-body p { margin-block: 1.2em; }
+#post-body > p:first-of-type { font-size: 1em; }
+#post-body :is(h2,h3,h4) { line-height: 1.45; word-break: keep-all; overflow-wrap: anywhere; }
+#post-body h2 { margin-top: 3em; margin-bottom: 0.9em; padding-bottom: 0; border: 0; font-size: 1.5em; font-weight: 700; }
+#post-body h3 { margin-top: 2em; margin-bottom: 0.6em; font-size: 1.2em; font-weight: 600; }
+#post-body h4 { margin-top: 1.6em; margin-bottom: 0.5em; font-size: 1.05em; font-weight: 600; }
+#post-body :is(h2,h3,h4) + p { margin-top: 0; }
+#post-body table { margin-block: 0; min-width: 0; width: 100%; }
+#post-body table:has(tr > :nth-child(4)) { min-width: 40rem; }
+#post-body :is(th,td) { overflow-wrap: anywhere; padding: 0.75rem; }
+#post-body .table-scroll-hint { margin: 0 0 0.5rem; }
+#post-body .code-preview-label { margin: 0; padding-block: 0.35rem; }
+.code-block[data-folded="true"] code > [data-line]:nth-child(n+13) { display: none; }
+#post-body a:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+#post-body :is(h2,h3,h4) a:focus-visible::before { opacity: 1; }
+#post-body .code-block pre { margin: 0; border-radius: 0; }
+#post-body [data-rehype-pretty-code-title]::before { display: none; }

@@ -1,6 +1,6 @@
 import type { PostMeta } from "@/lib/posts";
 import { getCardCoverSrc } from "@/lib/post-display";
-import { Link } from "next-view-transitions";
+import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { contentCardClass, contentCardInteractionClass } from "@/lib/ui-styles";

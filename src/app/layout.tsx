@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Space_Grotesk } from "next/font/google";
-import { ViewTransitions } from "next-view-transitions";
 import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -67,7 +66,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ViewTransitions>
       <html
         lang="ko"
         suppressHydrationWarning
@@ -102,6 +100,5 @@ export default function RootLayout({
           </ThemeProvider>
         </body>
       </html>
-    </ViewTransitions>
   );
 }

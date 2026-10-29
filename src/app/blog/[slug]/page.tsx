@@ -1,3 +1,8 @@
+import ArticleLink from "../../components/mdx/ArticleLink";
+import ArticleSpan from "../../components/mdx/ArticleSpan";
+import Link from "next/link";
+import Tr from "../../components/Tr";
+import ScrollableTable from "../../components/mdx/ScrollableTable";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
@@ -10,7 +15,7 @@ import {
   getRelatedPosts,
   getSeriesNavigation,
 } from "@/lib/posts";
-import PreWithCopy from "../../components/mdx/pre-with-copy";
+import { ArticlePre as PreWithCopy } from "../../components/mdx/pre-with-copy";
 import { Callout } from "@/app/components/mdx/Callout/index";
 import MdxImage from "@/app/components/mdx/MdxImage";
 import PostHeader from "@/app/components/mdx/PostHeader";
@@ -72,7 +77,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 const components = {
+  span: ArticleSpan,
   pre: PreWithCopy,
+  table: ScrollableTable,
+  a: ArticleLink,
   Callout,
   img: MdxImage,
   Image: MdxImage,
@@ -106,7 +114,8 @@ export default async function PostPage({ params }: PageProps) {
         ]}
       />
       <div className="xl:flex xl:gap-8 xl:items-stretch">
-        <article id="post-article" className="mx-auto w-full min-w-0 max-w-[65ch] lg:text-xl xl:flex-1">
+        <article id="post-article" className="mx-auto w-full min-w-0 max-w-[46rem] xl:flex-1">
+          <Link href="/blog" className="mt-6 inline-flex min-h-11 items-center text-sm underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-ring"><Tr id="blog.pageTitle" /></Link>
           <PostHeader
             title={meta.title}
             date={meta.date}
@@ -136,24 +145,26 @@ export default async function PostPage({ params }: PageProps) {
             </div>
           ) : null}
           {/* MDX 본문 */}
-          <div id="post-body" className="prose prose-zinc dark:prose-invert prose-main lg:prose-xl">
+          <div id="post-body" className="prose prose-zinc dark:prose-invert prose-main">
             <MDXRemote
               source={displayContent}
               options={{ mdxOptions }}
               components={components}
             />
           </div>
+          <footer className="mt-10 border-t pt-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <PostTags tags={meta.tags} />
+              <CopyLinkButton />
+            </div>
+            {seriesNav ? <SeriesNavigation nav={seriesNav} /> : <PostNavigation prev={prev} next={next} />}
+            <RelatedPosts posts={related} />
+            <Link href="/blog" className="my-8 inline-flex min-h-11 items-center text-sm underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-ring"><Tr id="blog.pageTitle" /></Link>
+          </footer>
+          <Comments />
         </article>
         <TocbotSidebar />
       </div>
-      <PostTags tags={meta.tags} />
-      <div className="mb-6 flex justify-end">
-        <CopyLinkButton />
-      </div>
-      {seriesNav ? <SeriesNavigation nav={seriesNav} /> : null}
-      <PostNavigation prev={prev} next={next} />
-      <RelatedPosts posts={related} />
-      <Comments />
       <MobileToc />
     </div>
   );

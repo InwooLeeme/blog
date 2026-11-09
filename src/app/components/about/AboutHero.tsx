@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { FileText } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 import IconGithub from "../icon/IconGithub";
 import ShootingStars from "../ShootingStars";
@@ -49,6 +50,13 @@ export default function AboutHero() {
           className="inline-flex h-9 items-center rounded-md border px-3 text-sm text-muted-foreground transition hover:border-accent-brand hover:text-accent-brand"
         >
           solved.ac
+        </a>
+        <a
+          href="#resume"
+          className="inline-flex h-9 items-center gap-1.5 rounded-md border px-3 text-sm text-muted-foreground transition hover:border-accent-brand hover:text-accent-brand"
+        >
+          <FileText className="h-4 w-4" aria-hidden />
+          {t("about.resume")}
         </a>
       </div>
     </header>

@@ -13,6 +13,7 @@ import TocSpy from "./TocSpy";
 import { SectionHeading } from "./SectionHeading";
 import { ChatbotLauncher } from "../ChatbotLauncher";
 import WorkingStyleSection from "./WorkingStyleSection";
+import ResumeSection from "./ResumeSection";
 import { useT } from "../LocaleProvider";
 import { useAboutData } from "./useAboutData";
 
@@ -50,6 +51,7 @@ export default function AboutPageContent() {
     { id: "projects", label: t("about.projects") },
     { id: "working-style", label: t("about.workingStyle") },
     { id: "certifications", label: t("about.certifications") },
+    { id: "resume", label: t("about.resume") },
   ];
 
   return (
@@ -179,6 +181,11 @@ export default function AboutPageContent() {
             link: c.link,
           }))}
         />
+
+        {/* 9. 이력서 PDF */}
+        <Reveal>
+          <ResumeSection />
+        </Reveal>
       </div>
 
       <ChatbotLauncher host="https://portfolio-chatbot-six-theta.vercel.app" />

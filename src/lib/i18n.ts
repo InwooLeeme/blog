@@ -152,6 +152,12 @@ const ko = {
   "about.avatarAlt": "{author} 아바타",
   "about.projectPreviewAlt": "{name} 미리보기",
   "about.tocSpyAria": "현재 위치 목차",
+  "about.resume": "이력서",
+  "about.resumeOpen": "새 탭에서 열기",
+  "about.resumeDownload": "PDF 다운로드",
+  "about.resumePreview": "이력서 PDF 미리보기",
+  "about.resumeUpdated": "최종 수정 {date}",
+  "about.resumeMobileHint": "모바일에서는 미리보기 대신 위 버튼으로 이력서를 열거나 내려받을 수 있습니다.",
 } as const;
 
 export type MessageId = keyof typeof ko;
@@ -301,6 +307,12 @@ const en: Record<MessageId, string> = {
   "about.avatarAlt": "{author} avatar",
   "about.projectPreviewAlt": "{name} preview",
   "about.tocSpyAria": "Current section",
+  "about.resume": "Resume",
+  "about.resumeOpen": "Open in new tab",
+  "about.resumeDownload": "Download PDF",
+  "about.resumePreview": "Resume PDF preview",
+  "about.resumeUpdated": "Updated {date}",
+  "about.resumeMobileHint": "On mobile, use the buttons above to open or download the resume.",
 };
 
 export const messages: Record<Locale, Record<MessageId, string>> = { ko, en };
